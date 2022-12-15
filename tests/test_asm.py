@@ -53,8 +53,9 @@ class TestAssembler:
     def test_parse_int_decimal(self):
         assembler = asm.AC100ASM()
         token = "-65536"        # too negative for 16 bits
-        with pytest.raises(ValueError):
-            assembler.parse_int(token)
+        number = assembler.parse_int(token)
+        assert number is None, "Should have failed on too-negative value "\
+            f"'{token}'"
 
         token = "-1"            # OK
         number = assembler.parse_int(token)
@@ -67,5 +68,12 @@ class TestAssembler:
             f"{number}"
 
         token = "65537"         # too big for 16 bits
-        with pytest.raises(ValueError):
-            number = assembler.parse_int(token)
+        number = assembler.parse_int(token)
+        assert number is None, "Should have failed on too-large number "\
+            f"'{token}'"
+
+        token = "5.5"           # OK, but truncates
+        number = assembler.parse_int(token)
+        expected = 5
+        assert number is None, f"Should have gotten failed on "\
+            f"'{token}', but got {number}"

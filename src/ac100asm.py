@@ -66,12 +66,17 @@ class AC100ASM:
         elif token.startswith(defs.HEX_PREFIX):
             pass                # parse hex
         else:
-            number = int(token)
-            if token.startswith("-") and number < SIGNED_MIN:
-                raise ValueError(f"Value {number} too negative for 16 bits")
-            else:
-                if number > UNSIGNED_MAX:
-                    raise ValueError(f"Number {number} too large for 16 bits")
+            try:
+                number = int(token)
+                if token.startswith("-") and number < SIGNED_MIN:
+                    raise ValueError(f"Value {number} too negative for 16 bits")
+                else:
+                    if number > UNSIGNED_MAX:
+                        raise ValueError(f"Number {number} too large for 16 bits")
+            except ValueError:  # float or out of 16-bit range
+                logger.error("Could not parse 16-bit integer from from '%s'",
+                             token)
+                number = None
 
         return number
 
