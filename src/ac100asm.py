@@ -6,6 +6,8 @@ import typing
 import src.definitions as defs
 import src.exceptions as ac_exc
 
+parser = argparse.ArgumentParser()
+
 class LabelDict(typing.TypedDict):
     name: str                   # the label
     offset: int                 # address the label refers to
@@ -88,3 +90,26 @@ class AC100ASM:
         else:
             tokens = line.split(' ')
         return tokens
+
+
+def setup_parser(parser) -> None:
+    """ Set up ArgumentParser """
+    parser.add_argument("infile", help="The source file to assemble")
+    parser.add_argument("-l", "--loglevel", default="error",
+                        choices=["debug", "info", "warning", "error"],
+                        metavar="LEVEL", help="logging level")
+    parser.add_argument("-o", "--outfile", default="out.bin", metavar="FILE",
+                        help="name to use for output file (default: %(default)s)")
+
+
+def main():
+    assembler = AC100ASM()
+    setup_parser(parser)
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(1)
+    args = parser.parse_args()
+
+
+if __name__ == "__main__":
+    main()
