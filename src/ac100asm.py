@@ -174,8 +174,50 @@ class AC100ASM:
         return tokens
 
 
+    def _assemble_ldi(self, tokens) -> bytes:
+        """
+        Assemble an LDI instruction
 
-    def assemble(self, infile: typing.TextIO) -> bool:
+        Parameters:
+        tokens: the line to be assembled
+
+        Return:
+        Return the bytecode on success, or None on error
+        """
+        bytecode: bytes = b"\x00"
+        dest_reg: int = -1
+        try:
+            dest_reg = self.parse_register_name(tokens[1])
+        except (ac_exc.RegisterNameMissingPrefixError,
+                ac_exc.InvalidRegisterNameError) as e:
+            logger.error(e)
+            return None
+        except Exception as e:
+            logger.error("Unexpected error:", e)
+            return None
+        bytecode += dest_reg.to_bytes(1, byteorder='big')
+        try:
+            word: bytes = self.parse_int(tokens[2])
+        except ValueError as e:
+            logger.error(e)
+            return None
+        except Exception as e:
+            logger.error("Unexpected error:", e)
+            return None
+        bytecode += word
+        if len(bytecode) != 4:
+            logger.error(f"Bytecode should be 4 bytes, is {len(bytecode)}")
+            return None
+
+        return bytecode
+
+
+    def _assemble_halt(self):
+        bytecode: bytes = b"\xfe\xff\xfe\xff"
+        return bytecode
+
+
+    def assemble(self, infile: typing.TextIO, outfile: typing.BinaryIO) -> bool:
         """
         Assemble a binary from source code.
 
@@ -186,12 +228,19 @@ class AC100ASM:
         On success, return True.  On failure, return False
         """
         self.lineno = 0
+        bytecode: bytes = None
         for source_line in infile:
             self.lineno += 1
             tokens = self.tokenize_line(source_line)
             if tokens is None:  # empty line, go on to the next one
                 continue
             match tokens[0]:    # opcode
+                case "LDI":
+                    bytecode = self._assemble_ldi(tokens)
+                    outfile.write(bytecode)
+                case "HALT":
+                    bytecode = self._assemble_halt()
+                    outfile.write(bytecode)
                 case ";":       # comment; do nothing
                     continue
 

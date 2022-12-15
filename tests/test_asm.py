@@ -1,3 +1,4 @@
+import os
 import pathlib
 import pytest
 
@@ -171,23 +172,38 @@ class TestAssemble:
     def test_ignores_whitespace(self):
         source_file = pathlib.Path(test_srcd, "test01")
         outfile = "ignores_whitespace.bin"
-        f = open(source_file, "r")
-        ok = assembler.assemble(f)
-        assert assembler.lineno == 1, "Expected assembler to be on line 1"
-        assert ok, "Assembler did not successfully ignore whitespace"
+        with open(source_file, "r") as f, open(outfile, "wb") as f2:
+            ok = assembler.assemble(f, f2)
+            assert assembler.lineno == 1, "Expected assembler to be on line 1"
+            assert ok, "Assembler did not successfully ignore whitespace"
 
     def test_ignores_single_comment(self):
         source_file = pathlib.Path(test_srcd, "test02")
         outfile = "ignores_single_comments.bin"
-        f = open(source_file, "r")
-        ok = assembler.assemble(f)
-        assert assembler.lineno == 1, "Expected assembler to be on line 1"
-        assert ok, "Assembler did not successfully ignore a one-line comment"
+        with open(source_file, "r") as f, open(outfile, "wb") as f2:
+            ok = assembler.assemble(f, f2)
+            assert assembler.lineno == 1, "Expected assembler to be on line 1"
+            assert ok, "Assembler did not successfully ignore a one-line comment"
 
     def test_ignores_multiple_comments(self):
         source_file = pathlib.Path(test_srcd, "test03")
         outfile = "ignores_multiple_comments.bin"
-        f = open(source_file, "r")
-        ok = assembler.assemble(f)
-        assert assembler.lineno == 3, "Expected assembler to be on line 3"
-        assert ok, "Assembler did not ignore multiple comment lines"
+        with open(source_file, "r") as f, open(outfile, "wb") as f2:
+            ok = assembler.assemble(f, f2)
+            assert assembler.lineno == 3, "Expected assembler to be on line 3"
+            assert ok, "Assembler did not ignore multiple comment lines"
+
+    def test_ldi_halt(self):
+        source_file = pathlib.Path(test_srcd, "test04")
+        outfile = "assembles_ldi_halt.bin"
+        expected = b"\x00\x00\x00\x01" # byte 2 is 0, since we decrement regs
+        expected += b"\xfe\xff\xfe\xff"
+        expected_len = len(expected)
+        with open(source_file, "r") as f, open(outfile, "wb") as f2:
+            ok = assembler.assemble(f, f2)
+            assert assembler.lineno == 2, "Expected assembler to be on line 2"
+            assert ok, "Assembler did not assemble LDI and HALT"
+        with open(outfile, "rb") as f:
+            code = f.read()
+            assert len(code) == expected_len, "Binary is the wrong size!"
+            assert code == expected, "Binary is wrong!"
