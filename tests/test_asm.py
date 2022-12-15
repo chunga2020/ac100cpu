@@ -146,3 +146,24 @@ class TestAssembler:
         address = assembler.parse_address(token)
         assert address == expected, f"Expected {expected} for token "\
             f"'{token}', but got {address}"
+
+    def test_parse_address_invalid(self):
+        assembler = asm.AC100ASM()
+        # valid hex number, but missing prefix, so would be interpreted as
+        # decimal, which we’re disallowing
+        token = "1234"
+        with pytest.raises(ValueError):
+            address = assembler.parse_address(token)
+
+        token = "0x000000"      # valid hex number, but too big (24 bits)
+        with pytest.raises(ValueError):
+            address = assembler.parse_address(token)
+
+        token = "0xghij"        # right length, invalid hex
+        with pytest.raises(ValueError):
+            assembler.parse_address(token)
+
+        # addresses can’t be given in binary (why would you want to do this?!)
+        token = "0b10101010"
+        with pytest.raises(ValueError):
+            address = assembler.parse_address(token)
