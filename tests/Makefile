@@ -3,3 +3,4 @@ PYTEST=python -m pytest -vrA --no-header
 
 tests:
 	$(PYTEST) test_definitions.py
+	$(PYTEST) test_emu_init.py
