@@ -17,6 +17,10 @@ class LabelDict(typing.TypedDict):
 class AC100ASM:
     labels: LabelDict
 
+    def __init__(self):
+        self.labels = LabelDict()
+        self.lineno: int = 0    # line number of current source line
+
 
     def parse_register_name(self, token: str) -> int:
         """
