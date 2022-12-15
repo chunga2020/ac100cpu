@@ -146,6 +146,30 @@ class AC100ASM:
         return tokens
 
 
+
+    def assemble(self, infile: typing.TextIO) -> bool:
+        """
+        Assemble a binary from source code.
+
+        Parameters:
+        infile: the file object associated with the source code file
+
+        Return:
+        On success, return True.  On failure, return False
+        """
+        self.lineno = 0
+        for source_line in infile:
+            self.lineno += 1
+            tokens = self.tokenize_line(source_line)
+            if tokens is None:  # empty line, go on to the next one
+                continue
+            match tokens[0]:    # opcode
+                case ";":       # comment; do nothing
+                    continue
+
+        return True
+
+
 def setup_parser(parser) -> None:
     """ Set up ArgumentParser """
     parser.add_argument("infile", help="The source file to assemble")
@@ -176,6 +200,8 @@ def main():
         sys.exit(1)
     args = parser.parse_args()
     setup_logger(args.loglevel.upper())
+    with open(args.infile) as f:
+        assembler.assemble(f)
 
 
 if __name__ == "__main__":

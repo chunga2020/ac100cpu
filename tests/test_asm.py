@@ -1,3 +1,4 @@
+import pathlib
 import pytest
 
 import src.definitions as defs
@@ -5,6 +6,7 @@ import src.exceptions as ac_exc
 import src.ac100asm as asm
 
 assembler = asm.AC100ASM()
+test_srcd = pathlib.Path("asm_tests")
 
 class TestAssembler:
     def test_tokenize_line(self):
@@ -162,3 +164,14 @@ class TestParseAddress:
         token = "0b10101010"
         with pytest.raises(ValueError):
             address = assembler.parse_address(token)
+
+
+
+class TestAssemble:
+    def test_ignores_whitespace(self):
+        source_file = pathlib.Path(test_srcd, "test01")
+        outfile = "ignores_whitespace.bin"
+        f = open(source_file, "r")
+        ok = assembler.assemble(f)
+        assert assembler.lineno == 1, "Expected assembler to be on line 1"
+        assert ok, "Assembler did not successfully ignore whitespace"
