@@ -4,9 +4,10 @@ import src.definitions as defs
 import src.exceptions as ac_exc
 import src.ac100asm as asm
 
+assembler = asm.AC100ASM()
+
 class TestAssembler:
     def test_tokenize_line(self):
-        assembler = asm.AC100ASM()
         line = ""
         result = assembler.tokenize_line(line)
         assert result is None,\
@@ -27,31 +28,26 @@ class TestAssembler:
                             ("R12", 11), ("R13", 12), ("R14", 13), ("R15", 14),
                             ("R16", 15)])
     def test_parse_register_name_valid(self, name, expected):
-        assembler = asm.AC100ASM()
         parsed = assembler.parse_register_name(name)
         assert parsed == expected, f"Got value {parsed} while parsing {name}, "\
             f"but expected {expected}"
 
     def test_parse_register_name_no_prefix(self):
-        assembler = asm.AC100ASM()
         token = "1"             # valid number, but no prefix
         with pytest.raises(ac_exc.RegisterNameMissingPrefixError):
             assembler.parse_register_name(token)
 
     def test_parse_register_name_too_low(self):
-        assembler = asm.AC100ASM()
         token = "R0"
         with pytest.raises(ac_exc.InvalidRegisterNameError):
             assembler.parse_register_name(token)
 
     def test_parse_register_name_too_high(self):
-        assembler = asm.AC100ASM()
         token = "R20"
         with pytest.raises(ac_exc.InvalidRegisterNameError):
             assembler.parse_register_name(token)
 
     def test_parse_int_decimal(self):
-        assembler = asm.AC100ASM()
         token = "-65536"        # too negative for 16 bits
         number = assembler.parse_int(token)
         assert number is None, "Should have failed on too-negative value "\
@@ -84,7 +80,6 @@ class TestAssembler:
                              [("0x0", b"\x00"), ("0xf3", b"\xf3"),
                               ("0x0000", b"\x00\x00"), ("0xffff", b"\xff\xff")])
     def test_parse_int_hex_valid(self, token, expected):
-        assembler = asm.AC100ASM()
 
         number = assembler.parse_int(token)
         assert number == expected,\
@@ -92,7 +87,6 @@ class TestAssembler:
             f"{number}"
 
     def test_parse_int_hex_invalid(self):
-        assembler = asm.AC100ASM()
 
         token = "0xg"           # invalid hex digit
         with pytest.raises(ValueError):
@@ -117,13 +111,11 @@ class TestAssembler:
                               ("0b0000000000000000", b"\x00\x00"),
                               ("0b1111111111111111", b"\xff\xff")])
     def test_parse_int_binary_valid(self, token, expected):
-        assembler = asm.AC100ASM()
         number = assembler.parse_int(token)
         assert number == expected, f"Expected {expected} for token {token}, "\
             f"but got {number}"
 
     def test_parse_int_binary_invalid(self):
-        assembler = asm.AC100ASM()
         token = "0b"
         with pytest.raises(ValueError):
             number = assembler.parse_int(token)
@@ -142,13 +134,11 @@ class TestAssembler:
                              [("0x0000", b"\x00\x00"), ("0xffff", b"\xff\xff"),
                               ("0xbeef", b"\xbe\xef"), ("0xdead", b"\xde\xad")])
     def test_parse_address_valid(self, token, expected):
-        assembler = asm.AC100ASM()
         address = assembler.parse_address(token)
         assert address == expected, f"Expected {expected} for token "\
             f"'{token}', but got {address}"
 
     def test_parse_address_invalid(self):
-        assembler = asm.AC100ASM()
         # valid hex number, but missing prefix, so would be interpreted as
         # decimal, which we’re disallowing
         token = "1234"
