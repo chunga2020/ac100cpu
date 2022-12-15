@@ -175,3 +175,11 @@ class TestAssemble:
         ok = assembler.assemble(f)
         assert assembler.lineno == 1, "Expected assembler to be on line 1"
         assert ok, "Assembler did not successfully ignore whitespace"
+
+    def test_ignores_single_comment(self):
+        source_file = pathlib.Path(test_srcd, "test02")
+        outfile = "ignores_single_comments.bin"
+        f = open(source_file, "r")
+        ok = assembler.assemble(f)
+        assert assembler.lineno == 1, "Expected assembler to be on line 1"
+        assert ok, "Assembler did not successfully ignore a one-line comment"
