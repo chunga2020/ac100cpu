@@ -3,6 +3,7 @@ import sys
 import textwrap
 
 import src.definitions as defs
+import src.exceptions as ac_exc
 
 parser = argparse.ArgumentParser(
     epilog=textwrap.dedent("""
@@ -59,6 +60,28 @@ def check_video_dimensions(args) -> [int]:
     stack, raise a VRAMTooLargeError
     """
     dimensions: [int] = [defs.DEFAULT_VIDEO_ROWS, defs.DEFAULT_VIDEO_COLUMNS]
+    rows: int = int(args.rows)
+    columns: int = int(args.columns)
+    new_size: int = defs.DEFAULT_VIDEO_ROWS * defs.DEFAULT_VIDEO_COLUMNS
+    if columns != defs.DEFAULT_VIDEO_COLUMNS:
+        if columns < 0:
+            raise ac_exc.NegativeVideoDimensionError("column")
+
+        new_size = defs.DEFAULT_VIDEO_ROWS * columns
+        if defs.ADDRESS_SIZE - new_size < defs.STACK_MIN:
+            raise ac_exc.VRAMTooLargeError("column", columns)
+        dimensions[1] = columns
+
+    if rows != defs.DEFAULT_VIDEO_ROWS:
+        if rows < 0:
+            raise ac_exc.NegativeVideoDimensionError("row")
+
+        new_size = defs.DEFAULT_VIDEO_COLUMNS * rows
+        if defs.ADDRESS_SIZE - new_size < defs.STACK_MIN:
+            raise ac_exc.VRAMTooLargeError("row", rows)
+        dimensions[0] = rows
+
+    return dimensions
 
 
 def setup_parser(parser):
