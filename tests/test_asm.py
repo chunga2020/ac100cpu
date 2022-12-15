@@ -59,12 +59,14 @@ class TestAssembler:
 
         token = "-1"            # OK
         number = assembler.parse_int(token)
-        assert number == -1, f"Should have gotten -1 for '{token}', but got "\
+        expected = b"\xff\xff"
+        assert number == expected, f"Expected {expected} for '{token}', but got "\
             f"{number}"
 
         token = "23"            # OK
+        expected = b"\x00\x17"
         number = assembler.parse_int(token)
-        assert number == 23, f"Should have gotten 23 for '{token}', but got "\
+        assert number == expected, f"Expected {expected} for '{token}', but got "\
             f"{number}"
 
         token = "65537"         # too big for 16 bits

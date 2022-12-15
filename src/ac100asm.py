@@ -88,6 +88,8 @@ class AC100ASM:
                 logger.error("Could not parse 16-bit integer from from '%s'",
                              token)
                 number = None
+            if number is not None:
+                number = bytes([number >> 8 & 0xff, number & 0xff])
 
         return number
 
