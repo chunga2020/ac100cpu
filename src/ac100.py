@@ -1,4 +1,5 @@
 import argparse
+import logging
 import sys
 import textwrap
 
@@ -13,6 +14,7 @@ parser = argparse.ArgumentParser(
           machine initialization
     """),
     formatter_class=argparse.RawTextHelpFormatter)
+logger = logging.getLogger("ac100")
 
 # AC100 emulator
 class AC100:
@@ -31,6 +33,30 @@ class AC100:
         self.VIDEO_WIDTH: int = defs.DEFAULT_VIDEO_COLUMNS
         self.VIDEO_HEIGHT: int = defs.DEFAULT_VIDEO_ROWS
         self.VRAM_START: int = defs.DEFAULT_VRAM_START
+
+
+    def initialize_VRAM(self, args) -> None:
+        """
+        Set up VRAM given a set of command-line arguments
+
+        Parameters:
+        args: the args from the argument parser
+
+        If either of the dimensions found on the command line are invalid in any
+        way, report it and use the default dimensions
+        """
+        dimensions = [defs.DEFAULT_VIDEO_ROWS, defs.DEFAULT_VIDEO_COLUMNS]
+        try:
+            dimensions = check_video_dimensions(args)
+        except ac_exc.NegativeVideoDimensionError as e:
+            logger.error(e)
+            dimensions = [defs.DEFAULT_VIDEO_ROWS, defs.DEFAULT_VIDEO_COLUMNS]
+        except ac_exc.VRAMTooLargeError as e:
+            logger.error(e)
+            dimensions = [defs.DEFAULT_VIDEO_ROWS, defs.DEFAULT_VIDEO_COLUMNS]
+
+        self.VIDEO_HEIGHT = dimensions[0]
+        self.VIDEO_WIDTH = dimensions[1]
 
 
 def check_video_dimensions(args) -> [int]:
@@ -103,3 +129,7 @@ def setup_parser(parser):
                         help="Height of emulator 'video display' (default: "
                         "%(default)s rows)")
 
+
+def setup_logger(logger, args):
+    format = "[%(levelname)s]: %(funcName)s:%(lineno)d: %(message)s"
+    logging.basicConfig(format=format, level=args.loglevel.upper())
