@@ -49,3 +49,23 @@ class TestAssembler:
         token = "R20"
         with pytest.raises(ac_exc.InvalidRegisterNameError):
             assembler.parse_register_name(token)
+
+    def test_parse_int_decimal(self):
+        assembler = asm.AC100ASM()
+        token = "-65536"        # too negative for 16 bits
+        with pytest.raises(ValueError):
+            assembler.parse_int(token)
+
+        token = "-1"            # OK
+        number = assembler.parse_int(token)
+        assert number == -1, f"Should have gotten -1 for '{token}', but got "\
+            f"{number}"
+
+        token = "23"            # OK
+        number = assembler.parse_int(token)
+        assert number == 23, f"Should have gotten 23 for '{token}', but got "\
+            f"{number}"
+
+        token = "65537"         # too big for 16 bits
+        with pytest.raises(ValueError):
+            number = assembler.parse_int(token)

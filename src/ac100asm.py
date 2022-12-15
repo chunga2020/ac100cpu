@@ -39,6 +39,40 @@ class AC100ASM:
         return number
 
 
+    def parse_int(self, token) -> int:
+        """
+        Parse an integer.
+
+        The token may represent an integer in binary, decimal, or hexadecimal,
+        but must be in the range -32767--+32768 or 0--65535, depending on the
+        sign
+
+        Parameters:
+        token: the token to be parsed
+
+        Return: if token is a valid representation of an integer and in range,
+        sign-dependent, return the number.  Otherwise, raise ValueError
+        """
+        SIGNED_MIN = -32768
+        SIGNED_MAX = 32767
+        UNSIGNED_MIN = 0
+        UNSIGNED_MAX = 65535
+        number: int = None
+        if token.startswith(defs.BINARY_PREFIX):
+            pass                # parse binary
+        elif token.startswith(defs.HEX_PREFIX):
+            pass                # parse hex
+        else:
+            number = int(token)
+            if token.startswith("-") and number < SIGNED_MIN:
+                raise ValueError(f"Value {number} too negative for 16 bits")
+            else:
+                if number > UNSIGNED_MAX:
+                    raise ValueError(f"Number {number} too large for 16 bits")
+
+        return number
+
+
     def tokenize_line(self, line) -> [str]:
         """
         Split a source line into tokens
