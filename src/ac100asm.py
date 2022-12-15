@@ -54,7 +54,8 @@ class AC100ASM:
         token: the token to be parsed
 
         Return: if token is a valid representation of an integer and in range,
-        sign-dependent, return the number.  Otherwise, raise ValueError
+        sign-dependent, return hex bytes corresponding to the number.
+        Otherwise, return None
         """
         SIGNED_MIN = -32768
         SIGNED_MAX = 32767
@@ -64,7 +65,17 @@ class AC100ASM:
         if token.startswith(defs.BINARY_PREFIX):
             pass                # parse binary
         elif token.startswith(defs.HEX_PREFIX):
-            pass                # parse hex
+            token = token[2:]   # strip prefix
+            if len(token) % 2 == 1:
+                if len(token) == 1:
+                    token = "0" + token
+                else:
+                    raise ValueError(f"Invalid hex value '{token}'")
+            number = bytes.fromhex(token)
+
+            if len(number) > defs.BYTES_PER_WORD:
+                number = None
+                raise ValueError(f"Hex value {token} does not fit in 16 bits")
         else:
             try:
                 number = int(token)

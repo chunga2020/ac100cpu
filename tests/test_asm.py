@@ -77,3 +77,33 @@ class TestAssembler:
         expected = 5
         assert number is None, f"Should have gotten failed on "\
             f"'{token}', but got {number}"
+
+    @pytest.mark.parametrize("token, expected",
+                             [("0x0", b"\x00"), ("0xf3", b"\xf3"),
+                              ("0x0000", b"\x00\x00"), ("0xffff", b"\xff\xff")])
+    def test_parse_int_hex_valid(self, token, expected):
+        assembler = asm.AC100ASM()
+
+        number = assembler.parse_int(token)
+        assert number == expected,\
+            f"Should have gotten {expected} on token {token}, but got "\
+            f"{number}"
+
+    def test_parse_int_hex_invalid(self):
+        assembler = asm.AC100ASM()
+
+        token = "0xg"           # invalid hex digit
+        with pytest.raises(ValueError):
+            assembler.parse_int(token)
+
+        token = "0x000"         # can’t make bytes out of odd number of hexits
+        with pytest.raises(ValueError):
+            assembler.parse_int(token)
+
+        token = "0x00000000"    # 32 bits -- too big!
+        with pytest.raises(ValueError):
+            assembler.parse_int(token)
+
+        token = "0xffffffff"    # 32 bits -- too big
+        with pytest.raises(ValueError):
+            assembler.parse_int(token)
