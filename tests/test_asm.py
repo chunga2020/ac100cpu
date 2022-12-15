@@ -109,3 +109,15 @@ class TestAssembler:
         token = "0xffffffff"    # 32 bits -- too big
         with pytest.raises(ValueError):
             assembler.parse_int(token)
+
+    @pytest.mark.parametrize("token, expected",
+                             [("0b0", b"\x00\x00"), ("0b01010101", b"\x00\x55"),
+                              ("0b00000000", b"\x00\x00"),
+                              ("0b11111111", b"\x00\xff"),
+                              ("0b0000000000000000", b"\x00\x00"),
+                              ("0b1111111111111111", b"\xff\xff")])
+    def test_parse_int_binary_valid(self, token, expected):
+        assembler = asm.AC100ASM()
+        number = assembler.parse_int(token)
+        assert number == expected, f"Expected {expected} for token {token}, "\
+            f"but got {number}"

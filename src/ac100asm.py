@@ -63,7 +63,11 @@ class AC100ASM:
         UNSIGNED_MAX = 65535
         number: int = None
         if token.startswith(defs.BINARY_PREFIX):
-            pass                # parse binary
+            token = token[2:]   # strip prefix
+            number = int(token, 2)
+            if number > UNSIGNED_MAX:
+                raise ValueError(f"Binary value {token} too big for 16 bits")
+            number = bytes([number >> 8 & 0xff, number & 0xff])
         elif token.startswith(defs.HEX_PREFIX):
             token = token[2:]   # strip prefix
             if len(token) % 2 == 1:
