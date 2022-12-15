@@ -7,7 +7,7 @@ import src.exceptions as ac_exc
 parser = ac100.parser
 ac100.setup_parser(parser)
 
-class TestCommandLineArgs:
+class TestEmuCommandLineArgs:
     def test_negative_height(self):
         testargs = ["out", "-r", "-1"]
         arg_namespace = parser.parse_args(testargs)
