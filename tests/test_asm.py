@@ -183,3 +183,11 @@ class TestAssemble:
         ok = assembler.assemble(f)
         assert assembler.lineno == 1, "Expected assembler to be on line 1"
         assert ok, "Assembler did not successfully ignore a one-line comment"
+
+    def test_ignores_multiple_comments(self):
+        source_file = pathlib.Path(test_srcd, "test03")
+        outfile = "ignores_multiple_comments.bin"
+        f = open(source_file, "r")
+        ok = assembler.assemble(f)
+        assert assembler.lineno == 3, "Expected assembler to be on line 3"
+        assert ok, "Assembler did not ignore multiple comment lines"
