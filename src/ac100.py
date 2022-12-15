@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-import src.definitions as defs
+import definitions as defs
 
 # AC100 emulator
 class AC100:
