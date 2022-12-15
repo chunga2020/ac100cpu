@@ -16,3 +16,9 @@ REGISTER_MAX: int = 16
 # stack pointer starts here on startup and grows towards low memory addresses
 STACK_MIN: int = 0x0200
 STACK_MAX: int = ADDRESS_MIN    # stack can’t go past here
+
+# "video screen" is 16x16 by default
+DEFAULT_VIDEO_COLUMNS: int = 16
+DEFAULT_VIDEO_ROWS: int = 16
+DEFAULT_VRAM_START: int = ADDRESS_MAX - \
+    (DEFAULT_VIDEO_COLUMNS * DEFAULT_VIDEO_ROWS)

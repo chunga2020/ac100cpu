@@ -27,3 +27,15 @@ class TestDefinitions:
         assert defs.STACK_MIN == 0x200, "Stack should begin at 0x0200"
         assert defs.STACK_MAX == defs.ADDRESS_MIN,\
             "Stack should end at beginning of address space"
+
+    def test_video_constants(self):
+        assert defs.DEFAULT_VIDEO_COLUMNS == 16,\
+            f"Should have default video width of 16 columns, but have"\
+            f" {defs.DEFAULT_VIDEO_COLUMNS} instead"
+        assert defs.DEFAULT_VIDEO_ROWS == 16,\
+            f"Should have default video height of 16 rows, but have"\
+            f" {defs.DEFAULT_VIDEO_ROWS} instead"
+        # defaults give 256 bytes of VRAM -> 0xFFFF - 0x100 = FEFF
+        assert defs.DEFAULT_VRAM_START == 0xfeff,\
+            f"VRAM should start at 0xff00, but starts at "\
+            f"{defs.DEFAULT_VRAM_START}"
