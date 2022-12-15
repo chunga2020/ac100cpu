@@ -32,3 +32,17 @@ class TestEmulatorInit:
         assert machine.SP == defs.STACK_MIN,\
             f"Stack pointer incorrectly set to {machine.SP} on init, "\
             f"should be {defs.STACK_MIN}"
+
+    def test_video_init(self):
+        machine = ac100.AC100()
+        assert machine.VIDEO_WIDTH == defs.DEFAULT_VIDEO_COLUMNS,\
+            f"Machine video width is {machine.VIDEO_WIDTH} columns, but "\
+            f"should be {defs.DEFAULT_VIDEO_COLUMNS} columns"
+        assert machine.VIDEO_HEIGHT == defs.DEFAULT_VIDEO_ROWS,\
+            f"Machine video height is {machine.VIDEO_HEIGHT} rows, but "\
+            f"should be {defs.DEFAULT_VIDEO_ROWS} rows"
+        default_vram_size = defs.DEFAULT_VIDEO_COLUMNS * defs.DEFAULT_VIDEO_ROWS
+        expected_vram_start = defs.DEFAULT_VRAM_START
+        assert machine.VRAM_START == expected_vram_start,\
+            f"VRAM starts at 0x{hex(machine.VRAM_START)}, but should start at "\
+            f"0x{hex(expected_vram_start)}"

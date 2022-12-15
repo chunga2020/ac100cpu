@@ -17,3 +17,6 @@ class AC100:
         self.RAM = bytearray(defs.ADDRESS_SIZE)
         self.PS = 0x00          # 0b00000000
         self.SP = defs.STACK_MIN
+        self.VIDEO_WIDTH: int = defs.DEFAULT_VIDEO_COLUMNS
+        self.VIDEO_HEIGHT: int = defs.DEFAULT_VIDEO_ROWS
+        self.VRAM_START: int = defs.DEFAULT_VRAM_START
