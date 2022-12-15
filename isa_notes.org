@@ -1,0 +1,175 @@
+* AC100 Instruction Set Architecture
+- 16-bit big-endian architecture
+- 32-bit instructions (16-bit opcode, 16-bit data); this means that every
+  instruction is 4 bytes for easy alignment
+- No direct ops on memory
+- 16 general-purpose registers R1-R16
+** Terminology conventions
+- Byte :: 8-bit data object
+- Word :: 16-bit data object
+** Instruction bytecode format
+- byte 0: opcode
+- byte 1: register on which to operate
+- bytes 2, 3: data/address
+- Any unused bytes should be set to 0x00
+** Source file format
+- Comments started by ; and extend to end-of-line
+  - Multiline comments are therefore just a block of comment lines
+- Comments may *NOT* occur on the same line as any code or label
+- Numerical base prefixes
+  - Decimal :: no prefix (default)
+    - Ranges:
+      - Unsigned: 0--65535
+      - Signed: (-32768--+32767)
+  - Binary :: ‘0b’ -> ‘0bnnnnnnnn’ represents a byte in binary
+  - Hexadecimal :: ‘0x’ -> ‘0xhh’ represents a byte in hex
+    - Hex values may be given as one byte (0xhh) or two (0xhhhh)
+- Register names must be prefixed with ‘R’
+  - e.g. R1 means register 1
+  - All registers are assumed to be given in decimal, /i.e./ tenth register
+    (decimal) is R10, *not* RA; eleventh register is R11, not RB, /etc./
+** Data structures
+- Flags register PS
+  - 8 bits: ---- NVZC
+    - N :: Negative
+      - 1 if most-significant bit of destination register set by operation
+      - 0 if most-significant bit of destination register cleared by operation
+    - V :: oVerflow
+      - *Signed* overflow occurred
+        - If we have A + B = C or A - B = C, V is set when:
+          - A < 0, B < 0, C > 0
+            - MSB of A set
+            - MSB of B set
+            - MSB of C cleared
+          - A > 0, B > 0, C < 0
+            - MSB of A cleared
+            - MSB of B cleared
+            - MSB of C set
+        - And cleared otherwise
+    - Z :: Zero
+      - 1 if last operation set destination register to zero
+      - 0 if last operation set destination register to non-zero
+    - C :: Carry
+      - *Unsigned* overflow occurred
+        - ~C before operation: result is less than initial values
+        - C before operation: result
+      - Comparisons: destination register (first operand of pseudo-subtraction)
+        greater than source (second operand of pseudo-subtraction)
+- Stack Pointer SP
+  - Stack: memory 0x0000--0x0200
+  - Begins at 0x0200 and grows towards 0x0000
+  - The contents of any GPR R1--R16 may be pushed onto the stack; stack values
+    may likewise be popped off and stored in any of the GPRs
+  - Stack overflow exceptions cause immediate halt of emulator and dump of the
+    machine state: registers, memory, flags
+** Opcodes
+*** LOAD
+- 0x00 :: Load immediate word into register (LDI)
+  - Syntax: 0x00 <dest_reg> <word high byte> <word low byte>
+  - Example: LDI R1 4
+    - Load immediate 0x0004 into R1
+- 0x01 :: Load word from register into register (LDR)
+  - Syntax: 0x01 <dest_reg> <src_reg> <unused>
+  - Example: LDR R1 R2
+    - Load the contents of R2 into R1
+- 0x02 :: Load word from memory into register (LDM)
+  - Syntax: 0x02 <dest_reg> <addr high byte> <addr low byte>
+  - Example: LDM R1 0xbeef
+    - Load the word beginning at memory address 0xbeef into R1
+*** STORE
+- 0x10 :: Store word from register into memory (ST)
+  - Syntax: 0x10 <src_reg> <addr high byte> <addr low byte>
+  - Example: ST R1 0xabcd
+    - Store the word in R1 at memory location 0xabcd
+- 0x11 :: Store high byte from register into memory (STH)
+  - Syntax: 0x11 <src_reg> <addr high byte> <addr low byte>
+  - Example: STH R3 0x1234
+    - Store the high byte of R3 at memory location 0x1234
+- 0x12 :: Store low byte from register into memory (STL)
+  - Syntax: 0x12 <src_reg> <addr high byte> <addr low byte>
+  - Example: STL R4 0x5678
+    - Store the low byte of R4 at memory location 0x5678
+*** COMPARE
+- 0x20 :: Compare register with register (CMR)
+  - Syntax: 0x20 <dest_reg> <src_reg> <unused>
+  - Example: CMR R1 R2
+    - Compare the contents of R1 with the contents of R2
+- 0x21 :: Compare register with immediate word (CMI)
+  - Syntax: 0x21 <reg> <word high byte> <word low byte>
+  - Example: CMI R1 5
+    - Compare the contents of R1 to 0x05
+*** JUMP
+- 0x30 :: Jump if equal (JE)
+  - Syntax: 0x30 <unused> <addr high byte> <addr low byte>
+  - Example: JE 0x1234
+    - If the two values in the preceding comparison were equal, jump to
+      memory location 0x1234 and continue execution
+- 0x31 :: Jump if greater (JG)
+  - Syntax: 0x31 <unused> <addr high byte> <addr low byte>
+  - Example: JG 0x2255
+    - If the left operand of the last comparison was greater than the right
+      operand, jump to memory location 0x2255 and continue execution
+- 0x32 :: Jump if greater or equal (JGE)
+  - Syntax: 0x32 <unused> <addr high byte> <addr low byte>
+  - Example: JGE 0x57ab
+    - If the left operand of the last comparison was greater than, or equal to,
+      the right operand, jump to memory location 0x57ab and continue execution
+- 0x33 :: Jump if less than (JL)
+  - Syntax: 0x33 <unused> <addr high byte> <addr low byte>
+  - Example: JL 0x02ab
+    - If the left operand of the last comparison was less than the right
+      operand, jump to memory location 0x02ab and continue execution
+- 0x34 :: Jump if less than or equal (JLE)
+  - Syntax: 0x34 <unused> <addr high byte> <addr low byte>
+  - Example: JLE 0x7890
+    - If the left operand of the last comparison was less than, or equal to, the
+      right operand, jump to memory location 0x7890 and continue execution
+- 0x35 :: Jump always (JMP)
+  - Syntax: 0x35 <unused> <addr high byte> <addr low byte>
+  - Example: JMP 0x1234
+    - Unconditionally jump to memory location 0x1234 and continue execution
+*** MATH
+- 0x40 :: Add immediate word to register (ADDI)
+  - Syntax: 0x40 <dest_reg> <word high byte> <word low byte>
+  - Example: ADDI R1 0x0a
+    - Add 0xa to the contents of R1
+- 0x41 :: Add register word to register (ADDR)
+  - Syntax: 0x41 <dest_reg> <src_reg> <unused>
+  - Example: ADDR R1 R2
+    - Add the contents of R2 to the contents of R1 and store in R1
+- 0x42 :: Increment (INC)
+  - Syntax: 0x42 <register> <unused> <unused>
+  - Example: INC R3
+    - Increment (add one) to the value in R3
+- 0x43 :: Subtract immediate word from register (SUBI)
+  - Syntax: 0x43 <register> <word high byte> <word low byte>
+  - Example: SUBI R3 5
+    - Subtract 0x5 from the value in R3
+- 0x44 :: Subtract register word from register (SUBR)
+  - Syntax: 0x44 <dest_reg> <src_reg> <unused>
+  - Example: SUBR R3 R7
+    - Subtract the contents of R7 from the contents of R3 and store in R3
+- 0x45 :: Decrement (DEC)
+  - Syntax: 0x45 <register> <unused> <unused>
+  - Example: DEC R8
+    - Decrement (subtract one from) the value in R8
+*** STACK MANIPULATION
+- 0xE0 :: Push contents of a single register onto the stack (PUSH)
+  - Syntax: 0xE0 0x01 0x00 0x00
+  - Example: PUSH R1
+    - Push the contents of R1 onto the stack and decrement SP
+  - Raises “stack overflow” exception if SP == 0x0000 before PUSH
+- 0xE1 :: Pop value off the stack and store in a register (POP)
+  - Syntax: 0xE1 0x03 0x00 0x00
+  - Example: POP R3
+    - Pop the top value V off the stack, store V in R3, and increment SP
+  - Raises “stack empty” exception if SP == 0x0200 before POP
+*** MISCELLANEOUS
+- 0xFE :: HALT
+  - Syntax: 0xFE 0xFF 0xFE 0xFF
+  - Example: HALT
+    - Stop program execution
+- 0xFF :: NOP
+  - Syntax: 0xFF 0xFF 0xFF 0xFF
+  - Example: NOP
+    - Do nothing until the next instruction cycle
