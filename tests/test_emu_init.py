@@ -33,6 +33,15 @@ class TestEmulatorInit:
             f"Stack pointer incorrectly set to {machine.SP} on init, "\
             f"should be {defs.STACK_MIN}"
 
+    def test_pc_init(self):
+        machine = ac100.AC100()
+        expected_pc_start = 0x200
+        assert machine.PC == machine.SP + 1,\
+            f"Program counter should start right after stack pointer"
+        assert machine.PC == expected_pc_start,\
+            f"Program counter should be at {expected_pc_start}, but it is at "\
+            f"{machine.PC}"
+
     def test_video_init(self):
         machine = ac100.AC100()
         assert machine.VIDEO_WIDTH == defs.DEFAULT_VIDEO_COLUMNS,\
