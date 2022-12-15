@@ -13,8 +13,9 @@ NUM_REGISTERS: int = 16
 REGISTER_MIN: int = 1
 REGISTER_MAX: int = 16
 
-# stack pointer starts here on startup and grows towards low memory addresses
-STACK_MIN: int = 0x0200
+# stack pointer starts here on startup and grows towards low memory addresses,
+# giving us 512 bytes of stack space
+STACK_MIN: int = 0x01FF
 STACK_MAX: int = ADDRESS_MIN    # stack can’t go past here
 
 # "video screen" is 16x16 by default
