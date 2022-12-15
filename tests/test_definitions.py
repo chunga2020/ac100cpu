@@ -16,6 +16,11 @@ class TestDefinitions:
         assert defs.ADDRESS_SIZE - defs.ADDRESS_MAX == 1,\
             "Total address space and max address should differ by 1"
 
+    def test_register_constants(self):
+        assert defs.NUM_REGISTERS == 16, "Should have 16 gen-purpose registers"
+        assert defs.REGISTER_MIN == 1, "Lowest usable register should be R1"
+        assert defs.REGISTER_MAX == 16, "Highest register should be R16"
+
     def test_stack_constants(self):
         assert defs.STACK_MIN == 0x200, "Stack should begin at 0x0200"
         assert defs.STACK_MAX == defs.ADDRESS_MIN,\
