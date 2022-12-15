@@ -6,6 +6,7 @@ import typing
 import src.definitions as defs
 import src.exceptions as ac_exc
 
+logger = logging.getLogger("ac100asm")
 parser = argparse.ArgumentParser()
 
 class LabelDict(typing.TypedDict):
@@ -97,9 +98,20 @@ def setup_parser(parser) -> None:
     parser.add_argument("infile", help="The source file to assemble")
     parser.add_argument("-l", "--loglevel", default="error",
                         choices=["debug", "info", "warning", "error"],
-                        metavar="LEVEL", help="logging level")
-    parser.add_argument("-o", "--outfile", default="out.bin", metavar="FILE",
+                        metavar="level", help="logging level")
+    parser.add_argument("-o", "--outfile", default="out.bin", metavar="file",
                         help="name to use for output file (default: %(default)s)")
+
+
+def setup_logger(level) -> None:
+    """
+    Set up logger
+
+    Parameters:
+    level: the level to use
+    """
+    format = "[%(levelname)s]:%(funcName)s:%(lineno)d: %(message)s"
+    logging.basicConfig(format=format, level=logging.getLevelName(level))
 
 
 def main():
@@ -109,6 +121,7 @@ def main():
         parser.print_help()
         sys.exit(1)
     args = parser.parse_args()
+    setup_logger(args.loglevel.upper())
 
 
 if __name__ == "__main__":
