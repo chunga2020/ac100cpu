@@ -2,7 +2,7 @@ import argparse
 import sys
 import textwrap
 
-import definitions as defs
+import src.definitions as defs
 
 parser = argparse.ArgumentParser(
     epilog=textwrap.dedent("""
