@@ -39,3 +39,7 @@ class TestDefinitions:
         assert defs.DEFAULT_VRAM_START == 0xfeff,\
             f"VRAM should start at 0xff00, but starts at "\
             f"{defs.DEFAULT_VRAM_START}"
+
+    def test_radix_prefixes(self):
+        assert defs.BINARY_PREFIX == "0b" and len(defs.BINARY_PREFIX) == 2
+        assert defs.HEX_PREFIX == "0x" and len(defs.HEX_PREFIX) == 2
