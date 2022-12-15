@@ -9,6 +9,8 @@ import src.exceptions as ac_exc
 logger = logging.getLogger("ac100asm")
 parser = argparse.ArgumentParser()
 
+DEFAULT_OUTPUT: str = "out.bin"
+
 class LabelDict(typing.TypedDict):
     name: str                   # the label
     offset: int                 # address the label refers to
@@ -20,6 +22,7 @@ class AC100ASM:
     def __init__(self):
         self.labels = LabelDict()
         self.lineno: int = 0    # line number of current source line
+        self.default_output: str = DEFAULT_OUTPUT
 
 
     def parse_register_name(self, token: str) -> int:
@@ -149,7 +152,8 @@ def setup_parser(parser) -> None:
     parser.add_argument("-l", "--loglevel", default="error",
                         choices=["debug", "info", "warning", "error"],
                         metavar="level", help="logging level")
-    parser.add_argument("-o", "--outfile", default="out.bin", metavar="file",
+    parser.add_argument("-o", "--outfile", default=DEFAULT_OUTPUT,
+                        metavar="file",
                         help="name to use for output file (default: %(default)s)")
 
 
