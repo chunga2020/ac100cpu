@@ -20,6 +20,8 @@ class TestDefinitions:
         assert defs.NUM_REGISTERS == 16, "Should have 16 gen-purpose registers"
         assert defs.REGISTER_MIN == 1, "Lowest usable register should be R1"
         assert defs.REGISTER_MAX == 16, "Highest register should be R16"
+        assert defs.REGISTER_PREFIX == "R",\
+            "Register name prefix should be 'R'"
 
     def test_stack_constants(self):
         assert defs.STACK_MIN == 0x200, "Stack should begin at 0x0200"
