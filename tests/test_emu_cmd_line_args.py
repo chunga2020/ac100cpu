@@ -31,3 +31,26 @@ class TestCommandLineArgs:
         arg_namespace = parser.parse_args(testargs)
         with pytest.raises(ac_exc.VRAMTooLargeError):
             ac100.check_video_dimensions(arg_namespace)
+
+    def test_row_ok(self):
+        testargs = ["out", "-r", "20"]
+        arg_namespace = parser.parse_args(testargs)
+        dimensions = ac100.check_video_dimensions(arg_namespace)
+        assert dimensions[0] == 20, "Didn't set rows correctly"
+        assert dimensions[1] == defs.DEFAULT_VIDEO_COLUMNS, "Should not have "\
+            f"changed width from {defs.DEFAULT_VIDEO_COLUMNS} to {dimensions[1]}"
+
+    def test_column_ok(self):
+        testargs = ["out", "-c", "20"]
+        arg_namespace = parser.parse_args(testargs)
+        dimensions = ac100.check_video_dimensions(arg_namespace)
+        assert dimensions[0] == defs.DEFAULT_VIDEO_ROWS, "Should not have "\
+            f"changed height from {defs.DEFAULT_VIDEO_ROWS} to {dimensions[0]}"
+        assert dimensions[1] == 20, "Didn't set columns correctly"
+
+    def test_both_dimensions_ok(self):
+        testargs = ["out", "-c", "20", "-r", "20"]
+        arg_namespace = parser.parse_args(testargs)
+        dimensions = ac100.check_video_dimensions(arg_namespace)
+        assert dimensions[0] == 20, "Didn't set rows correctly"
+        assert dimensions[1] == 20, "Didn't set columns correctly"
