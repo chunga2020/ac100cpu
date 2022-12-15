@@ -100,6 +100,28 @@ class AC100ASM:
         return number
 
 
+    def parse_address(self, token) -> bytes:
+        """
+        Parse a hexadecimal address
+
+        Parameters:
+        token: the token to parse
+
+        Return:
+        bytes corresponding to the address
+        """
+        if not token.startswith(defs.HEX_PREFIX):
+            raise ValueError("Addresses must be given in hexadecimal")
+
+        # we keep the hex prefix, because parse_int takes care of it
+        # len of prefix is 2, expected len of address is 4 -> 2 + 4 = 6
+        if len(token) != 6:
+            raise ValueError("Addresses should be 16 bits wide (4 hex digits)")
+        address = self.parse_int(token)
+
+        return address
+
+
     def tokenize_line(self, line) -> [str]:
         """
         Split a source line into tokens

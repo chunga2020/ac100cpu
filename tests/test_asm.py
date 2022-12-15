@@ -137,3 +137,12 @@ class TestAssembler:
         token = "0b11111111111111111" # too big for 16 bits
         with pytest.raises(ValueError):
             number = assembler.parse_int(token)
+
+    @pytest.mark.parametrize("token, expected",
+                             [("0x0000", b"\x00\x00"), ("0xffff", b"\xff\xff"),
+                              ("0xbeef", b"\xbe\xef"), ("0xdead", b"\xde\xad")])
+    def test_parse_address_valid(self, token, expected):
+        assembler = asm.AC100ASM()
+        address = assembler.parse_address(token)
+        assert address == expected, f"Expected {expected} for token "\
+            f"'{token}', but got {address}"
