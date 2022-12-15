@@ -64,6 +64,8 @@ class AC100ASM:
         number: int = None
         if token.startswith(defs.BINARY_PREFIX):
             token = token[2:]   # strip prefix
+            if len(token) > defs.WORD_SIZE:
+                raise ValueError(f"Value '{token}' too large for 16 bits")
             number = int(token, 2)
             if number > UNSIGNED_MAX:
                 raise ValueError(f"Binary value {token} too big for 16 bits")

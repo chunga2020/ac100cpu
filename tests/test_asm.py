@@ -121,3 +121,19 @@ class TestAssembler:
         number = assembler.parse_int(token)
         assert number == expected, f"Expected {expected} for token {token}, "\
             f"but got {number}"
+
+    def test_parse_int_binary_invalid(self):
+        assembler = asm.AC100ASM()
+        token = "0b"
+        with pytest.raises(ValueError):
+            number = assembler.parse_int(token)
+
+        # 0b0 00000000 00000000
+        token = "0b00000000000000000" # valid zero, but too many bits (17)
+        with pytest.raises(ValueError):
+            number = assembler.parse_int(token)
+
+        # 0b1 11111111 11111111
+        token = "0b11111111111111111" # too big for 16 bits
+        with pytest.raises(ValueError):
+            number = assembler.parse_int(token)
