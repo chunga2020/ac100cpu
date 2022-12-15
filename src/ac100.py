@@ -133,3 +133,18 @@ def setup_parser(parser):
 def setup_logger(logger, args):
     format = "[%(levelname)s]: %(funcName)s:%(lineno)d: %(message)s"
     logging.basicConfig(format=format, level=args.loglevel.upper())
+
+
+def main():
+    setup_parser(parser)
+    machine = AC100()
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(1)
+    args = parser.parse_args()
+    dimensions = check_video_dimensions(args)
+    machine.initialize_VRAM(args)
+
+
+if __name__ == "__main__":
+    main()
