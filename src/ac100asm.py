@@ -42,7 +42,7 @@ class AC100ASM:
         return number
 
 
-    def parse_int(self, token) -> int:
+    def parse_int(self, token) -> bytes:
         """
         Parse an integer.
 
