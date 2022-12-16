@@ -220,3 +220,14 @@ class TestAssemble:
             assert assembler.lineno == 3, "Expected assembler to be on line 3"
             assert bytecode == expected,\
                 "Assembler did not assemble LDR"
+
+    def test_st(self):
+        source_file = pathlib.Path(test_srcd, "test06")
+        expected = b"\x00\x00\xde\xad"
+        expected += b"\x10\x00\xbe\xef"
+        expected += b"\xfe\xff\xfe\xff"
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert assembler.lineno == 3, "Expected assembler to be on line 3"
+            assert bytecode == expected,\
+                "Assembler did not assemble ST"

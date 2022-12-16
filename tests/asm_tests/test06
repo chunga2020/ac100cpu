@@ -1,0 +1,3 @@
+LDI R1 0xdead
+ST R1 0xbeef
+HALT

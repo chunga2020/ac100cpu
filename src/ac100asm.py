@@ -250,6 +250,43 @@ class AC100ASM:
         return bytecode
 
 
+    def _assemble_st(self, tokens: [str]) -> bytes:
+        """
+        Assemble an ST instruction
+
+        Parameters:
+        tokens: the line to be assembled
+
+        Return:
+        On success, return the assembled bytecode.  On failure, return None
+        """
+        bytecode: bytes = b"\x10"
+        src_reg: int = -1
+        try:
+            src_reg = self.parse_register_name(tokens[1])
+        except (ac_exc.InvalidRegisterNameError,
+                ac_exc.RegisterNameMissingPrefixError):
+            logger.error(e)
+            return None
+        except Exception as e:
+            logger.error("Unexpected error:", e)
+            return None
+        bytecode += src_reg.to_bytes(1, byteorder='big')
+        address: bytes = b""
+        try:
+            address = self.parse_address(tokens[2])
+        except ValueError as e:
+            logger.error(e)
+            return None
+        except Exception as e:
+            logger.error("Unexpected error:", e)
+        bytecode += address
+        if len(bytecode) != 4:
+            logger.error(f"Bytecode should be 4 bytes, but is {len(bytecode)}")
+            return None
+        return bytecode
+
+
     def _assemble_halt(self):
         bytecode: bytes = b"\xfe\xff\xfe\xff"
         return bytecode
@@ -282,6 +319,12 @@ class AC100ASM:
                     bytecode += next_line
                 case "LDR":
                     next_line = self._assemble_ldr(tokens)
+                    if next_line is None:
+                        logger.error(f"Failed to assemble {tokens[0]}")
+                        return None
+                    bytecode += next_line
+                case "ST":
+                    next_line = self._assemble_st(tokens)
                     if next_line is None:
                         logger.error(f"Failed to assemble {tokens[0]}")
                         return None
