@@ -1,0 +1,3 @@
+; R17 is out of range, but 42 is a valid integer
+LDI R17 42
+; Don't need to HALT, since assembling should already fail

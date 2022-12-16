@@ -7,3 +7,4 @@ tests:
 	$(PYTEST) test_emu_cmd_line_args.py
 	$(PYTEST) test_asm.py
 	$(PYTEST) test_asm_instructions_pass.py
+	$(PYTEST) test_asm_instructions_fail.py
