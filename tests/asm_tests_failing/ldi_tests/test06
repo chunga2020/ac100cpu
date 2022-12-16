@@ -1,0 +1,2 @@
+; invalid hex --- can't have three hex digits
+LDI R1 0x000

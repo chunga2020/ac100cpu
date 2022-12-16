@@ -42,3 +42,9 @@ class TestLdiFailures:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "Assembly should fail when hex word is missing prefix"
+
+        source_file = pathlib.Path(ldi_tests, "test06")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "Assembly should fail if hex value has 3 hexits"
