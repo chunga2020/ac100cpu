@@ -87,3 +87,10 @@ class TestLdrFailures:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "Assembly should fail if dest register missing prefix"
+
+    def test_bad_source_register(self):
+        source_file = pathlib.Path(ldr_tests, "test03")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "Assembly should fail if source register < 1"
