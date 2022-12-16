@@ -81,3 +81,9 @@ class TestLdrFailures:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "Assembly should fail if LDR has a bad destination register"
+
+        source_file = pathlib.Path(ldr_tests, "test02")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "Assembly should fail if dest register missing prefix"
