@@ -215,7 +215,7 @@ class AC100ASM:
         return bytecode
 
 
-    def assemble(self, infile: typing.TextIO, outfile: typing.BinaryIO) -> bool:
+    def assemble(self, infile: typing.TextIO) -> bytes:
         """
         Assemble a binary from source code.
 
@@ -223,10 +223,11 @@ class AC100ASM:
         infile: the file object associated with the source code file
 
         Return:
-        On success, return True.  On failure, return False
+        On success, return the assembled bytecode.  On failure, return None.
         """
         self.lineno = 0
-        bytecode: bytes = None
+        bytecode: bytes = b""
+        next_line: bytes = None # next assembled bytecode
         for source_line in infile:
             self.lineno += 1
             tokens = self.tokenize_line(source_line)
@@ -234,18 +235,18 @@ class AC100ASM:
                 continue
             match tokens[0]:    # opcode
                 case "LDI":
-                    bytecode = self._assemble_ldi(tokens)
-                    if bytecode is None:
+                    next_line = self._assemble_ldi(tokens)
+                    if next_line is None:
                         logger.error("Failed to assemble LDI")
-                        return False
-                    outfile.write(bytecode)
+                        return None
+                    bytecode += next_line
                 case "HALT":
-                    bytecode = self._assemble_halt()
-                    outfile.write(bytecode)
+                    next_line = self._assemble_halt()
+                    bytecode += next_line
                 case ";":       # comment; do nothing
                     continue
 
-        return True
+        return bytecode
 
 
 def setup_parser(parser) -> None:
@@ -278,8 +279,10 @@ def main():
         sys.exit(1)
     args = parser.parse_args()
     setup_logger(args.loglevel.upper())
-    with open(args.infile) as f:
-        assembler.assemble(f)
+    with open(args.infile) as f, open(args.outfile, "wb") as f2:
+        bytecode: bytes = assembler.assemble(f)
+        if bytecode is not None:
+            f2.write(bytecode)
 
 
 if __name__ == "__main__":
