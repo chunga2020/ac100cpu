@@ -210,7 +210,7 @@ class AC100ASM:
         return bytecode
 
 
-    def _assemble_ldr(self, tokens: str) -> bytes:
+    def _assemble_ldr(self, tokens: [str]) -> bytes:
         """
         Assemble an LDR instruction
 
