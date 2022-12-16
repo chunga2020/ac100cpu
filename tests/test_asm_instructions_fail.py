@@ -6,6 +6,7 @@ assembler = asm.AC100ASM()
 test_srcd = pathlib.Path("asm_tests_failing")
 ldi_tests = pathlib.Path(test_srcd, "ldi_tests")
 ldr_tests = pathlib.Path(test_srcd, "ldr_tests")
+st_tests = pathlib.Path(test_srcd, "st_tests")
 
 class TestLdiFailures:
     def test_ldi_bad_register(self):
@@ -106,3 +107,13 @@ class TestLdrFailures:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "Assembly should fail if source register missing prefix"
+
+
+class TestStFailures:
+    def test_bad_source_register(self):
+        source_file = pathlib.Path(st_tests, "test01")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "Assembly should fail if source register < 0"
+
