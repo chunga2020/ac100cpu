@@ -93,8 +93,6 @@ class AC100ASM:
         Otherwise, return None
         """
         SIGNED_MIN = -32768
-        SIGNED_MAX = 32767
-        UNSIGNED_MIN = 0
         UNSIGNED_MAX = 65535
         number: int = None
         if token.startswith(defs.BINARY_PREFIX):
