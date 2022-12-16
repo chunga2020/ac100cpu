@@ -54,3 +54,9 @@ class TestLdiFailures:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "Assembly should fail if hex value larger than 2 bytes"
+
+        source_file = pathlib.Path(ldi_tests, "test08")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "Assembly should fail if hex value contains non-hex digits"

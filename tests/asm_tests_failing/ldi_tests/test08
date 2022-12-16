@@ -1,0 +1,2 @@
+; g isn't a hex digit
+LDI R1 0xabdg
