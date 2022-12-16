@@ -1,0 +1,2 @@
+; R2 is valid, but we are missing the prefix
+LDI 2 42
