@@ -1,0 +1,2 @@
+; 17 bits is too big
+LDI R1 0b00000000000000000

@@ -60,3 +60,11 @@ class TestLdiFailures:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "Assembly should fail if hex value contains non-hex digits"
+
+    def test_ldi_invalid_binary(self):
+        source_file = pathlib.Path(ldi_tests, "test09")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "Assembly should fail if binary value is larger than 16 bits"
+
