@@ -117,3 +117,8 @@ class TestStFailures:
             assert bytecode is None,\
                 "Assembly should fail if source register < 0"
 
+        source_file = pathlib.Path(st_tests, "test02")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "Assembly should fail if source register > 16"
