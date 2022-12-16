@@ -68,3 +68,8 @@ class TestLdiFailures:
             assert bytecode is None,\
                 "Assembly should fail if binary value is larger than 16 bits"
 
+        source_file = pathlib.Path(ldi_tests, "test10")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "Assembly should fail if 'binary' value has non-binary digits"
