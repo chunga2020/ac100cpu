@@ -124,8 +124,8 @@ class AC100ASM:
                     if number > UNSIGNED_MAX:
                         raise ValueError(f"Number {number} too large for 16 bits")
             except ValueError:  # float or out of 16-bit range
-                raise ValueError("Could not parse 16-bit integer from '%s'",
-                             token)
+                msg: str = f"Could not parse 16-bit integer from '{token}'"
+                raise ValueError(msg)
             if number is not None:
                 number = bytes([number >> 8 & 0xff, number & 0xff])
 
