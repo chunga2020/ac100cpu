@@ -209,3 +209,14 @@ class TestAssemble:
             f2.write(bytecode)
         assert os.stat(outfile).st_size\
             == len(expected)
+
+    def test_ldr(self):
+        source_file = pathlib.Path(test_srcd, "test05")
+        expected = b"\x00\x00\x00\x05"
+        expected += b"\x01\x01\x00\x00"
+        expected += b"\xfe\xff\xfe\xff"
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert assembler.lineno == 3, "Expected assembler to be on line 3"
+            assert bytecode == expected,\
+                "Assembler did not assemble LDR"

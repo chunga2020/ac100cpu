@@ -210,6 +210,46 @@ class AC100ASM:
         return bytecode
 
 
+    def _assemble_ldr(self, tokens: str) -> bytes:
+        """
+        Assemble an LDR instruction
+
+        Parameters:
+        tokens: the line to be assembled
+
+        Return:
+        On success, return the assembled bytecode.  On failure, return None
+        """
+        bytecode: bytes = b"\x01"
+        dest_reg: int = -1
+        try:
+            dest_reg = self.parse_register_name(tokens[1])
+        except (ac_exc.InvalidRegisterNameError,
+                ac_exc.RegisterNameMissingPrefixError) as e:
+            logger.error(e)
+            return None
+        except Exception as e:
+            logger.error("Unexpected error:", e)
+            return None
+        bytecode += dest_reg.to_bytes(1, byteorder='big')
+        src_reg: int = -1
+        try:
+            src_reg = self.parse_register_name(tokens[2])
+        except (ac_exc.InvalidRegisterNameError,
+                ac_exc.RegisterNameMissingPrefixError) as e:
+            logger.error(e)
+            return None
+        except Exception as e:
+            logger.error("Unexpected error:", e)
+            return None
+        bytecode += src_reg.to_bytes(1, byteorder='big')
+        bytecode += b"\x00"
+        if len(bytecode) != 4:
+            logger.error(f"Bytecode should be 4 bytes, but is {len(bytecode)}")
+            return None
+        return bytecode
+
+
     def _assemble_halt(self):
         bytecode: bytes = b"\xfe\xff\xfe\xff"
         return bytecode
@@ -237,7 +277,13 @@ class AC100ASM:
                 case "LDI":
                     next_line = self._assemble_ldi(tokens)
                     if next_line is None:
-                        logger.error("Failed to assemble LDI")
+                        logger.error(f"Failed to assemble {tokens[0]}")
+                        return None
+                    bytecode += next_line
+                case "LDR":
+                    next_line = self._assemble_ldr(tokens)
+                    if next_line is None:
+                        logger.error(f"Failed to assemble {tokens[0]}")
                         return None
                     bytecode += next_line
                 case "HALT":
