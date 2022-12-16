@@ -1,0 +1,3 @@
+LDI R1 0
+; invalid destination register
+LDR R17 R1

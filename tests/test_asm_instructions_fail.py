@@ -5,6 +5,7 @@ import src.ac100asm as asm
 assembler = asm.AC100ASM()
 test_srcd = pathlib.Path("asm_tests_failing")
 ldi_tests = pathlib.Path(test_srcd, "ldi_tests")
+ldr_tests = pathlib.Path(test_srcd, "ldr_tests")
 
 class TestLdiFailures:
     def test_ldi_bad_register(self):
@@ -71,3 +72,12 @@ class TestLdiFailures:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "Assembly should fail if 'binary' value has non-binary digits"
+
+
+class TestLdrFailures:
+    def test_bad_destination_register(self):
+        source_file = pathlib.Path(ldr_tests, "test01")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "Assembly should fail if LDR has a bad destination register"
