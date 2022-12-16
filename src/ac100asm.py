@@ -235,6 +235,9 @@ class AC100ASM:
             match tokens[0]:    # opcode
                 case "LDI":
                     bytecode = self._assemble_ldi(tokens)
+                    if bytecode is None:
+                        logger.error("Failed to assemble LDI")
+                        return False
                     outfile.write(bytecode)
                 case "HALT":
                     bytecode = self._assemble_halt()
