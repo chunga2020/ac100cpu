@@ -302,7 +302,7 @@ class AC100ASM:
         try:
             src_reg = self.parse_register_name(tokens[1])
         except (ac_exc.InvalidRegisterNameError,
-                ac_exc.RegisterNameMissingPrefixError):
+                ac_exc.RegisterNameMissingPrefixError) as e:
             logger.error(e)
             return None
         except Exception as e:
