@@ -1,8 +1,6 @@
-import os
 import pathlib
 import pytest
 
-import src.definitions as defs
 import src.exceptions as ac_exc
 import src.ac100asm as asm
 
@@ -134,7 +132,7 @@ class TestParseInt:
         # 0b1 11111111 11111111
         token = "0b11111111111111111" # too big for 16 bits
         with pytest.raises(ValueError):
-            number = assembler.parse_int(token)
+            assembler.parse_int(token)
 
 
 class TestParseAddress:
@@ -164,4 +162,4 @@ class TestParseAddress:
         # addresses can’t be given in binary (why would you want to do this?!)
         token = "0b10101010"
         with pytest.raises(ValueError):
-            address = assembler.parse_address(token)
+            assembler.parse_address(token)
