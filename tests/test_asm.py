@@ -54,9 +54,8 @@ class TestParseRegisterName:
 class TestParseInt:
     def test_decimal(self):
         token = "-65536"        # too negative for 16 bits
-        number = assembler.parse_int(token)
-        assert number is None, "Should have failed on too-negative value "\
-            f"'{token}'"
+        with pytest.raises(ValueError):
+            assembler.parse_int(token)
 
         token = "-1"            # OK
         number = assembler.parse_int(token)
@@ -71,15 +70,12 @@ class TestParseInt:
             f"{number}"
 
         token = "65537"         # too big for 16 bits
-        number = assembler.parse_int(token)
-        assert number is None, "Should have failed on too-large number "\
-            f"'{token}'"
+        with pytest.raises(ValueError):
+            assembler.parse_int(token)
 
-        token = "5.5"           # OK, but truncates
-        number = assembler.parse_int(token)
-        expected = 5
-        assert number is None, f"Should have gotten failed on "\
-            f"'{token}', but got {number}"
+        token = "5.5"           # floats not supported
+        with pytest.raises(ValueError):
+            assembler.parse_int(token)
 
     @pytest.mark.parametrize("token, expected",
                              [("0x0", b"\x00"), ("0xf3", b"\xf3"),

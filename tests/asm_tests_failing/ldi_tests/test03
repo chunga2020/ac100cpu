@@ -1,0 +1,2 @@
+; doesn't fit in 16 bits
+LDI R1 -32769
