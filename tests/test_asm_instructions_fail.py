@@ -1,8 +1,6 @@
 import pathlib
-import pytest
 
 import src.ac100asm as asm
-import src.exceptions as ac_exc
 
 assembler = asm.AC100ASM()
 test_srcd = pathlib.Path("asm_tests_failing")
