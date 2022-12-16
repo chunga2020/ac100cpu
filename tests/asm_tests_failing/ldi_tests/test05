@@ -1,0 +1,2 @@
+; valid register, valid hex value, but missing hex prefix
+LDI R1 beef

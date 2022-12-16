@@ -35,3 +35,10 @@ class TestLdiFailures:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "Assembly should fail when decimal is too large"
+
+    def test_ldi_invalid_hex(self):
+        source_file = pathlib.Path(ldi_tests, "test05")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "Assembly should fail when hex word is missing prefix"
