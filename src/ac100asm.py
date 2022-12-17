@@ -346,29 +346,30 @@ class AC100ASM:
             tokens = self.tokenize_line(source_line)
             if tokens is None:  # empty line, go on to the next one
                 continue
-            match tokens[0]:    # opcode
+            opcode: str = tokens[0]
+            match opcode:
                 case "LDI":
                     next_line = self._assemble_ldi(tokens)
                     if next_line is None:
-                        logger.error(f"Failed to assemble {tokens[0]}")
+                        logger.error(f"Failed to assemble {opcode}")
                         return None
                     bytecode += next_line
                 case "LDR":
                     next_line = self._assemble_ldr(tokens)
                     if next_line is None:
-                        logger.error(f"Failed to assemble {tokens[0]}")
+                        logger.error(f"Failed to assemble {opcode}")
                         return None
                     bytecode += next_line
                 case "LDM":
                     next_line = self._assemble_ldm(tokens)
                     if next_line is None:
-                        logger.error(f"Failed to assemble {tokens[0]}")
+                        logger.error(f"Failed to assemble {opcode}")
                         return None
                     bytecode += next_line
-                case "ST":
+                case "ST" | "STH":
                     next_line = self._assemble_st(tokens)
                     if next_line is None:
-                        logger.error(f"Failed to assemble {tokens[0]}")
+                        logger.error(f"Failed to assemble {opcode}")
                         return None
                     bytecode += next_line
                 case "HALT":
@@ -377,7 +378,7 @@ class AC100ASM:
                 case ";":       # comment; do nothing
                     continue
                 case _:
-                    msg = f"Unknown or unimplemented instruction {tokens[0]}"
+                    msg = f"Unknown or unimplemented instruction {opcode}"
                     logger.error(msg)
 
         return bytecode
