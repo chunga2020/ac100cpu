@@ -140,6 +140,13 @@ class TestLdmFailures:
             assert bytecode is None,\
                 "LDM assembly should fail if destination reg missing prefix"
 
+    def test_ldm_address_decimal(self):
+        source_file = pathlib.Path(ldm_tests, "test04")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "LDM assembly should fail if source address given in decimal"
+
 
 class TestStFailures:
     def test_st_source_register_too_small(self):
