@@ -1,0 +1,3 @@
+LDI R1 1
+; Address smaller than 16 bits
+ST R1 0xabc

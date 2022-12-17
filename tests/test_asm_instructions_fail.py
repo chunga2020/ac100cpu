@@ -135,3 +135,9 @@ class TestStFailures:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "Assembly should fail if address is missing hex prefix"
+
+        source_file = pathlib.Path(st_tests, "test05")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "Assembly should fail if hex address not 16 bits wide"
