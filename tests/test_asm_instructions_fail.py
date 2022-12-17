@@ -128,3 +128,10 @@ class TestStFailures:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "Assembly should fail if source register is missing prefix"
+
+    def test_bad_destination_address(self):
+        source_file = pathlib.Path(st_tests, "test04")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "Assembly should fail if address is missing hex prefix"
