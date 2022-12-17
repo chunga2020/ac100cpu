@@ -126,6 +126,13 @@ class TestLdmFailures:
             assert bytecode is None,\
                 "LDM assembly should fail if destination reg < 1"
 
+    def test_ldm_dest_register_too_big(self):
+        source_file = pathlib.Path(ldm_tests, "test02")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "LDM assembly should fail if destination reg > 16"
+
 class TestStFailures:
     def test_st_source_register_too_small(self):
         source_file = pathlib.Path(st_tests, "test01")
