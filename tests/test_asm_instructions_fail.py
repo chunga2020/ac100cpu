@@ -133,6 +133,14 @@ class TestLdmFailures:
             assert bytecode is None,\
                 "LDM assembly should fail if destination reg > 16"
 
+    def test_ldm_dest_register_missing_prefix(self):
+        source_file = pathlib.Path(ldm_tests, "test03")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "LDM assembly should fail if destination reg missing prefix"
+
+
 class TestStFailures:
     def test_st_source_register_too_small(self):
         source_file = pathlib.Path(st_tests, "test01")
