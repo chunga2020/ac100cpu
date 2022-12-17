@@ -6,6 +6,7 @@ assembler = asm.AC100ASM()
 test_srcd = pathlib.Path("asm_tests_failing")
 ldi_tests = pathlib.Path(test_srcd, "ldi_tests")
 ldr_tests = pathlib.Path(test_srcd, "ldr_tests")
+ldm_tests = pathlib.Path(test_srcd, "ldm_tests")
 st_tests = pathlib.Path(test_srcd, "st_tests")
 
 class TestLdiFailures:
@@ -116,6 +117,14 @@ class TestLdrFailures:
             assert bytecode is None,\
                 "Assembly should fail if source register missing prefix"
 
+
+class TestLdmFailures:
+    def test_ldm_dest_register_too_small(self):
+        source_file = pathlib.Path(ldm_tests, "test01")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "LDM assembly should fail if destination reg < 1"
 
 class TestStFailures:
     def test_st_source_register_too_small(self):
