@@ -288,7 +288,7 @@ class AC100ASM:
 
     def _assemble_st(self, tokens: [str]) -> bytes:
         """
-        Assemble an ST instruction
+        Assemble an ST* instruction
 
         Parameters:
         tokens: the line to be assembled
@@ -296,7 +296,15 @@ class AC100ASM:
         Return:
         On success, return the assembled bytecode.  On failure, return None
         """
-        bytecode: bytes = b"\x10"
+        bytecode: bytes = b""
+        opcode: str = tokens[0]
+        match opcode:
+            case "ST": bytecode = b"\x10"
+            case "STH": bytecode = b"\x11"
+            case "STL": bytecode = b"\x12"
+            case _:
+                logger.error(f"Unimplemented or invalid instruction {opcode}")
+                return None
         src_reg: int = -1
         try:
             src_reg = self.parse_register_name(tokens[1])
