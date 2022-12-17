@@ -376,6 +376,9 @@ class AC100ASM:
                     bytecode += next_line
                 case ";":       # comment; do nothing
                     continue
+                case _:
+                    msg = f"Unknown or unimplemented instruction {tokens[0]}"
+                    logger.error(msg)
 
         return bytecode
 
