@@ -413,6 +413,61 @@ class AC100ASM:
         return bytecode
 
 
+    def _assemble_jump(self, tokens: [str]) -> bytes:
+        """
+        Assemble a jump instruction.
+
+        All jumps have the same syntax: opcode <unused> addr, so we only need to
+        vary the opcode that goes into the bytecode, which is good, because
+        there are six different jump instructions in the instruction set.
+
+        Parameters:
+        tokens: the line to be assembled
+
+        Return:
+        On success, return the assembled bytecode.  On failure, return None
+        """
+        bytecode: bytes = None
+
+        opcode: str = tokens[0]
+
+        match opcode:
+            case "JE": bytecode = b"\x30"
+            case "JG": bytecode = b"\x31"
+            case "JGE": bytecode = b"\x32"
+            case "JL": bytecode = b"\x33"
+            case "JLE": bytecode = b"\x34"
+            case "JMP": bytecode = b"\x35"
+            case _:
+                logger.error(f"Unknown or unimplemented opcode {opcode}")
+                return None
+
+        bytecode += b"\x00"     # second byte unused
+
+        address: bytes = None
+        try:
+            address = self.parse_address(tokens[1])
+        except ValueError as e:
+            logger.error(e)
+            return None
+        except Exception as e:
+            logger.error("Unexpected error:", e)
+            return None
+        addr_as_int: int = address[0] << 8 | address[1]
+        # stack space may not be interpreted as executable code --- bad idea
+        # anyways
+        if addr_as_int <= defs.STACK_MIN:
+            logger.error("Instructions may not jump into stack space, which is "
+                         f"0x{defs.STACK_MAX}--0x{defs.STACK_MIN}, inclusive")
+            return None
+        bytecode += address
+
+        if len(bytecode) != 4:
+            logger.error(f"Bytecode should be 4 bytes, but is {len(bytecode)}")
+            return None
+        return bytecode
+
+
     def _assemble_halt(self):
         bytecode: bytes = b"\xfe\xff\xfe\xff"
         return bytecode
@@ -446,6 +501,8 @@ class AC100ASM:
                 case "ST" | "STH" | "STL": next_line = self._assemble_st(tokens)
                 case "CMR": next_line = self._assemble_cmr(tokens)
                 case "CMI": next_line = self._assemble_cmi(tokens)
+                case "JE" | "JG" | "JGE" | "JL" | "JLE" | "JMP":
+                    next_line = self._assemble_jump(tokens)
                 case "HALT": next_line = self._assemble_halt()
                 case ";":       # comment; do nothing
                     continue
