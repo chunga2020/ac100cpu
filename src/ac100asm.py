@@ -374,6 +374,45 @@ class AC100ASM:
         return bytecode
 
 
+    def _assemble_cmi(self, tokens: [str]) -> bytes:
+        """
+        Assemble a CMI instruction
+
+        Parameters:
+        tokens: the line to be assembled
+
+        Return:
+        On success, return the assembled bytecode.  On failure, return None
+        """
+        bytecode: bytes = b"\x21"
+        register: int = -1
+        try:
+            register = self.parse_register_name(tokens[1])
+        except (ac_exc.InvalidRegisterNameError,
+                ac_exc.RegisterNameMissingPrefixError) as e:
+            logger.error(e)
+            return None
+        except Exception as e:
+            logger.error("Unexpected error:", e)
+            return None
+        bytecode += register.to_bytes(1, byteorder='big')
+        word: bytes = None
+        try:
+            word = self.parse_int(tokens[2])
+        except ValueError as e:
+            logger.error(e)
+            return None
+        except Exception as e:
+            logger.error("Unexpected error:", e)
+            return None
+        bytecode += word
+
+        if len(bytecode) != 4:
+            logger.error(f"Bytecode should be 4 bytes, but is {len(bytecode)}")
+            return None
+        return bytecode
+
+
     def _assemble_halt(self):
         bytecode: bytes = b"\xfe\xff\xfe\xff"
         return bytecode
@@ -404,6 +443,7 @@ class AC100ASM:
                 case "LDM": next_line = self._assemble_ldm(tokens)
                 case "ST" | "STH" | "STL": next_line = self._assemble_st(tokens)
                 case "CMR": next_line = self._assemble_cmr(tokens)
+                case "CMI": next_line = self._assemble_cmi(tokens)
                 case "HALT": next_line = self._assemble_halt()
                 case ";":       # comment; do nothing
                     continue
