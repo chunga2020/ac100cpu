@@ -220,3 +220,10 @@ class TestCmrFailures:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "CMR assembly should fail if destination reg > 16"
+
+    def test_source_reg_missing_prefix(self):
+        source_file = pathlib.Path(cmr_tests, "test04")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "CMR assembly should fail if source register missing prefix"
