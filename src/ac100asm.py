@@ -436,7 +436,9 @@ class AC100ASM:
             tokens = self.tokenize_line(source_line)
             if tokens is None:  # empty line, go on to the next one
                 continue
+            logger.debug(f"tokens: {tokens}")
             opcode: str = tokens[0]
+            logger.debug(f"opcode: {opcode}")
             match opcode:
                 case "LDI": next_line = self._assemble_ldi(tokens)
                 case "LDR": next_line = self._assemble_ldr(tokens)
@@ -477,7 +479,7 @@ def setup_logger(level) -> None:
     Parameters:
     level: the level to use
     """
-    format = "[%(levelname)s]:%(funcName)s:%(lineno)d: %(message)s"
+    format = "[%(levelname)s] %(name)s:%(funcName)s():%(lineno)d: %(message)s"
     logging.basicConfig(format=format, level=logging.getLevelName(level))
 
 
