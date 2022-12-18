@@ -250,3 +250,10 @@ class TestCmiFailures:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "CMI assembly should fail if register < 1"
+
+    def test_register_too_big(self):
+        source_file = pathlib.Path(cmr_tests, "test02")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "CMI assembly should fail if register > 16"
