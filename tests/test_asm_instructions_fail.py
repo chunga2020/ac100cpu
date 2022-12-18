@@ -271,3 +271,10 @@ class TestCmiFailures:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "CMI assembly should fail if hex word missing prefix"
+
+    def test_hex_three_digits(self):
+        source_file = pathlib.Path(cmi_tests, "test05")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "CMI assembly should fail if hex word only 12 bits"
