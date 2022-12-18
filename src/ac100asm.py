@@ -286,6 +286,7 @@ class AC100ASM:
             return None
         return bytecode
 
+
     def _assemble_st(self, tokens: [str]) -> bytes:
         """
         Assemble an ST* instruction
