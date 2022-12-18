@@ -278,3 +278,10 @@ class TestCmiFailures:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "CMI assembly should fail if hex word only 12 bits"
+
+    def test_hex_word_too_big(self):
+        source_file = pathlib.Path(cmi_tests, "test06")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "CMI assembly should fail if hex word > 16 bits"
