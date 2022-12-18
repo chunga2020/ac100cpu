@@ -9,6 +9,7 @@ ldr_tests = pathlib.Path(test_srcd, "ldr_tests")
 ldm_tests = pathlib.Path(test_srcd, "ldm_tests")
 st_tests = pathlib.Path(test_srcd, "st_tests")
 cmr_tests = pathlib.Path(test_srcd, "cmr_tests")
+cmi_tests = pathlib.Path(test_srcd, "cmi_tests")
 
 class TestLdiFailures:
     def test_ldi_bad_register(self):
@@ -241,3 +242,11 @@ class TestCmrFailures:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "CMR assembly should fail if source reg > 16"
+
+class TestCmiFailures:
+    def test_register_too_small(self):
+        source_file = pathlib.Path(cmr_tests, "test01")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "CMI assembly should fail if register < 1"
