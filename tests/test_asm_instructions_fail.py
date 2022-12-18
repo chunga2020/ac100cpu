@@ -306,3 +306,10 @@ class TestCmiFailures:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "CMI assembly should fail if decimal word > 65536"
+
+    def test_decimal_floats_not_allowed(self):
+        source_file = pathlib.Path(cmi_tests, "test10")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "CMI assembly should fail if word is not an integer"
