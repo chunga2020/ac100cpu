@@ -357,38 +357,22 @@ class AC100ASM:
                 continue
             opcode: str = tokens[0]
             match opcode:
-                case "LDI":
-                    next_line = self._assemble_ldi(tokens)
-                    if next_line is None:
-                        logger.error(f"Failed to assemble {opcode}")
-                        return None
-                    bytecode += next_line
-                case "LDR":
-                    next_line = self._assemble_ldr(tokens)
-                    if next_line is None:
-                        logger.error(f"Failed to assemble {opcode}")
-                        return None
-                    bytecode += next_line
-                case "LDM":
-                    next_line = self._assemble_ldm(tokens)
-                    if next_line is None:
-                        logger.error(f"Failed to assemble {opcode}")
-                        return None
-                    bytecode += next_line
-                case "ST" | "STH" | "STL":
-                    next_line = self._assemble_st(tokens)
-                    if next_line is None:
-                        logger.error(f"Failed to assemble {opcode}")
-                        return None
-                    bytecode += next_line
-                case "HALT":
-                    next_line = self._assemble_halt()
-                    bytecode += next_line
+                case "LDI": next_line = self._assemble_ldi(tokens)
+                case "LDR": next_line = self._assemble_ldr(tokens)
+                case "LDM": next_line = self._assemble_ldm(tokens)
+                case "ST" | "STH" | "STL": next_line = self._assemble_st(tokens)
+                case "CMR": next_line = self._assemble_cmr(tokens)
+                case "HALT": next_line = self._assemble_halt()
                 case ";":       # comment; do nothing
                     continue
                 case _:
                     msg = f"Unknown or unimplemented instruction {opcode}"
                     logger.error(msg)
+            if next_line is None:
+                logger.error(f"Failed to assemble {opcode}")
+                return None
+            bytecode += next_line
+
 
         return bytecode
 
