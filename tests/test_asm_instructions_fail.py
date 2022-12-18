@@ -245,21 +245,21 @@ class TestCmrFailures:
 
 class TestCmiFailures:
     def test_register_too_small(self):
-        source_file = pathlib.Path(cmr_tests, "test01")
+        source_file = pathlib.Path(cmi_tests, "test01")
         with open(source_file, "r") as f:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "CMI assembly should fail if register < 1"
 
     def test_register_too_big(self):
-        source_file = pathlib.Path(cmr_tests, "test02")
+        source_file = pathlib.Path(cmi_tests, "test02")
         with open(source_file, "r") as f:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "CMI assembly should fail if register > 16"
 
     def test_register_missing_prefix(self):
-        source_file = pathlib.Path(cmr_tests, "test03")
+        source_file = pathlib.Path(cmi_tests, "test03")
         with open(source_file, "r") as f:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
