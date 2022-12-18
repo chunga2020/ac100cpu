@@ -285,3 +285,10 @@ class TestCmiFailures:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "CMI assembly should fail if hex word > 16 bits"
+
+    def test_binary_word_too_big(self):
+        source_file = pathlib.Path(cmi_tests, "test07")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "CMI assembly should fail if binary word > 16 bits"
