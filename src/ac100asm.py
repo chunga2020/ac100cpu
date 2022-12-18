@@ -171,6 +171,24 @@ class AC100ASM:
         return tokens
 
 
+    def _check_len(self, bytecode: bytes) -> bytes:
+        """
+        Check that an assembled bytecode instruction is the correct size.
+
+        For the AC100, all instructions should be four bytes long.
+
+        Parameters:
+        bytecode: bytecode to check
+
+        Return:
+        If the bytecode is four bytes, return it.  Else, return None.
+        """
+        if len(bytecode) != 4:
+            logger.error(f"Bytecode should be 4 bytes, is {len(bytecode)}")
+            return None
+        return bytecode
+
+
     def _assemble_ldi(self, tokens) -> bytes:
         """
         Assemble an LDI instruction
@@ -202,11 +220,8 @@ class AC100ASM:
             logger.error("Unexpected error:", e)
             return None
         bytecode += word
-        if len(bytecode) != 4:
-            logger.error(f"Bytecode should be 4 bytes, is {len(bytecode)}")
-            return None
 
-        return bytecode
+        return self._check_len(bytecode)
 
 
     def _assemble_ldr(self, tokens: [str]) -> bytes:
@@ -243,10 +258,8 @@ class AC100ASM:
             return None
         bytecode += src_reg.to_bytes(1, byteorder='big')
         bytecode += b"\x00"
-        if len(bytecode) != 4:
-            logger.error(f"Bytecode should be 4 bytes, but is {len(bytecode)}")
-            return None
-        return bytecode
+
+        return self._check_len(bytecode)
 
 
     def _assemble_ldm(self, tokens: [str]) -> bytes:
@@ -281,10 +294,8 @@ class AC100ASM:
             logger.error("Unexpected error:", e)
             return None
         bytecode += address
-        if len(bytecode) != 4:
-            logger.error(f"Bytecode should be 4 bytes, but is {len(bytecode)}")
-            return None
-        return bytecode
+
+        return self._check_len(bytecode)
 
 
     def _assemble_st(self, tokens: [str]) -> bytes:
@@ -326,10 +337,8 @@ class AC100ASM:
         except Exception as e:
             logger.error("Unexpected error:", e)
         bytecode += address
-        if len(bytecode) != 4:
-            logger.error(f"Bytecode should be 4 bytes, but is {len(bytecode)}")
-            return None
-        return bytecode
+
+        return self._check_len(bytecode)
 
 
     def _assemble_cmr(self, tokens: [str]) -> bytes:
@@ -368,10 +377,7 @@ class AC100ASM:
         bytecode += src_reg.to_bytes(1, byteorder='big')
         bytecode += b"\x00"
 
-        if len(bytecode) != 4:
-            logger.error(f"Bytecode should be 4 bytes, but is {len(bytecode)}")
-            return None
-        return bytecode
+        return self._check_len(bytecode)
 
 
     def _assemble_cmi(self, tokens: [str]) -> bytes:
@@ -407,10 +413,7 @@ class AC100ASM:
             return None
         bytecode += word
 
-        if len(bytecode) != 4:
-            logger.error(f"Bytecode should be 4 bytes, but is {len(bytecode)}")
-            return None
-        return bytecode
+        return self._check_len(bytecode)
 
 
     def _assemble_jump(self, tokens: [str]) -> bytes:
@@ -462,10 +465,7 @@ class AC100ASM:
             return None
         bytecode += address
 
-        if len(bytecode) != 4:
-            logger.error(f"Bytecode should be 4 bytes, but is {len(bytecode)}")
-            return None
-        return bytecode
+        return self._check_len(bytecode)
 
 
     def _assemble_halt(self):
