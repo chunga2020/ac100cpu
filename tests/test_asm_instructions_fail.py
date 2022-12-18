@@ -8,6 +8,7 @@ ldi_tests = pathlib.Path(test_srcd, "ldi_tests")
 ldr_tests = pathlib.Path(test_srcd, "ldr_tests")
 ldm_tests = pathlib.Path(test_srcd, "ldm_tests")
 st_tests = pathlib.Path(test_srcd, "st_tests")
+cmr_tests = pathlib.Path(test_srcd, "cmr_tests")
 
 class TestLdiFailures:
     def test_ldi_bad_register(self):
@@ -197,3 +198,11 @@ class TestStFailures:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "ST assembly should fail if hex address > 16 bits wide"
+
+class TestCmrFailures:
+    def test_destination_reg_missing_prefix(self):
+        source_file = pathlib.Path(cmr_tests, "test01")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "CMR assembly should fail if dest register missing prefix"
