@@ -292,3 +292,10 @@ class TestCmiFailures:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "CMI assembly should fail if binary word > 16 bits"
+
+    def test_decimal_too_negative(self):
+        source_file = pathlib.Path(cmi_tests, "test08")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "CMI assembly should fail if decimal word < -32768"
