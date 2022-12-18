@@ -332,6 +332,48 @@ class AC100ASM:
         return bytecode
 
 
+    def _assemble_cmr(self, tokens: [str]) -> bytes:
+        """
+        Assemble a CMR instruction
+
+        Parameters:
+        tokens: the line to be assembled
+
+        Return:
+        On success, return the assembled bytecode.  On failure, return None
+        """
+        bytecode: bytes = b"\x20"
+        dest_reg: int = -1
+        try:
+            dest_reg = self.parse_register_name(tokens[1])
+        except (ac_exc.InvalidRegisterNameError,
+                ac_exc.RegisterNameMissingPrefixError) as e:
+            logger.error(e)
+            return None
+        except Exception as e:
+            logger.error("Unexpected error:", e)
+            return None
+        bytecode += dest_reg.to_bytes(1, byteorder='big')
+
+        src_reg: int = -1
+        try:
+            src_reg = self.parse_register_name(tokens[2])
+        except (ac_exc.InvalidRegisterNameError,
+                ac_exc.RegisterNameMissingPrefixError) as e:
+            logger.error(e)
+            return None
+        except Exception as e:
+            logger.error("Unexpected error:", e)
+            return None
+        bytecode += src_reg.to_bytes(1, byteorder='big')
+        bytecode += b"\x00"
+
+        if len(bytecode) != 4:
+            logger.error(f"Bytecode should be 4 bytes, but is {len(bytecode)}")
+            return None
+        return bytecode
+
+
     def _assemble_halt(self):
         bytecode: bytes = b"\xfe\xff\xfe\xff"
         return bytecode
