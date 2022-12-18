@@ -257,3 +257,10 @@ class TestCmiFailures:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "CMI assembly should fail if register > 16"
+
+    def test_register_missing_prefix(self):
+        source_file = pathlib.Path(cmr_tests, "test03")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "CMI assembly should fail if register missing prefix"
