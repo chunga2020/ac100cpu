@@ -234,3 +234,10 @@ class TestCmrFailures:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "CMR assembly should fail if source register < 1"
+
+    def test_source_reg_too_big(self):
+        source_file = pathlib.Path(cmr_tests, "test06")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "CMR assembly should fail if source reg > 16"
