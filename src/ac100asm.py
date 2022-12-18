@@ -375,7 +375,7 @@ class AC100ASM:
                         logger.error(f"Failed to assemble {opcode}")
                         return None
                     bytecode += next_line
-                case "ST" | "STH":
+                case "ST" | "STH" | "STL":
                     next_line = self._assemble_st(tokens)
                     if next_line is None:
                         logger.error(f"Failed to assemble {opcode}")

@@ -89,3 +89,13 @@ class TestAssemblerPasses:
             bytecode = assembler.assemble(f)
             assert assembler.lineno == 3, "Expected assembler to be on line 3"
             assert bytecode == expected, "Assembler did not assemble STH"
+
+    def test_stl(self):
+        source_file = pathlib.Path(test_srcd, "test09")
+        expected = b"\x00\x00\x00\x02"
+        expected += b"\x12\x00\x05\x00"
+        expected += b"\xfe\xff\xfe\xff"
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert assembler.lineno == 3, "Expected assembler to be on line 3"
+            assert bytecode == expected, "Failed to assembled STL"
