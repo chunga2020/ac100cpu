@@ -36,7 +36,7 @@
       - 0 if most-significant bit of destination register cleared by operation
     - V :: oVerflow
       - *Signed* overflow occurred
-        - If we have A + B = C or A - B = C, V is set when:
+        - If we have A + B = C, V is set when:
           - A < 0, B < 0, C > 0
             - MSB of A set
             - MSB of B set
@@ -45,6 +45,15 @@
             - MSB of A cleared
             - MSB of B cleared
             - MSB of C set
+        - If we have A - B = C, V is set when:
+          - A > 0, B < 0, C < 0
+            - MSB of A cleared
+            - MSB of B set
+            - MSB of C set
+          - A < 0, B > 0, C > 0
+            - MSB of A set
+            - MSB of B cleared
+            - MSB of C cleared
         - And cleared otherwise
     - Z :: Zero
       - 1 if last operation set destination register to zero
