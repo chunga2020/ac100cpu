@@ -48,40 +48,18 @@ class TestLdrFailures:
             assert bytecode is None, assert_msg
 
 class TestLdmFailures:
-    def test_ldm_dest_register_too_small(self):
-        source_file = pathlib.Path(ldm_tests, "test01")
-        with open(source_file, "r") as f:
+    @pytest.mark.parametrize("src_file, assert_msg",
+        [
+            ("test01", "LDM assembly should fail if dest register < 1"),
+            ("test02", "LDM assembly should fail if dest register > 16"),
+            ("test03", "LDM assembly should fail if dest register missing prefix"),
+            ("test04", "LDM assembly should fail if src address given in decimal"),
+            ("test05", "LDM assembly should fail if hex address < 16 bits wide")
+        ])
+    def test_ldm_failures(self, src_file, assert_msg):
+        with open(pathlib.Path(ldm_tests, src_file), "r") as f:
             bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "LDM assembly should fail if destination reg < 1"
-
-    def test_ldm_dest_register_too_big(self):
-        source_file = pathlib.Path(ldm_tests, "test02")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "LDM assembly should fail if destination reg > 16"
-
-    def test_ldm_dest_register_missing_prefix(self):
-        source_file = pathlib.Path(ldm_tests, "test03")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "LDM assembly should fail if destination reg missing prefix"
-
-    def test_ldm_address_decimal(self):
-        source_file = pathlib.Path(ldm_tests, "test04")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "LDM assembly should fail if source address given in decimal"
-
-    def test_ldm_address_three_digits(self):
-        source_file = pathlib.Path(ldm_tests, "test05")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "LDM assembly should fail if hex address < 16 bits wide"
+            assert bytecode is None, assert_msg
 
 
 class TestStFailures:
