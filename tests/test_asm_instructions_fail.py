@@ -14,75 +14,23 @@ cmi_tests = pathlib.Path(test_srcd, "cmi_tests")
 jump_tests = pathlib.Path(test_srcd, "jump_tests")
 
 class TestLdiFailures:
-    def test_ldi_bad_register(self):
-        source_file = pathlib.Path(ldi_tests, "test01")
-        with open(source_file, "r") as f:
+    @pytest.mark.parametrize("src_file, assert_msg",
+        [
+            ("test01", "LDI assembly should fail with bad register name"),
+            ("test02", "LDI assembly should fail with register without prefix"),
+            ("test03", "LDI assembly should fail when decimal is too negative"),
+            ("test04", "LDI assembly should fail when decimal is too large"),
+            ("test05", "LDI assembly should fail when hex word is missing prefix"),
+            ("test06", "LDI assembly should fail if hex value has 3 hexits"),
+            ("test07", "LDI assembly should fail if hex value larger than 2 bytes"),
+            ("test08", "LDI assembly should fail if hex value contains non-hex digits"),
+            ("test09", "LDI assembly should fail if binary value is larger than 16 bits"),
+            ("test10", "LDI assembly should fail if 'binary' value has non-binary digits")
+        ])
+    def test_ldi_failures(self, src_file, assert_msg):
+        with open(pathlib.Path(ldi_tests, src_file), "r") as f:
             bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "Assembly should have failed with bad register name"
-
-    def test_ldi_register_no_prefix(self):
-        source_file = pathlib.Path(ldi_tests, "test02")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "Assembly should have failed with register without prefix"
-
-    def test_ldi_decimal_too_negative(self):
-        source_file = pathlib.Path(ldi_tests, "test03")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "Assembly should fail when decimal is too negative"
-
-    def test_ldi_decimal_too_big(self):
-        source_file = pathlib.Path(ldi_tests, "test04")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "Assembly should fail when decimal is too large"
-
-    def test_ldi_hex_missing_prefix(self):
-        source_file = pathlib.Path(ldi_tests, "test05")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "Assembly should fail when hex word is missing prefix"
-
-    def test_ldi_hex_three_hexits(self):
-        source_file = pathlib.Path(ldi_tests, "test06")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "Assembly should fail if hex value has 3 hexits"
-
-    def test_ldi_hex_too_big(self):
-        source_file = pathlib.Path(ldi_tests, "test07")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "Assembly should fail if hex value larger than 2 bytes"
-
-    def test_ldi_hex_invalid_hexits(self):
-        source_file = pathlib.Path(ldi_tests, "test08")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "Assembly should fail if hex value contains non-hex digits"
-
-    def test_ldi_binary_too_wide(self):
-        source_file = pathlib.Path(ldi_tests, "test09")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "Assembly should fail if binary value is larger than 16 bits"
-
-    def test_ldi_binary_invalid_bits(self):
-        source_file = pathlib.Path(ldi_tests, "test10")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "Assembly should fail if 'binary' value has non-binary digits"
+            assert bytecode is None, assert_msg
 
 
 class TestLdrFailures:
