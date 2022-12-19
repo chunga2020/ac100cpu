@@ -464,6 +464,11 @@ class AC100ASM:
                          f"([0x{defs.STACK_MAX:04x}, "
                          f"0x{defs.STACK_MIN:04x}])")
             return None
+        # all instructions are four-byte aligned; jumping to a misaligned
+        # address is sure to cause bugs
+        if addr_as_int % 4 != 0:
+            logger.error(f"Address 0x{addr_as_int:04x} not 4-byte aligned")
+            return None
         bytecode += address
 
         return self._check_len(bytecode)
