@@ -80,47 +80,21 @@ class TestStFailures:
 
 
 class TestCmrFailures:
-    def test_destination_reg_missing_prefix(self):
-        source_file = pathlib.Path(cmr_tests, "test01")
+    @pytest.mark.parametrize("src_file, assert_msg",
+        [
+            ("test01", "CMR assembly should fail if dest register missing prefix"),
+            ("test02", "CMR assembly should fail if dest register < 1"),
+            ("test03", "CMR assembly should fail if dest register > 16"),
+            ("test04", "CMR assembly should fail if src register missing prefix"),
+            ("test05", "CMR assembly should fail if src register < 1"),
+            ("test06", "CMR assembly should fail if src register > 16")
+        ])
+    def test_cmr_failures(self, src_file, assert_msg):
+        source_file = pathlib.Path(cmr_tests, src_file)
         with open(source_file, "r") as f:
             bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "CMR assembly should fail if dest register missing prefix"
+            assert bytecode is None, assert_msg
 
-    def test_destination_reg_too_small(self):
-        source_file = pathlib.Path(cmr_tests, "test02")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "CMR assembly should fail if dest register < 1"
-
-    def test_destination_reg_too_big(self):
-        source_file = pathlib.Path(cmr_tests, "test03")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "CMR assembly should fail if destination reg > 16"
-
-    def test_source_reg_missing_prefix(self):
-        source_file = pathlib.Path(cmr_tests, "test04")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "CMR assembly should fail if source register missing prefix"
-
-    def test_source_reg_too_small(self):
-        source_file = pathlib.Path(cmr_tests, "test05")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "CMR assembly should fail if source register < 1"
-
-    def test_source_reg_too_big(self):
-        source_file = pathlib.Path(cmr_tests, "test06")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "CMR assembly should fail if source reg > 16"
 
 class TestCmiFailures:
     def test_register_too_small(self):
