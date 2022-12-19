@@ -125,6 +125,7 @@ class TestJumpFailures:
             ("test03", "JE assembly should fail if destination is in the stack"),
             ("test04", "JG assembly should fail if address is missing prefix"),
             ("test05", "JG assembly should fail if address not 16 bits"),
+            ("test06", "JG assembly should fail if destination is in the stack")
         ])
     def test_jump_failures(self, src_file, assert_msg):
         with open(pathlib.Path(jump_tests, src_file), "r") as f:
