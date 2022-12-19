@@ -97,75 +97,25 @@ class TestCmrFailures:
 
 
 class TestCmiFailures:
-    def test_register_too_small(self):
-        source_file = pathlib.Path(cmi_tests, "test01")
+    @pytest.mark.parametrize("src_file, assert_msg",
+        [
+            ("test01", "CMI assembly should fail if register < 1"),
+            ("test02", "CMI assembly should fail if register > 16"),
+            ("test03", "CMI assembly should fail if register missing prefix"),
+            ("test04", "CMI assembly should fail if hex word missing prefix"),
+            ("test05", "CMI assembly should fail if hex word only 12 bits"),
+            ("test06", "CMI assembly should fail if hex word > 16 bits"),
+            ("test07", "CMI assembly should fail if binary word > 16 bits"),
+            ("test08", "CMI assembly should fail if decimal word < -32768"),
+            ("test09", "CMI assembly should fail if decimal word > 65536"),
+            ("test10", "CMI assembly should fail if word is not an integer")
+        ])
+    def test_cmi_failures(self, src_file, assert_msg):
+        source_file = pathlib.Path(cmi_tests, src_file)
         with open(source_file, "r") as f:
             bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "CMI assembly should fail if register < 1"
+            assert bytecode is None, assert_msg
 
-    def test_register_too_big(self):
-        source_file = pathlib.Path(cmi_tests, "test02")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "CMI assembly should fail if register > 16"
-
-    def test_register_missing_prefix(self):
-        source_file = pathlib.Path(cmi_tests, "test03")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "CMI assembly should fail if register missing prefix"
-
-    def test_hex_word_missing_prefix(self):
-        source_file = pathlib.Path(cmi_tests, "test04")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "CMI assembly should fail if hex word missing prefix"
-
-    def test_hex_three_digits(self):
-        source_file = pathlib.Path(cmi_tests, "test05")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "CMI assembly should fail if hex word only 12 bits"
-
-    def test_hex_word_too_big(self):
-        source_file = pathlib.Path(cmi_tests, "test06")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "CMI assembly should fail if hex word > 16 bits"
-
-    def test_binary_word_too_big(self):
-        source_file = pathlib.Path(cmi_tests, "test07")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "CMI assembly should fail if binary word > 16 bits"
-
-    def test_decimal_too_negative(self):
-        source_file = pathlib.Path(cmi_tests, "test08")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "CMI assembly should fail if decimal word < -32768"
-
-    def test_decimal_too_large(self):
-        source_file = pathlib.Path(cmi_tests, "test09")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "CMI assembly should fail if decimal word > 65536"
-
-    def test_decimal_floats_not_allowed(self):
-        source_file = pathlib.Path(cmi_tests, "test10")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "CMI assembly should fail if word is not an integer"
 
 class TestJumpFailures:
     @pytest.mark.parametrize("src_file,assert_msg",
