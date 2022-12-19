@@ -78,7 +78,7 @@ class TestParseInt:
             assembler.parse_int(token)
 
     @pytest.mark.parametrize("token, expected",
-                             [("0x0", b"\x00"), ("0xf3", b"\xf3"),
+                             [("0x0", b"\x00\x00"), ("0xf3", b"\x00\xf3"),
                               ("0x0000", b"\x00\x00"), ("0xffff", b"\xff\xff")])
     def test_valid_hex(self, token, expected):
 

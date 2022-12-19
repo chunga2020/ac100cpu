@@ -111,6 +111,8 @@ class AC100ASM:
                 else:
                     raise ValueError(f"Invalid hex value '{token}'")
             number = bytes.fromhex(token)
+            if len(number) == 1:
+                number = b"\x00" + number
 
             if len(number) > defs.BYTES_PER_WORD:
                 number = None
@@ -183,6 +185,7 @@ class AC100ASM:
         Return:
         If the bytecode is four bytes, return it.  Else, return None.
         """
+        logger.debug(f"{bytecode=}")
         if len(bytecode) != 4:
             logger.error(f"Bytecode should be 4 bytes, is {len(bytecode)}")
             return None
