@@ -1,4 +1,5 @@
 import pathlib
+import pytest
 
 import src.ac100asm as asm
 
@@ -316,30 +317,14 @@ class TestCmiFailures:
                 "CMI assembly should fail if word is not an integer"
 
 class TestJumpFailures:
-    def test_je_fails_address_no_prefix(self):
-        source_file = pathlib.Path(jump_tests, "test01")
-        with open(source_file, "r") as f:
+    @pytest.mark.parametrize("src_file,assert_msg",
+        [
+            ("test01", "JE assembly should fail if address is missing prefix"),
+            ("test02", "JE assembly should fail if address not 16 bits"),
+            ("test03", "JE assembly should fail if destination is in the stack"),
+            ("test04", "JG assembly should fail if address is missing prefix")
+        ])
+    def test_jump_failures(self, src_file, assert_msg):
+        with open(pathlib.Path(jump_tests, src_file), "r") as f:
             bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "JE assembly should fail if address is missing prefix"
-
-    def test_je_fails_address_not_16_bits(self):
-        source_file = pathlib.Path(jump_tests, "test02")
-        with open(source_file,"r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "JE assembly should fail if address not 16 bits"
-
-    def test_je_fails_jumping_to_stack(self):
-        source_file = pathlib.Path(jump_tests, "test03")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "JE assembly should fail if destination is in the stack"
-
-    def test_jg_fails_address_no_prefix(self):
-        source_file = pathlib.Path(jump_tests, "test04")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "JG assembly should fail if address is missing prefix"
+            assert bytecode is None, assert_msg
