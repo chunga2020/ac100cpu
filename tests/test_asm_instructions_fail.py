@@ -34,41 +34,18 @@ class TestLdiFailures:
 
 
 class TestLdrFailures:
-    def test_ldr_bad_destination_register(self):
-        source_file = pathlib.Path(ldr_tests, "test01")
-        with open(source_file, "r") as f:
+    @pytest.mark.parametrize("src_file,assert_msg",
+        [
+            ("test01", "LDR assembly should fail with bad destination register"),
+            ("test02", "LDR assembly should fail if dest register missing prefix"),
+            ("test03", "LDR assembly should fail if source register < 1"),
+            ("test04", "LDR assembly should fail if source register > 16"),
+            ("test05", "LDR assembly should fail if source register missing prefix")
+        ])
+    def test_ldr_failures(self, src_file, assert_msg):
+        with open(pathlib.Path(ldr_tests, src_file), "r") as f:
             bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "Assembly should fail if LDR has a bad destination register"
-
-    def test_ldr_dest_reg_missing_prefix(self):
-        source_file = pathlib.Path(ldr_tests, "test02")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "Assembly should fail if dest register missing prefix"
-
-    def test_ldr_source_register_too_small(self):
-        source_file = pathlib.Path(ldr_tests, "test03")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "Assembly should fail if source register < 1"
-
-    def test_ldr_source_register_too_big(self):
-        source_file = pathlib.Path(ldr_tests, "test04")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "Assembly should fail if source register > 16"
-
-    def test_ldr_source_register_missing_prefix(self):
-        source_file = pathlib.Path(ldr_tests, "test05")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "Assembly should fail if source register missing prefix"
-
+            assert bytecode is None, assert_msg
 
 class TestLdmFailures:
     def test_ldm_dest_register_too_small(self):
