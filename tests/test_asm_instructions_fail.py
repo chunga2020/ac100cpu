@@ -10,6 +10,7 @@ ldm_tests = pathlib.Path(test_srcd, "ldm_tests")
 st_tests = pathlib.Path(test_srcd, "st_tests")
 cmr_tests = pathlib.Path(test_srcd, "cmr_tests")
 cmi_tests = pathlib.Path(test_srcd, "cmi_tests")
+jump_tests = pathlib.Path(test_srcd, "jump_tests")
 
 class TestLdiFailures:
     def test_ldi_bad_register(self):
@@ -313,3 +314,11 @@ class TestCmiFailures:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "CMI assembly should fail if word is not an integer"
+
+class TestJumpFailures:
+    def test_je_fails_address_no_prefix(self):
+        source_file = pathlib.Path(jump_tests, "test01")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "JE assembly should fail if address is missing prefix"
