@@ -185,3 +185,13 @@ class TestAssemblerPasses:
             bytecode = assembler.assemble(f)
             assert assembler.lineno == 3, "Expected assembler to be on line 3"
             assert bytecode == expected, "Failed to assemble JMP"
+
+    def test_addi(self):
+        source_file = pathlib.Path(test_srcd, "test18")
+        expected = b"\x00\x00\x00\x14"
+        expected += b"\x40\x00\x00\x20"
+        expected += b"\xfe\xff\xfe\xff"
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert assembler.lineno == 3, "Expected assembler to be on line 3"
+            assert bytecode == expected, "Failed to assemble ADDI"
