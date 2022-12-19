@@ -460,8 +460,9 @@ class AC100ASM:
         # stack space may not be interpreted as executable code --- bad idea
         # anyways
         if addr_as_int <= defs.STACK_MIN:
-            logger.error("Instructions may not jump into stack space, which is "
-                         f"0x{defs.STACK_MAX}--0x{defs.STACK_MIN}, inclusive")
+            logger.error("Programs may not jump into stack space "
+                         f"([0x{defs.STACK_MAX:04x}, "
+                         f"0x{defs.STACK_MIN:04x}])")
             return None
         bytecode += address
 

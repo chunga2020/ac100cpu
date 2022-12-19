@@ -329,3 +329,10 @@ class TestJumpFailures:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "JE assembly should fail if address not 16 bits"
+
+    def test_je_fails_jumping_to_stack(self):
+        source_file = pathlib.Path(jump_tests, "test03")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "JE assembly should fail if destination is in the stack"
