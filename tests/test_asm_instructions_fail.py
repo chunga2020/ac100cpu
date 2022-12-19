@@ -63,47 +63,21 @@ class TestLdmFailures:
 
 
 class TestStFailures:
-    def test_st_source_register_too_small(self):
-        source_file = pathlib.Path(st_tests, "test01")
+    @pytest.mark.parametrize("src_file, assert_msg",
+        [
+            ("test01", "ST assembly should fail if src register < 1"),
+            ("test02", "ST assembly should fail if src register > 16"),
+            ("test03", "ST assembly should fail if src register missing prefix"),
+            ("test04", "ST assembly should fail if address is missing hex prefix"),
+            ("test05", "ST assembly should fail if hex address not 16 bits wide"),
+            ("test06", "ST assembly should fail if hex address > 16 bits wide")
+        ])
+    def test_st_failures(self, src_file, assert_msg):
+        source_file = pathlib.Path(st_tests, src_file)
         with open(source_file, "r") as f:
             bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "Assembly should fail if source register < 1"
+            assert bytecode is None, assert_msg
 
-    def test_st_source_register_too_big(self):
-        source_file = pathlib.Path(st_tests, "test02")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "Assembly should fail if source register > 16"
-
-    def test_st_source_register_missing_prefix(self):
-        source_file = pathlib.Path(st_tests, "test03")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "Assembly should fail if source register is missing prefix"
-
-    def test_st_destination_address_missing_prefix(self):
-        source_file = pathlib.Path(st_tests, "test04")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "Assembly should fail if address is missing hex prefix"
-
-    def test_st_destination_address_too_small(self):
-        source_file = pathlib.Path(st_tests, "test05")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "Assembly should fail if hex address not 16 bits wide"
-
-    def test_st_destination_address_too_big(self):
-        source_file = pathlib.Path(st_tests, "test06")
-        with open(source_file, "r") as f:
-            bytecode = assembler.assemble(f)
-            assert bytecode is None,\
-                "ST assembly should fail if hex address > 16 bits wide"
 
 class TestCmrFailures:
     def test_destination_reg_missing_prefix(self):
