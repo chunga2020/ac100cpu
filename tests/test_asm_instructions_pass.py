@@ -175,3 +175,13 @@ class TestAssemblerPasses:
             bytecode = assembler.assemble(f)
             assert assembler.lineno == 4, "Expected assembler to be on line 4"
             assert bytecode == expected, "Failed to assemble JLE"
+
+    def test_jmp(self):
+        source_file = pathlib.Path(test_srcd, "test17")
+        expected = b"\x00\x00\x00\x2a"
+        expected += b"\x35\x00\x05\x00"
+        expected += b"\xfe\xff\xfe\xff"
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert assembler.lineno == 3, "Expected assembler to be on line 3"
+            assert bytecode == expected, "Failed to assemble JMP"
