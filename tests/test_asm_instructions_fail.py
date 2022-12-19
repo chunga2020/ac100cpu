@@ -322,3 +322,10 @@ class TestJumpFailures:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "JE assembly should fail if address is missing prefix"
+
+    def test_je_fails_address_not_16_bits(self):
+        source_file = pathlib.Path(jump_tests, "test02")
+        with open(source_file,"r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "JE assembly should fail if address not 16 bits"
