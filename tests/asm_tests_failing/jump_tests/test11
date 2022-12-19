@@ -1,0 +1,3 @@
+LDI R1 42
+CMI R1 50
+JL 0xabc
