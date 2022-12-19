@@ -336,3 +336,10 @@ class TestJumpFailures:
             bytecode = assembler.assemble(f)
             assert bytecode is None,\
                 "JE assembly should fail if destination is in the stack"
+
+    def test_jg_fails_address_no_prefix(self):
+        source_file = pathlib.Path(jump_tests, "test04")
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None,\
+                "JG assembly should fail if address is missing prefix"
