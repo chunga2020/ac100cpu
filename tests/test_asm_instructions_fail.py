@@ -12,6 +12,7 @@ st_tests = pathlib.Path(test_srcd, "st_tests")
 cmr_tests = pathlib.Path(test_srcd, "cmr_tests")
 cmi_tests = pathlib.Path(test_srcd, "cmi_tests")
 jump_tests = pathlib.Path(test_srcd, "jump_tests")
+addi_tests = pathlib.Path(test_srcd, "addi_tests")
 
 class TestLdiFailures:
     @pytest.mark.parametrize("src_file, assert_msg",
@@ -147,5 +148,26 @@ class TestJumpFailures:
         ])
     def test_jump_failures(self, src_file, assert_msg):
         with open(pathlib.Path(jump_tests, src_file), "r") as f:
+            bytecode = assembler.assemble(f)
+            assert bytecode is None, assert_msg
+
+
+class TestAddiFailures:
+    @pytest.mark.parametrize("src_file, assert_msg",
+        [
+            ("test01", "ADDI assembly should fail if register missing prefix"),
+            ("test02", "ADDI assembly should fail if register < 0"),
+            ("test03", "ADDI assembly should fail if register > 16"),
+            ("test04", "ADDI assembly should fail if hex word missing prefix"),
+            ("test05", "ADDI assembly should fail if hex word only three digits"),
+            ("test06", "ADDI assembly should fail if hex word > 16 bits"),
+            ("test07", "ADDI assembly should fail if decimal word < -32768"),
+            ("test08", "ADDI assembly should fail if decimal word > 65535"),
+            ("test09", "ADDI assembly should fail if decimal word is a float"),
+            ("test10", "ADDI assembly should fail if binary word > 16 bits"),
+            ("test11", "ADDI assembly should fail if binary word contains non-binary")
+        ])
+    def test_addi_failures(self, src_file, assert_msg):
+        with open(pathlib.Path(addi_tests, src_file), "r") as f:
             bytecode = assembler.assemble(f)
             assert bytecode is None, assert_msg
