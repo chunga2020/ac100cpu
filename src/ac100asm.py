@@ -583,6 +583,44 @@ class AC100ASM:
         return self._check_len(bytecode)
 
 
+    def _assemble_subi(self, tokens: [str]) -> bytes:
+        """
+        Assemble a SUBI instruction.
+
+        Parameters:
+        tokens: the line to be assembled
+
+        Return:
+        On success, return the assembled bytecode.  On failure, return None
+        """
+        bytecode: bytes = b"\x43"
+
+        register: int = -1
+        try:
+            register = self.parse_register_name(tokens[1])
+        except (ac_exc.InvalidRegisterNameError,
+                ac_exc.RegisterNameMissingPrefixError) as e:
+            logger.error(e)
+            return None
+        except Exception as e:
+            logger.error(f"Unexpected error: {e}")
+            return None
+        bytecode += register.to_bytes(1, byteorder='big')
+
+        word: bytes = None
+        try:
+            word = self.parse_int(tokens[2])
+        except ValueError as e:
+            logger.error(e)
+            return None
+        except Exception as e:
+            logger.error(f"Unexpected error: {e}")
+            return None
+        bytecode += word
+
+        return self._check_len(bytecode)
+
+
     def _assemble_halt(self):
         bytecode: bytes = b"\xfe\xff\xfe\xff"
         return bytecode
@@ -621,6 +659,7 @@ class AC100ASM:
                 case "ADDI": next_line = self._assemble_addi(tokens)
                 case "ADDR": next_line = self._assemble_addr(tokens)
                 case "INC": next_line = self._assemble_inc(tokens)
+                case "SUBI": next_line = self._assemble_subi(tokens)
                 case "HALT": next_line = self._assemble_halt()
                 case ";":       # comment; do nothing
                     continue
