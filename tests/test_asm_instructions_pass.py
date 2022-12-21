@@ -8,7 +8,7 @@ test_srcd = pathlib.Path("asm_tests_passing")
 
 class TestAssemblerPasses:
     def test_ignores_whitespace(self):
-        source_file = pathlib.Path(test_srcd, "test01")
+        source_file = pathlib.Path(test_srcd, "whitespace-test01")
         with open(source_file, "r") as f:
             expected = b""
             bytecode = assembler.assemble(f)
@@ -16,193 +16,195 @@ class TestAssemblerPasses:
             assert assembler.lineno == 1, "Expected assembler to be on line 1"
 
     def test_ignores_single_comment(self):
-        source_file = pathlib.Path(test_srcd, "test02")
+        source_file = pathlib.Path(test_srcd, "single-line-comment-test01")
         with open(source_file, "r") as f:
             expected = b""
             bytecode = assembler.assemble(f)
             assert assembler.lineno == 1, "Expected assembler to be on line 1"
             assert bytecode == expected,\
-                "Assembler did not successfully ignore a one-line comment"
+                "Assembler failed to ignore a one-line comment"
 
     def test_ignores_multiple_comments(self):
-        source_file = pathlib.Path(test_srcd, "test03")
+        source_file = pathlib.Path(test_srcd, "multiple-comments-test01")
         with open(source_file, "r") as f:
             expected = b""
             bytecode = assembler.assemble(f)
             assert assembler.lineno == 3, "Expected assembler to be on line 3"
             assert bytecode == expected,\
-                "Assembler did not ignore multiple comment lines"
+                "Assembler failed to ignore multiple comment lines"
 
-    def test_ldi_halt(self):
-        source_file = pathlib.Path(test_srcd, "test04")
-        expected = b"\x00\x00\x00\x01" # byte 2 is 0, since we decrement regs
-        expected += b"\xfe\xff\xfe\xff"
-        outfile = pathlib.Path(test_srcd, "assembles_ldi_halt.bin")
-        with open(source_file, "r") as f, open(outfile, "wb") as f2:
-            bytecode = assembler.assemble(f)
-            assert assembler.lineno == 2, "Expected assembler to be on line 2"
-            assert bytecode == expected,\
-                "Assembler did not assemble LDI and HALT"
-            f2.write(bytecode)
-        assert os.stat(outfile).st_size\
-            == len(expected)
-
-    def test_ldr(self):
-        source_file = pathlib.Path(test_srcd, "test05")
-        expected = b"\x00\x00\x00\x05"
-        expected += b"\x01\x01\x00\x00"
-        expected += b"\xfe\xff\xfe\xff"
+    def test_halt_01(self):
+        slug = "halt-test01"
+        source_file = pathlib.Path(test_srcd, slug)
+        expected = b"\xfe\xff\xfe\xff"
         with open(source_file, "r") as f:
             bytecode = assembler.assemble(f)
-            assert assembler.lineno == 3, "Expected assembler to be on line 3"
-            assert bytecode == expected,\
-                "Assembler did not assemble LDR"
+            assert assembler.lineno == 1, "Expected assembler to be on line 1"
+            assert bytecode == expected, f"{slug} failed"
+
+    def test_ldi_decimal_01(self):
+        slug = "ldi-test-decimal01"
+        source_file = pathlib.Path(test_srcd, slug)
+        expected = b"\x00\x00\x00\x01" # byte 2 is 0, since we decrement regs
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert assembler.lineno == 1, "Expected assembler to be on line 1"
+            assert bytecode == expected, f"{slug} failed"
+
+    def test_ldr(self):
+        slug = "ldr-test01"
+        source_file = pathlib.Path(test_srcd, slug)
+        expected = b"\x00\x00\x00\x05"
+        expected += b"\x01\x01\x00\x00"
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert assembler.lineno == 2, "Expected assembler to be on line 2"
+            assert bytecode == expected, f"{slug} failed"
 
     def test_ldm(self):
-        source_file = pathlib.Path(test_srcd, "test07")
+        slug = "ldm-test01"
+        source_file = pathlib.Path(test_srcd, slug)
         expected = b"\x00\x00\x00\x2a"
         expected += b"\x10\x00\x05\x00"
         expected += b"\x02\x01\x05\x00"
-        expected += b"\xfe\xff\xfe\xff"
         with open(source_file, "r") as f:
             bytecode = assembler.assemble(f)
-            assert assembler.lineno == 4, "Expected assembler to be on line 4"
-            assert bytecode == expected, "Assembler did not assemble LDM"
+            assert assembler.lineno == 3, "Expected assembler to be on line 3"
+            assert bytecode == expected, f"{slug} failed"
 
     def test_st(self):
-        source_file = pathlib.Path(test_srcd, "test06")
+        slug = "st-test01"
+        source_file = pathlib.Path(test_srcd, slug)
         expected = b"\x00\x00\xde\xad"
         expected += b"\x10\x00\xbe\xef"
-        expected += b"\xfe\xff\xfe\xff"
         with open(source_file, "r") as f:
             bytecode = assembler.assemble(f)
-            assert assembler.lineno == 3, "Expected assembler to be on line 3"
-            assert bytecode == expected,\
-                "Assembler did not assemble ST"
+            assert assembler.lineno == 2, "Expected assembler to be on line 2"
+            assert bytecode == expected, f"{slug} failed"
 
-    def test_sth(self):
-        source_file = pathlib.Path(test_srcd, "test08")
+    def test_sth_decimal01(self):
+        slug = "sth-test-decimal01"
+        source_file = pathlib.Path(test_srcd, slug)
         expected = b"\x00\x00\x00\x02"
         expected += b"\x11\x00\x02\x00"
-        expected += b"\xfe\xff\xfe\xff"
         with open(source_file, "r") as f:
             bytecode = assembler.assemble(f)
-            assert assembler.lineno == 3, "Expected assembler to be on line 3"
-            assert bytecode == expected, "Assembler did not assemble STH"
+            assert assembler.lineno == 2, "Expected assembler to be on line 2"
+            assert bytecode == expected, f"{slug} failed"
 
-    def test_stl(self):
-        source_file = pathlib.Path(test_srcd, "test09")
+    def test_stl_decimal01(self):
+        slug = "stl-test-decimal01"
+        source_file = pathlib.Path(test_srcd, slug)
         expected = b"\x00\x00\x00\x02"
         expected += b"\x12\x00\x05\x00"
-        expected += b"\xfe\xff\xfe\xff"
         with open(source_file, "r") as f:
             bytecode = assembler.assemble(f)
-            assert assembler.lineno == 3, "Expected assembler to be on line 3"
-            assert bytecode == expected, "Failed to assembled STL"
+            assert assembler.lineno == 2, "Expected assembler to be on line 2"
+            assert bytecode == expected, f"{slug} failed"
 
-    def test_cmr(self):
-        source_file = pathlib.Path(test_srcd, "test10")
+    def test_cmr01(self):
+        slug = "cmr-test01"
+        source_file = pathlib.Path(test_srcd, slug)
         expected = b"\x00\x00\x00\x2a"
         expected += b"\x00\x01\x00\x20"
         expected += b"\x20\x00\x01\x00"
-        expected += b"\xfe\xff\xfe\xff"
         with open(source_file, "r") as f:
             bytecode = assembler.assemble(f)
-            assert assembler.lineno == 4, "Expected assembler to be on line 4"
-            assert bytecode == expected, "Failed to assemble CMR"
+            assert assembler.lineno == 3, "Expected assembler to be on line 3"
+            assert bytecode == expected, f"{slug} failed"
 
-    def test_cmi(self):
-        source_file = pathlib.Path(test_srcd, "test11")
+    def test_cmi_decimal_decimal01(self):
+        slug = "cmr-decimal-decimal-test01"
+        source_file = pathlib.Path(test_srcd, slug)
         expected = b"\x00\x00\x00\x2a"
         expected += b"\x21\00\x00\x20"
-        expected += b"\xfe\xff\xfe\xff"
         with open(source_file, "r") as f:
             bytecode = assembler.assemble(f)
-            assert assembler.lineno == 3, "Expected assembler to be line 3"
-            assert bytecode == expected, "Failed to assemble CMR"
+            assert assembler.lineno == 2, "Expected assembler to be line 2"
+            assert bytecode == expected, f"{slug} failed"
 
-    def test_je(self):
-        source_file = pathlib.Path(test_srcd, "test12")
+    def test_je_decimal_decimal01(self):
+        slug = "je-decimal-decimal-test01"
+        source_file = pathlib.Path(test_srcd, slug)
         expected = b"\x00\x00\x00\x17"
         expected += b"\x21\x00\x00\x2a"
         expected += b"\x30\x00\x03\x00"
-        expected += b"\xfe\xff\xfe\xff"
         with open(source_file, "r") as f:
             bytecode = assembler.assemble(f)
-            assert assembler.lineno == 4, "Expected assembler to be on line 4"
-            assert bytecode == expected, "Failed to assemble JE"
+            assert assembler.lineno == 3, "Expected assembler to be on line 3"
+            assert bytecode == expected, f"{slug} failed"
 
-    def test_jg(self):
-        source_file = pathlib.Path(test_srcd, "test13")
+    def test_jg_decimal_decimal01(self):
+        slug = "jg-decimal-decimal-test01"
+        source_file = pathlib.Path(test_srcd, slug)
         expected = b"\x00\x00\x00\x2a"
         expected += b"\x21\x00\x00\x20"
         expected += b"\x31\x00\x04\x00"
-        expected += b"\xfe\xff\xfe\xff"
         with open(source_file, "r") as f:
             bytecode = assembler.assemble(f)
-            assert assembler.lineno == 4, "Expected assembler to be on line 4"
-            assert bytecode == expected, "Failed to assemble JG"
+            assert assembler.lineno == 3, "Expected assembler to be on line 3"
+            assert bytecode == expected, f"{slug} failed"
 
-    def test_jge(self):
-        source_file = pathlib.Path(test_srcd, "test14")
+    def test_jge_decimal_decimal01(self):
+        slug = "jge-decimal-decimal-test01"
+        source_file = pathlib.Path(test_srcd, slug)
         expected = b"\x00\x00\x00\x2a"
         expected += b"\x21\x00\x00\x2a"
         expected += b"\x32\x00\x05\x00"
-        expected += b"\xfe\xff\xfe\xff"
         with open(source_file, "r") as f:
             bytecode = assembler.assemble(f)
-            assert assembler.lineno == 4, "Expected assembler to be on line 4"
-            assert bytecode == expected, "Failed to assemble JGE"
+            assert assembler.lineno == 3, "Expected assembler to be on line 3"
+            assert bytecode == expected, f"{slug} failed"
 
-    def test_jl(self):
-        source_file = pathlib.Path(test_srcd, "test15")
+    def test_jl_decimal_decimal01(self):
+        slug = "jl-decimal-decimal-test01"
+        source_file = pathlib.Path(test_srcd, slug)
         expected = b"\x00\x00\x00\x2a"
         expected += b"\x21\x00\x00\x54"
         expected += b"\x33\x00\x04\x00"
-        expected += b"\xfe\xff\xfe\xff"
         with open(source_file, "r") as f:
             bytecode = assembler.assemble(f)
-            assert assembler.lineno == 4, "Expected assembler to be on line 4"
-            assert bytecode == expected, "Failed to assemble JL"
+            assert assembler.lineno == 3, "Expected assembler to be on line 3"
+            assert bytecode == expected, f"{slug} failed"
 
     def test_jle(self):
-        source_file = pathlib.Path(test_srcd, "test16")
+        slug = "jle-decimal-decimal-test01"
+        source_file = pathlib.Path(test_srcd, slug)
         expected = b"\x00\x00\x00\x2a"
         expected += b"\x21\x00\x00\x54"
         expected += b"\x34\x00\x05\x00"
-        expected += b"\xfe\xff\xfe\xff"
         with open(source_file, "r") as f:
             bytecode = assembler.assemble(f)
-            assert assembler.lineno == 4, "Expected assembler to be on line 4"
-            assert bytecode == expected, "Failed to assemble JLE"
+            assert assembler.lineno == 3, "Expected assembler to be on line 3"
+            assert bytecode == expected, f"{slug} failed"
 
-    def test_jmp(self):
-        source_file = pathlib.Path(test_srcd, "test17")
+    def test_jmp01(self):
+        slug = "jmp-test01"
+        source_file = pathlib.Path(test_srcd, slug)
         expected = b"\x00\x00\x00\x2a"
         expected += b"\x35\x00\x05\x00"
-        expected += b"\xfe\xff\xfe\xff"
         with open(source_file, "r") as f:
             bytecode = assembler.assemble(f)
-            assert assembler.lineno == 3, "Expected assembler to be on line 3"
-            assert bytecode == expected, "Failed to assemble JMP"
+            assert assembler.lineno == 2, "Expected assembler to be on line 2"
+            assert bytecode == expected, f"{slug} failed"
 
-    def test_addi(self):
-        source_file = pathlib.Path(test_srcd, "test18")
+    def test_addi_decimal_decimal01(self):
+        slug = "addi-decimal-decimal-test01"
+        source_file = pathlib.Path(test_srcd, slug)
         expected = b"\x00\x00\x00\x14"
-        expected += b"\x40\x00\x00\x20"
-        expected += b"\xfe\xff\xfe\xff"
+        expected += b"\x40\x00\x00\x14"
         with open(source_file, "r") as f:
             bytecode = assembler.assemble(f)
-            assert assembler.lineno == 3, "Expected assembler to be on line 3"
-            assert bytecode == expected, "Failed to assemble ADDI"
+            assert assembler.lineno == 2, "Expected assembler to be on line 2"
+            assert bytecode == expected, f"{slug} failed"
 
-    def test_addr(self):
-        source_file = pathlib.Path(test_srcd, "test19")
+    def test_addr_decimal_decimal01(self):
+        slug = "addr-decimal-decimal-test01"
+        source_file = pathlib.Path(test_srcd, slug)
         expected = b"\x00\x00\x00\x2a"
         expected += b"\x00\x01\x00\x0a"
         expected += b"\x41\x00\x01\x00"
-        expected += b"\xfe\xff\xfe\xff"
         with open(source_file, "r") as f:
             bytecode = assembler.assemble(f)
-            assert assembler.lineno == 4, "Expected assembler to be on line 4"
-            assert bytecode == expected, "Failed to assemble ADDR"
+            assert assembler.lineno == 3, "Expected assembler to be on line 3"
+            assert bytecode == expected, f"{slug} failed"

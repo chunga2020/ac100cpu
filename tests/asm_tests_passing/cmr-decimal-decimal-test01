@@ -1,3 +1,2 @@
 LDI R1 42
 CMI R1 32
-HALT
