@@ -270,3 +270,12 @@ class TestAssemblerPasses:
             bytecode = assembler.assemble(f)
             assert assembler.lineno == 3, "Expected assembler to be on line 3"
             assert bytecode == expected, f"{slug} failed"
+
+    def test_nop(self):
+        slug = "nop-test01"
+        source_file = pathlib.Path(test_srcd, slug)
+        expected = b"\xff\xff\xff\xff"
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert assembler.lineno == 1, "Expected assembler to be on line 1"
+            assert bytecode == expected, f"{slug} failed"

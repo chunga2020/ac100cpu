@@ -747,6 +747,11 @@ class AC100ASM:
         return bytecode
 
 
+    def _assemble_nop(self):
+        bytecode: bytes = b"\xff\xff\xff\xff"
+        return bytecode
+
+
     def assemble(self, infile: typing.TextIO) -> bytes:
         """
         Assemble a binary from source code.
@@ -786,6 +791,7 @@ class AC100ASM:
                 case "PUSH": next_line = self._assemble_push(tokens)
                 case "POP": next_line = self._assemble_pop(tokens)
                 case "HALT": next_line = self._assemble_halt()
+                case "NOP": next_line = self._assemble_nop()
                 case ";":       # comment; do nothing
                     continue
                 case _:
