@@ -51,6 +51,106 @@ class TestAssemblerPasses:
             assert assembler.lineno == 1, "Expected assembler to be on line 1"
             assert bytecode == expected, f"{slug} failed"
 
+    def test_ldi_decimal_02(self):
+        """ Assembler assembles LDI with a negative limit decimal int """
+        slug = "ldi-test-decimal02"
+        source_file = pathlib.Path(test_srcd, slug)
+        expected = b"\x00\x00\x80\00"
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert assembler.lineno == 1, "Expected assembler to be on line 1"
+            assert bytecode == expected, f"{slug} failed"
+
+    def test_ldi_decimal03(self):
+        """ Assembler assembles LDI with a positive limit decimal int """
+        slug = "ldi-test-decimal03"
+        source_file = pathlib.Path(test_srcd, slug)
+        expected = b"\x00\x00\xff\xff"
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert assembler.lineno == 1, "Expected assembler to be on line 1"
+            assert bytecode == expected, f"{slug} failed"
+
+    def test_ldi_hex01(self):
+        """ Assembler assembles LDI with a minimum hex int """
+        slug = "ldi-test-hex01"
+        source_file = pathlib.Path(test_srcd, slug)
+        expected = b"\x00\x00\x00\x00"
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert assembler.lineno == 1, "Expected assembler to be on line 1"
+            assert bytecode == expected, f"{slug} failed"
+
+    def test_ldi_hex02(self):
+        """ Assembler assembles LDI with a maximum hex int """
+        slug = "ldi-test-hex02"
+        source_file = pathlib.Path(test_srcd, slug)
+        expected = b"\x00\x00\xff\xff"
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert assembler.lineno == 1, "Expected assembler to be on line 1"
+            assert bytecode == expected, f"{slug} failed"
+
+    def test_ldi_hex03(self):
+        """ Assembler assembles LDI with a midrange hex int """
+        slug = "ldi-test-hex03"
+        source_file = pathlib.Path(test_srcd, slug)
+        expected = b"\x00\x00\x07\x28"
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert assembler.lineno == 1, "Expected assembler to be on line 1"
+            assert bytecode == expected, f"{slug} failed"
+
+    def test_ldi_binary01(self):
+        """ Assembler assembles LDI with a 16-bit binary zero """
+        slug = "ldi-test-binary01"
+        source_file = pathlib.Path(test_srcd, slug)
+        expected = b"\x00\x00\x00\x00"
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert assembler.lineno == 1, "Expected assembler to be on line 1"
+            assert bytecode == expected, f"{slug} failed"
+
+    def test_ldi_binary02(self):
+        """ Assembler assembles LDI with an 8-bit binary zero """
+        slug = "ldi-test-binary02"
+        source_file = pathlib.Path(test_srcd, slug)
+        expected = b"\x00\x00\x00\x00"
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert assembler.lineno == 1, "Expected assembler to be on line 1"
+            assert bytecode == expected, f"{slug} failed"
+
+    def test_ldi_binary03(self):
+        """ Assembler assembles LDI with a maximum binary int """
+        slug = "ldi-test-binary03"
+        source_file = pathlib.Path(test_srcd, slug)
+        expected = b"\x00\x00\xff\xff"
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert assembler.lineno == 1, "Expected assembler to be on line 1"
+            assert bytecode == expected, f"{slug} failed"
+
+    def test_ldi_binary04(self):
+        """ Assembler assembles LDI with a midrange 8-bit int """
+        slug = "ldi-test-binary04"
+        source_file = pathlib.Path(test_srcd, slug)
+        expected = b"\x00\x00\x00\xff"
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert assembler.lineno == 1, "Expected assembler to be on line 1"
+            assert bytecode == expected, f"{slug} failed"
+
+    def test_ldi_binary05(self):
+        """ Assembler assembles LDI with a midrange 16-bit int """
+        slug = "ldi-test-binary05"
+        source_file = pathlib.Path(test_srcd, slug)
+        expected = b"\x00\x00\xaa\xaa"
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert assembler.lineno == 1, "Expected assembler to be on line 1"
+            assert bytecode == expected, f"{slug} failed"
+
     def test_ldr(self):
         slug = "ldr-test01"
         source_file = pathlib.Path(test_srcd, slug)
