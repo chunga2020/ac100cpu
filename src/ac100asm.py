@@ -688,6 +688,33 @@ class AC100ASM:
         return self._check_len(bytecode)
 
 
+    def _assemble_push(self, tokens: [str]) -> bytes:
+        """
+        Assemble a PUSH instruction.
+
+        Parameters:
+        tokens: the line to be assembled
+
+        Return:
+        On success, return the assembled bytecode.  On failure, return None.
+        """
+        bytecode: bytes = b"\xe0"
+        register: int = -1
+        try:
+            register = self.parse_register_name(tokens[1])
+        except (ac_exc.InvalidRegisterNameError,
+                ac_exc.RegisterNameMissingPrefixError) as e:
+            logger.error(e)
+            return None
+        except Exception as e:
+            logger.error(f"Unexpected error: {e}")
+            return None
+        bytecode += register.to_bytes(1, byteorder='big')
+        bytecode += b"\x00\x00"
+
+        return self._check_len(bytecode)
+
+
     def _assemble_halt(self):
         bytecode: bytes = b"\xfe\xff\xfe\xff"
         return bytecode
@@ -729,6 +756,7 @@ class AC100ASM:
                 case "SUBI": next_line = self._assemble_subi(tokens)
                 case "SUBR": next_line = self._assemble_subr(tokens)
                 case "DEC": next_line = self._assemble_dec(tokens)
+                case "PUSH": next_line = self._assemble_push(tokens)
                 case "HALT": next_line = self._assemble_halt()
                 case ";":       # comment; do nothing
                     continue
