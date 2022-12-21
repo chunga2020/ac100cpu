@@ -621,6 +621,45 @@ class AC100ASM:
         return self._check_len(bytecode)
 
 
+    def _assemble_subr(self, tokens: [str]) -> bytes:
+        """
+        Assemble a SUBR instruction
+
+        Parameters:
+        tokens: the line to be assembled
+
+        Return:
+        On success, return the assembled bytecode.  On failure, return None.
+        """
+        bytecode: bytes = b"\x44"
+        dest_reg: int = -1
+        try:
+            dest_reg = self.parse_register_name(tokens[1])
+        except (ac_exc.InvalidRegisterNameError,
+                ac_exc.RegisterNameMissingPrefixError) as e:
+            logger.error(e)
+            return None
+        except Exception as e:
+            logger.error(f"Unexpected error: {e}")
+            return None
+        bytecode += dest_reg.to_bytes(1, byteorder='big')
+
+        src_reg: int = -1
+        try:
+            src_reg = self.parse_register_name(tokens[2])
+        except (ac_exc.InvalidRegisterNameError,
+                ac_exc.RegisterNameMissingPrefixError) as e:
+            logger.error(e)
+            return None
+        except Exception as e:
+            logger.error(f"Unexpected error: {e}")
+            return None
+        bytecode += src_reg.to_bytes(1, byteorder='big')
+        bytecode += b"\x00"
+
+        return self._check_len(bytecode)
+
+
     def _assemble_halt(self):
         bytecode: bytes = b"\xfe\xff\xfe\xff"
         return bytecode
@@ -660,6 +699,7 @@ class AC100ASM:
                 case "ADDR": next_line = self._assemble_addr(tokens)
                 case "INC": next_line = self._assemble_inc(tokens)
                 case "SUBI": next_line = self._assemble_subi(tokens)
+                case "SUBR": next_line = self._assemble_subr(tokens)
                 case "HALT": next_line = self._assemble_halt()
                 case ";":       # comment; do nothing
                     continue

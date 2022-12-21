@@ -228,3 +228,14 @@ class TestAssemblerPasses:
             bytecode = assembler.assemble(f)
             assert assembler.lineno == 2, "Expected assembler to be on line 2"
             assert bytecode == expected, f"{slug} failed"
+
+    def test_subr_decimal_decimal01(self):
+        slug = "subr-decimal-decimal-test01"
+        source_file = pathlib.Path(test_srcd, slug)
+        expected = b"\x00\x00\x00\x2a"
+        expected += b"\x00\x01\x00\x15"
+        expected += b"\x44\x00\x01\x00"
+        with open(source_file, "r") as f:
+            bytecode = assembler.assemble(f)
+            assert assembler.lineno == 3, "Expected assembler to be on line 3"
+            assert bytecode == expected, f"{slug} failed"
