@@ -1,5 +1,6 @@
 import argparse
 import logging
+import re
 import sys
 import typing
 
@@ -54,6 +55,29 @@ class AC100ASM:
         self.offset = defs.STACK_MIN + 1 # code section starts here
 
 
+    def parse_label(self, tokens: [str]) -> bool:
+        """
+        Parse a label.
+
+        Parameters:
+        tokens: the line to be parsed
+
+        Return:
+        On success, return True.  On failure, return False.
+        """
+        if len(tokens) != 1:
+            logger.error(f"Too many tokens for label line: {tokens}")
+            return False
+        pattern = re.compile(r"(\w+):")
+        m = pattern.match(tokens)
+        if m is None:
+            logger.error(f"Invalid label {tokens}")
+            return False
+        label = m.group(1)
+        logger.debug(f"Found label {label} at offset 0x{self.offset:04x}")
+        self.labels[label] = self.offset
+
+        return True
 
 
     def parse_register_name(self, token: str) -> int:
