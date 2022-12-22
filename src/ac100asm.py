@@ -69,9 +69,9 @@ class AC100ASM:
             logger.error(f"Too many tokens for label line: {tokens}")
             return False
         pattern = re.compile(r"(\w+):")
-        m = pattern.match(tokens)
+        m = pattern.match(tokens[0])
         if m is None:
-            logger.error(f"Invalid label {tokens}")
+            logger.error(f"Invalid label {tokens[0]}")
             return False
         label = m.group(1)
         logger.debug(f"Found label {label} at offset 0x{self.offset:04x}")

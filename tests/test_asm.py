@@ -24,6 +24,16 @@ class TestAssembler:
             f"tokenizing '{line}', but got {result}"
 
 
+class TestParseLabel:
+    @pytest.mark.parametrize("ltext, fail_msg",
+        [
+            ("test:", "Failed to parse lowercase-only label")
+        ])
+    def test_valid_label(self, ltext, fail_msg):
+        rv = assembler.parse_label([ltext])
+        assert rv, fail_msg
+
+
 class TestParseRegisterName:
     @pytest.mark.parametrize("name, expected", [("R1", 0), ("R2", 1), ("R3", 2),
                             ("R4", 3), ("R5", 4), ("R6", 5), ("R7", 6),
