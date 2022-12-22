@@ -111,14 +111,19 @@
   - Example: CMI R1 5
     - Compare the contents of R1 to 0x05
 *** JUMP
+- All jump instructions may take a raw address or a label (see JE examples)
 - 0x30 :: Jump if equal (JE)
   - Syntax: 0x30 <unused> <addr high byte> <addr low byte>
-  - Example: JE 0x1234
+  - Example 1: JE 0x1234
     - If the two values in the preceding comparison were equal, jump to
       memory location 0x1234 and continue execution
+  - Example 2: JE done
+    - Assuming ‘done’ is a valid previously-defined label, if the two values in
+      the preceding comparison were equal, jump to the memory location
+      associated with the label ‘done’
 - 0x31 :: Jump if greater (JG)
   - Syntax: 0x31 <unused> <addr high byte> <addr low byte>
-  - Example: JG 0x2255
+  - Example 1: JG 0x2255
     - If the left operand of the last comparison was greater than the right
       operand, jump to memory location 0x2255 and continue execution
 - 0x32 :: Jump if greater or equal (JGE)
