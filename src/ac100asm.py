@@ -68,7 +68,12 @@ class AC100ASM:
         if len(tokens) != 1:
             logger.error(f"Too many tokens for label line: {tokens}")
             return False
-        pattern = re.compile(r"(\w+):")
+        # Number-only labels not allowed
+        # Underscore-only labels not allowed
+        # (leading underscores followed by alphanumerics okay)
+        pattern = re.compile(r"""^([a-zA-Z]\w*):
+        | (_\w+):$
+        """, re.VERBOSE)
         m = pattern.match(tokens[0])
         if m is None:
             logger.error(f"Invalid label {tokens[0]}")

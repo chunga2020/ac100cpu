@@ -27,7 +27,29 @@ class TestAssembler:
 class TestParseLabel:
     @pytest.mark.parametrize("ltext, fail_msg",
         [
-            ("test:", "Failed to parse lowercase-only label")
+            ("test:", "Failed to parse lowercase-only label"),
+            ("test123:", "Failed to parse lower, digit-only label"),
+            ("TEST:", "Failed to parse uppercase-only label"),
+            ("TEST123:", "Failed to parse upper, digit-only"),
+            ("testTEST:", "Failed to parse upper,lower-only label"),
+            ("_test:",
+             "Failed to parse single leading underscore, lower-only label"),
+            ("__test:",
+             "Failed to parse multi leading underscore, lower-only label"),
+            ("_testTEST:",
+             "Failed to parse single leading underscore, letter-only label"),
+            ("__testTEST:",
+             "Failed to parse multi leading underscore, letter-only label"),
+            ("_1:",
+             "Failed to parse single leading underscore, single digit label"),
+            ("_123:",
+             "Failed to parse single leading underscore, digit only label"),
+            ("__1:",
+             "Failed to parse multi leading underscore, digit only label"),
+            ("_test123:",
+             "Failed to parse underscore,lower,digit label"),
+            ("_Check_not_0:",
+             "Failed to check fully mixed label")
         ])
     def test_valid_label(self, ltext, fail_msg):
         rv = assembler.parse_label([ltext])
