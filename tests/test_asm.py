@@ -37,6 +37,19 @@ class TestParseLabel:
         rv = assembler.parse_label([ltext])
         assert rv, fail_msg
 
+    @pytest.mark.parametrize("ltext, fail_msg",
+        [
+            ("_:", "Lone single underscores are not valid labels"),
+            ("___:", "underscore-only identifiers are not valid labels"),
+            ("_test:", "Leading single underscores are not valid"),
+            ("___test:", "Multiple leading underscores are not valid"),
+            ("1:", "Labels may not begin with a digit"),
+            ("123:", "Labels may not begin with a digit"),
+            ("123_test:", "Labels may not begin with a digit")
+        ])
+    def test_invalid_label(self, ltext, fail_msg):
+        rv = assembler.parse_label([ltext])
+        assert not rv, fail_msg
 
 class TestParseRegisterName:
     @pytest.mark.parametrize("name, expected", [("R1", 0), ("R2", 1), ("R3", 2),
