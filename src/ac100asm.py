@@ -51,6 +51,9 @@ class AC100ASM:
         self.labels = LabelDict()
         self.lineno: int = 0    # line number of current source line
         self.default_output: str = DEFAULT_OUTPUT
+        self.offset = defs.STACK_MIN + 1 # code section starts here
+
+
 
 
     def parse_register_name(self, token: str) -> int:
@@ -192,6 +195,10 @@ class AC100ASM:
         return bytecode
 
 
+    def _increment_offset(self) -> None:
+        self.offset += 4
+
+
     def _assemble_ldi(self, tokens) -> bytes:
         """
         Assemble an LDI instruction
@@ -224,6 +231,7 @@ class AC100ASM:
             return None
         bytecode += word
 
+        self._increment_offset()
         return self._check_len(bytecode)
 
 
@@ -262,6 +270,7 @@ class AC100ASM:
         bytecode += src_reg.to_bytes(1, byteorder='big')
         bytecode += b"\x00"
 
+        self._increment_offset()
         return self._check_len(bytecode)
 
 
@@ -298,6 +307,7 @@ class AC100ASM:
             return None
         bytecode += address
 
+        self._increment_offset()
         return self._check_len(bytecode)
 
 
@@ -341,6 +351,7 @@ class AC100ASM:
             logger.error("Unexpected error:", e)
         bytecode += address
 
+        self._increment_offset()
         return self._check_len(bytecode)
 
 
@@ -380,6 +391,7 @@ class AC100ASM:
         bytecode += src_reg.to_bytes(1, byteorder='big')
         bytecode += b"\x00"
 
+        self._increment_offset()
         return self._check_len(bytecode)
 
 
@@ -416,6 +428,7 @@ class AC100ASM:
             return None
         bytecode += word
 
+        self._increment_offset()
         return self._check_len(bytecode)
 
 
@@ -474,6 +487,7 @@ class AC100ASM:
             return None
         bytecode += address
 
+        self._increment_offset()
         return self._check_len(bytecode)
 
 
@@ -512,6 +526,7 @@ class AC100ASM:
             return None
         bytecode += word
 
+        self._increment_offset()
         return self._check_len(bytecode)
 
 
@@ -551,6 +566,7 @@ class AC100ASM:
         bytecode += src_reg.to_bytes(1, byteorder='big')
         bytecode += b"\x00"     # fourth byte unused
 
+        self._increment_offset()
         return self._check_len(bytecode)
 
 
@@ -580,6 +596,7 @@ class AC100ASM:
 
         bytecode += b"\x00\x00" # unused bytes
 
+        self._increment_offset()
         return self._check_len(bytecode)
 
 
@@ -618,6 +635,7 @@ class AC100ASM:
             return None
         bytecode += word
 
+        self._increment_offset()
         return self._check_len(bytecode)
 
 
@@ -657,6 +675,7 @@ class AC100ASM:
         bytecode += src_reg.to_bytes(1, byteorder='big')
         bytecode += b"\x00"
 
+        self._increment_offset()
         return self._check_len(bytecode)
 
 
@@ -685,6 +704,7 @@ class AC100ASM:
         bytecode += register.to_bytes(1, byteorder='big')
         bytecode += b"\x00\x00" # bytes 3 and 4 unused
 
+        self._increment_offset()
         return self._check_len(bytecode)
 
 
@@ -712,6 +732,7 @@ class AC100ASM:
         bytecode += register.to_bytes(1, byteorder='big')
         bytecode += b"\x00\x00"
 
+        self._increment_offset()
         return self._check_len(bytecode)
 
 
@@ -739,16 +760,19 @@ class AC100ASM:
         bytecode += register.to_bytes(1, byteorder='big')
         bytecode += b"\x00\x00"
 
+        self._increment_offset()
         return self._check_len(bytecode)
 
 
     def _assemble_halt(self):
         bytecode: bytes = b"\xfe\xff\xfe\xff"
+        self._increment_offset()
         return bytecode
 
 
     def _assemble_nop(self):
         bytecode: bytes = b"\xff\xff\xff\xff"
+        self._increment_offset()
         return bytecode
 
 
@@ -763,6 +787,7 @@ class AC100ASM:
         On success, return the assembled bytecode.  On failure, return None.
         """
         self.lineno = 0
+        self.offset = defs.STACK_MIN + 1 # reset offset
         bytecode: bytes = b""
         next_line: bytes = None # next assembled bytecode
         for source_line in infile:
@@ -795,13 +820,20 @@ class AC100ASM:
                 case ";":       # comment; do nothing
                     continue
                 case _:
-                    msg = f"Unknown or unimplemented instruction {opcode}"
-                    logger.error(msg)
+                    # this has to be here, since HALT is a valid instruction
+                    # that exists by itself on a source line (len(tokens) is 1)
+                    if len(tokens) == 1: # possibly a label
+                        if not self.parse_label(tokens):
+                            logger.error(f"Failed to parse label from {tokens}")
+                            return None
+                    else:
+                        msg = f"Unknown or unimplemented instruction {opcode}"
+                        logger.error(msg)
             if next_line is None:
                 logger.error(f"Failed to assemble {opcode}")
                 return None
             bytecode += next_line
-
+            logger.debug(f"self.offset=0x{self.offset:04x}")
 
         return bytecode
 

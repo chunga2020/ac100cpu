@@ -16,6 +16,9 @@
 - Comments started by ; and extend to end-of-line
   - Multiline comments are therefore just a block of comment lines
 - Comments may *NOT* occur on the same line as any code or label
+- Labels
+  - Format: label_name ":" new_line
+  - Valid characters: [a-zA-Z0-9_] (corresponds to Python re’s ‘\w’ sequence)
 - Numerical base prefixes
   - Decimal :: no prefix (default)
     - Ranges:
