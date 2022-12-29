@@ -32,6 +32,7 @@ class TestParseLabel:
             ("TEST:", "Failed to parse uppercase-only label"),
             ("TEST123:", "Failed to parse upper, digit-only"),
             ("testTEST:", "Failed to parse upper,lower-only label"),
+            ("test_Something42:", "Failed to parse lower,underscore,any label")
         ])
     def test_valid_label(self, ltext, fail_msg):
         rv = assembler.parse_label([ltext])
