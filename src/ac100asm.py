@@ -71,7 +71,7 @@ class AC100ASM:
         # Number-only labels not allowed
         # Underscore-only labels not allowed
         # (leading underscores followed by alphanumerics okay)
-        pattern = re.compile(r"^([a-zA-Z]\w*):")
+        pattern = re.compile(r"^([a-zA-Z]\w*)")
         m = pattern.match(tokens[0])
         if m is None:
             logger.error(f"Invalid label {tokens[0]}")
