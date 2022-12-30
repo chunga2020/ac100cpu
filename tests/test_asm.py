@@ -1,6 +1,7 @@
 import pathlib
 import pytest
 
+import src.definitions as defs
 import src.exceptions as ac_exc
 import src.ac100asm as asm
 
@@ -54,6 +55,15 @@ class TestParseLabel:
     def test_invalid_label(self, assembler, ltext, fail_msg):
         rv = assembler.parse_label([ltext])
         assert not rv, fail_msg
+
+    @pytest.mark.parametrize("src_file, expected_map",
+        [
+            ("label_test01", {"start": 0x0200})
+        ])
+    def test_label_in_file(self, assembler, src_file, expected_map):
+        with open(pathlib.Path(test_srcd, src_file), "r") as f:
+            assembler.assemble(f)
+            assert assembler.labels == expected_map
 
 class TestParseRegisterName:
     @pytest.mark.parametrize("name, expected", [("R1", 0), ("R2", 1), ("R3", 2),

@@ -1,0 +1,3 @@
+start:
+LDI R1 42
+HALT
