@@ -99,6 +99,17 @@ class TestFlags:
             assert not emulator.flag_read(flag)
 
 
+class TestDebuggingInfo:
+    def test_dump_registers(self, capsys, emulator):
+        expected = "R1: 0x0000\tR2: 0x0000\tR3: 0x0000\tR4: 0x0000\n"
+        expected += "R5: 0x0000\tR6: 0x0000\tR7: 0x0000\tR8: 0x0000\n"
+        expected += "R9: 0x0000\tR10: 0x0000\tR11: 0x0000\tR12: 0x0000\n"
+        expected += "R13: 0x0000\tR14: 0x0000\tR15: 0x0000\tR16: 0x0000\n"
+        emulator.dump_registers()
+        capture = capsys.readouterr()
+        assert capture.out == expected
+
+
 def test_halt(assembler, emulator):
     slug = "halt-test01"
     src_file = pathlib.Path(test_srcd, slug)
