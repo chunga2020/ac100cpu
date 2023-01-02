@@ -123,7 +123,7 @@ class AC100:
         if flag not in self.VALID_FLAGS:
             logger.error(f"Invalid flag {flag}")
             return None
-        return self.PS & flag
+        return self.PS & flag == flag
     def __init__(self):
         self.REGS = [[0x00 for i in range(defs.BYTES_PER_WORD)]\
                      for j in range(defs.NUM_REGISTERS)]
