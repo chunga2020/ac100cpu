@@ -53,6 +53,43 @@ class AC100:
     PS: int                     # status register
     SP: int                     # stack pointer
 
+    # flags
+    FLAG_CARRY = 0x1
+    FLAG_ZERO = 0x2
+    FLAG_OVERFLOW = 0x4
+    FLAG_NEGATIVE = 0x8
+
+    VALID_FLAGS = [FLAG_NEGATIVE, FLAG_OVERFLOW, FLAG_ZERO, FLAG_CARRY]
+    FLAG_NAMES = {
+        FLAG_CARRY: "C",
+        FLAG_ZERO: "Z",
+        FLAG_OVERFLOW: "V",
+        FLAG_NEGATIVE: "N"
+    }
+
+    # for clearing flags
+    SHIFT_AMOUNTS = {
+        FLAG_NEGATIVE: 3,
+        FLAG_OVERFLOW: 2,
+        FLAG_ZERO: 1,
+        FLAG_CARRY: 0
+    }
+
+    def flag_set(self, flag: int) -> bool:
+        """
+        Set a processor status flag.
+
+        Parameters:
+        flag: the flag to set
+
+        Return:
+        If the flag is valid, return True.  Else, return False.
+        """
+        if flag not in self.VALID_FLAGS:
+            logger.error(f"Invalid flag {flag}")
+            return False
+        self.PS |= flag
+        return True
     def __init__(self):
         self.REGS = [[0x00 for i in range(defs.BYTES_PER_WORD)]\
                      for j in range(defs.NUM_REGISTERS)]
