@@ -106,6 +106,10 @@ class AC100:
         return [self.RAM[self.PC + i] for i in range(4)]
 
 
+    def _increment_pc(self):
+        self.PC += 4
+
+
     def decode_execute_instruction(self, instruction) -> bool:
         """
         Decode and execute the next instruction
@@ -126,6 +130,8 @@ class AC100:
         opcode: bytes = INSTRUCTION_TABLE[instruction[0]]
         match opcode:
             case "HALT": sys.exit(0)
+            case "NOP":
+                self._increment_pc()
             case _:
                 logger.error(f"Unknown or unimplemented opcode {opcode}")
                 return False
