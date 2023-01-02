@@ -107,6 +107,23 @@ class AC100:
             return False
         self.PS &= ~(0x01 << self.SHIFT_AMOUNTS[flag])
         return True
+
+
+    def flag_read(self, flag: int) -> bool:
+        """
+        Check if a flag is set.
+
+        Parameters:
+        flag: the flag to read
+
+        Return:
+        If the flag is set, return True.  Else, return False.  If the flag is
+        invalid, return None.
+        """
+        if flag not in self.VALID_FLAGS:
+            logger.error(f"Invalid flag {flag}")
+            return None
+        return self.PS & flag
     def __init__(self):
         self.REGS = [[0x00 for i in range(defs.BYTES_PER_WORD)]\
                      for j in range(defs.NUM_REGISTERS)]
