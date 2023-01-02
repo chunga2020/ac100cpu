@@ -16,6 +16,34 @@ parser = argparse.ArgumentParser(
     formatter_class=argparse.RawTextHelpFormatter)
 logger = logging.getLogger("ac100")
 
+# Mapping from opcodes to mnemonics
+ # opcodes all one byte
+INSTRUCTION_TABLE = ["NONE" for i in range(2 ** defs.BYTE)]
+INSTRUCTION_TABLE[0x00] = "LDI"
+INSTRUCTION_TABLE[0x01] = "LDR"
+INSTRUCTION_TABLE[0x02] = "LDM"
+INSTRUCTION_TABLE[0x10] = "ST"
+INSTRUCTION_TABLE[0x11] = "STH"
+INSTRUCTION_TABLE[0x12] = "STL"
+INSTRUCTION_TABLE[0x20] = "CMP"
+INSTRUCTION_TABLE[0x21] = "CMI"
+INSTRUCTION_TABLE[0x30] = "JE"
+INSTRUCTION_TABLE[0x31] = "JG"
+INSTRUCTION_TABLE[0x32] = "JGE"
+INSTRUCTION_TABLE[0x33] = "JL"
+INSTRUCTION_TABLE[0x34] = "JLE"
+INSTRUCTION_TABLE[0x35] = "JMP"
+INSTRUCTION_TABLE[0x40] = "ADDI"
+INSTRUCTION_TABLE[0x41] = "ADDR"
+INSTRUCTION_TABLE[0x42] = "INC"
+INSTRUCTION_TABLE[0x43] = "SUBI"
+INSTRUCTION_TABLE[0x44] = "SUBR"
+INSTRUCTION_TABLE[0x45] = "DEC"
+INSTRUCTION_TABLE[0xE0] = "PUSH"
+INSTRUCTION_TABLE[0xE1] = "POP"
+INSTRUCTION_TABLE[0xFE] = "HALT"
+INSTRUCTION_TABLE[0xFF] = "NOP"
+
 # AC100 emulator
 class AC100:
 
@@ -59,6 +87,59 @@ class AC100:
 
         self.VIDEO_HEIGHT = dimensions[0]
         self.VIDEO_WIDTH = dimensions[1]
+
+
+    def load_ram(self, bytecode: bytes) -> None:
+        """
+        Load a program into memory.
+
+        Parameters:
+        bytecode: the bytecode to load
+        """
+        program_len: int = len(bytecode)
+
+        for i in range(program_len):
+            self.RAM[self.PC + i] = bytecode[i]
+
+
+    def fetch_instruction(self) -> bytes:
+        return [self.RAM[self.PC + i] for i in range(4)]
+
+
+    def decode_execute_instruction(self, instruction) -> bool:
+        """
+        Decode and execute the next instruction
+
+        Parameters:
+        instruction: the instruction to decode and execute
+
+        Return:
+        On success, return True.  On failure, return False.
+
+        HALT never returns to the caller, instead causing the Python interpreter
+        to exit.
+        """
+        if len(instruction) != 4:
+            logger.error("Expected 4-byte instruction")
+            return False
+
+        opcode: bytes = INSTRUCTION_TABLE[instruction[0]]
+        match opcode:
+            case "HALT": sys.exit(0)
+            case _:
+                logger.error(f"Unknown or unimplemented opcode {opcode}")
+                return False
+
+        return True
+
+
+    def run(self):
+        while self.PC < self.VRAM_START:
+            instruction = self.fetch_instruction()
+            ok = self.decode_execute_instruction(instruction)
+            if not ok:
+                logger.error(f"{INSTRUCTION_TABLE[instruction[0]]} failed")
+                return -1
 
 
 def check_video_dimensions(args) -> [int]:
@@ -146,6 +227,13 @@ def main():
     args = parser.parse_args()
     dimensions = check_video_dimensions(args)
     machine.initialize_VRAM(args)
+
+    with open(args.binary, "r") as f:
+        machine.load_ram(f.read())
+
+    machine.run()
+
+    return 0
 
 
 if __name__ == "__main__":
