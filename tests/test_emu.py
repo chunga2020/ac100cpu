@@ -36,6 +36,28 @@ class TestFlags:
             f"Flag {emulator.FLAG_NAMES[flag]} did not remain set"
 
 
+    @pytest.mark.parametrize("flag",
+        [
+            emu.AC100.FLAG_CARRY, emu.AC100.FLAG_ZERO,
+            emu.AC100.FLAG_OVERFLOW, emu.AC100.FLAG_NEGATIVE
+        ])
+    def test_flag_clear(self, emulator, flag):
+        assert emulator.PS == 0
+        ok = emulator.flag_set(flag)
+        assert ok
+
+        ok = emulator.flag_clear(flag)
+        assert ok
+        assert emulator.PS & flag == 0,\
+            f"Flag {emulator.FLAG_NAMES[flag]} not cleared"
+
+        # make sure flags remain cleared
+        ok = emulator.flag_clear(flag)
+        assert ok
+        assert emulator.PS & flag == 0,\
+            f"Flag {emulator.FLAG_NAMES[flag]} did not remain cleared"
+
+
 def test_halt(assembler, emulator):
     slug = "halt-test01"
     src_file = pathlib.Path(test_srcd, slug)

@@ -90,6 +90,23 @@ class AC100:
             return False
         self.PS |= flag
         return True
+
+
+    def flag_clear(self, flag: int) -> bool:
+        """
+        Clear a processor status flag.
+
+        Parameters:
+        flag: the flag to clear
+
+        Return:
+        If the flag is valid, return True.  Else, return False.
+        """
+        if flag not in self.VALID_FLAGS:
+            logger.error(f"Invalid flag {flag}")
+            return False
+        self.PS &= ~(0x01 << self.SHIFT_AMOUNTS[flag])
+        return True
     def __init__(self):
         self.REGS = [[0x00 for i in range(defs.BYTES_PER_WORD)]\
                      for j in range(defs.NUM_REGISTERS)]
