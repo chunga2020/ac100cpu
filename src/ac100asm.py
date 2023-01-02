@@ -55,7 +55,7 @@ class AC100ASM:
         self.offset = defs.STACK_MIN + 1 # code section starts here
 
 
-    def parse_label(self, tokens: [str]) -> bool:
+    def parse_label(self, tokens: [str]) -> str:
         """
         Parse a label.
 
@@ -63,11 +63,11 @@ class AC100ASM:
         tokens: the line to be parsed
 
         Return:
-        On success, return True.  On failure, return False.
+        On success, return the label found.  On failure, return None.
         """
         if len(tokens) != 1:
-            logger.error(f"Too many tokens for label line: {tokens}")
-            return False
+            logger.error(f"Too many tokens for label line: '{tokens}'")
+            return None
         # Number-only labels not allowed
         # Underscore-only labels not allowed
         # (leading underscores followed by alphanumerics okay)
@@ -75,12 +75,29 @@ class AC100ASM:
         m = pattern.match(tokens[0])
         if m is None:
             logger.error(f"Invalid label {tokens[0]}")
-            return False
+            return m
         label = m.group(1)
         logger.debug(f"Found label {label} at offset 0x{self.offset:04x}")
+
+        return label
+
+
+    def add_label(self, label: str) -> None:
         self.labels[label] = self.offset
 
-        return True
+
+    def get_label_offset(self, label: str) -> int:
+        """
+        Get a label's corresponding offset.
+
+        Parameters:
+        label: the label to look up
+
+        Return:
+        If the label exists, return its corresponding offset.  Else, return
+        None.
+        """
+        return self.labels.get(label, None)
 
 
     def parse_register_name(self, token: str) -> int:
@@ -491,7 +508,7 @@ class AC100ASM:
         bytecode += b"\x00"     # second byte unused
 
         address: bytes = None
-        try:
+        try:                    # try a hex address
             address = self.parse_address(tokens[1])
         except ValueError as e:
             logger.error(e)
@@ -499,9 +516,16 @@ class AC100ASM:
         except Exception as e:
             logger.error("Unexpected error:", e)
             return None
-        addr_as_int: int = address[0] << 8 | address[1]
+        if address is None:     # see if it's a label
+            label = self.parse_label([tokens[1]])
+            if label is None:          # Nope, not a label
+                logger.error(f"Could not parse a label name from {tokens[1]}")
+                return None
+            print(f"{self.labels=}")
+            address = self.get_label_offset(label).to_bytes(2, byteorder='big')
         # stack space may not be interpreted as executable code --- bad idea
         # anyways
+        addr_as_int = address[0] << 8 | address[1]
         if addr_as_int <= defs.STACK_MIN:
             logger.error("Programs may not jump into stack space "
                          f"([0x{defs.STACK_MAX:04x}, "
@@ -803,6 +827,43 @@ class AC100ASM:
         return bytecode
 
 
+    def find_labels(self, infile: typing.TextIO) -> bool:
+        """
+        Find source labels and populate the assembler's label dictionary.
+
+        Parameters:
+        infile: the file object associated with the source code file
+
+        Return:
+        If all labels are valid and unique, return True.  Otherwise, return
+        False
+        """
+        self.lineno = 0
+        self.offset = defs.STACK_MIN + 1
+        for line in infile:
+            self.lineno += 1
+            label: str = ""
+            tokens: [str] = self.tokenize_line(line)
+            # blank line
+            if tokens is None:
+                continue
+            if len(tokens) == 1 and tokens[0].endswith(":"):
+                label = self.parse_label([tokens[0]])
+                if label is None:
+                    logger.error(f"Could not parse label from {tokens}")
+                    return False
+
+                existing_offset = self.get_label_offset(label)
+                if existing_offset is not None:
+                    logger.error(f"Label '{label}' already defined")
+                    return False
+                self.add_label(label)
+            else:
+                self._increment_offset()
+        
+        return True
+
+
     def assemble(self, infile: typing.TextIO) -> bytes:
         """
         Assemble a binary from source code.
@@ -813,6 +874,7 @@ class AC100ASM:
         Return:
         On success, return the assembled bytecode.  On failure, return None.
         """
+        infile.seek(0)          # reset file position after label search
         self.lineno = 0
         self.offset = defs.STACK_MIN + 1 # reset offset
         bytecode: bytes = b""
@@ -850,9 +912,12 @@ class AC100ASM:
                     # this has to be here, since HALT is a valid instruction
                     # that exists by itself on a source line (len(tokens) is 1)
                     if len(tokens) == 1: # possibly a label
-                        if not self.parse_label(tokens):
+                        label = self.parse_label(tokens)
+                        if label is None:
                             logger.error(f"Failed to parse label from {tokens}")
                             return None
+                         # was a label, but this is covered by find_labels()
+                        continue
                     else:
                         msg = f"Unknown or unimplemented instruction {opcode}"
                         logger.error(msg)
@@ -896,9 +961,11 @@ def main():
     args = parser.parse_args()
     setup_logger(args.loglevel.upper())
     with open(args.infile) as f, open(args.outfile, "wb") as f2:
-        bytecode: bytes = assembler.assemble(f)
-        if bytecode is not None:
-            f2.write(bytecode)
+        ok = assembler.find_labels(f)
+        if ok:
+            bytecode: bytes = assembler.assemble(f)
+            if bytecode is not None:
+                f2.write(bytecode)
 
 
 if __name__ == "__main__":

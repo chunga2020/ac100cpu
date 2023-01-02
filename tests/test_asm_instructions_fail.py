@@ -148,6 +148,8 @@ class TestJumpFailures:
         ])
     def test_jump_failures(self, src_file, assert_msg):
         with open(pathlib.Path(jump_tests, src_file), "r") as f:
+            assembler.find_labels(f)
+            print(assembler.labels)
             bytecode = assembler.assemble(f)
             assert bytecode is None, assert_msg
 

@@ -39,8 +39,8 @@ class TestParseLabel:
             ("test_Something42:", "Failed to parse lower,underscore,any label")
         ])
     def test_valid_label(self, assembler, ltext, fail_msg):
-        rv = assembler.parse_label([ltext])
-        assert rv, fail_msg
+        label = assembler.parse_label([ltext])
+        assert label == ltext[:len(ltext)-1], fail_msg
 
     @pytest.mark.parametrize("ltext, fail_msg",
         [
@@ -58,12 +58,13 @@ class TestParseLabel:
 
     @pytest.mark.parametrize("src_file, expected_map",
         [
-            ("label_test01", {"start": 0x0200})
+            ("label_test01", {"start": 0x0200}),
+            ("label_test02", {"start": 0x0200, "loop": 0x0204, "done": 0x214})
         ])
     def test_label_in_file(self, assembler, src_file, expected_map):
         with open(pathlib.Path(test_srcd, src_file), "r") as f:
-            assembler.assemble(f)
-            assert assembler.labels == expected_map
+            ok = assembler.find_labels(f)
+            assert ok and assembler.labels == expected_map
 
 class TestParseRegisterName:
     @pytest.mark.parametrize("name, expected", [("R1", 0), ("R2", 1), ("R3", 2),

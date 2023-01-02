@@ -1,0 +1,11 @@
+start:
+LDI R1 10
+
+loop:
+CMI R1 0
+JE done
+DEC R1
+JMP loop
+
+done:
+HALT
