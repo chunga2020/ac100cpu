@@ -203,6 +203,22 @@ class AC100:
                       end='\t')
 
 
+    def _exec_ldi(self, instruction: bytes) -> None:
+        """
+        Execute an LDI instruction.
+
+        Parameters:
+        instruction: the instruction to execute
+        """
+        register = instruction[1]
+        self.REGS[register][0] = instruction[2]
+        self.REGS[register][1] = instruction[3]
+        value = instruction[2] << 8 | instruction[3]
+
+        self.flag_set_or_clear(self.FLAG_ZERO, value == 0)
+        self.flag_set_or_clear(self.FLAG_NEGATIVE, value & 0x8000 == 0x8000)
+
+
     def decode_execute_instruction(self, instruction) -> bool:
         """
         Decode and execute the next instruction
@@ -222,6 +238,9 @@ class AC100:
 
         opcode: bytes = INSTRUCTION_TABLE[instruction[0]]
         match opcode:
+            case "LDI":
+                self._exec_ldi(instruction)
+                self._increment_pc()
             case "HALT": sys.exit(0)
             case "NOP":
                 self._increment_pc()

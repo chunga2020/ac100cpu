@@ -110,6 +110,49 @@ class TestDebuggingInfo:
         assert capture.out == expected
 
 
+def test_ldi_hex_values(assembler, capsys, emulator):
+    # just make sure all registers are loaded
+    slug = "ldi-test01"
+    src_file = pathlib.Path(test_srcd, slug)
+    bytecode = None
+    with open(src_file, "r") as f:
+        assembler.find_labels(f)
+        bytecode = assembler.assemble(f)
+        emulator.load_ram(bytecode)
+    with pytest.raises(SystemExit):
+        emulator.run()
+    emulator.dump_registers()
+    capture = capsys.readouterr()
+    expected = "R1: 0x0011\tR2: 0x2233\tR3: 0x4455\tR4: 0x6677\n"
+    expected += "R5: 0x8899\tR6: 0xaabb\tR7: 0xccdd\tR8: 0xeeff\n"
+    expected += "R9: 0xffee\tR10: 0xddcc\tR11: 0xbbaa\tR12: 0x9988\n"
+    expected += "R13: 0x7766\tR14: 0x5544\tR15: 0x3322\tR16: 0x1100\n"
+    assert capture.out == expected
+
+
+@pytest.mark.parametrize("bytecode, expected, msg",
+    [
+        (b"\x00\x00\x00\x00", True, "Should have set Z flag"),
+        (b"\x00\x01\xbe\xef", False, "Should have cleared Z flag")
+    ])
+def test_ldi_z_flag(emulator, bytecode, expected, msg):
+    ok = emulator._exec_ldi(bytecode)
+    assert ok
+    z_set = emulator.flag_read(emu.AC100.FLAG_ZERO)
+    assert z_set == expected, msg
+
+
+@pytest.mark.parametrize("bytecode, expected, msg",
+    [
+        (b"\x00\x00\x88\x00", True, "Should have set N flag"),
+        (b"\x00\x01\x00\x00", False, "Should have cleared N flag")
+    ])
+def test_ldi_n_flag(emulator, bytecode, expected, msg):
+    ok = emulator._exec_ldi(bytecode)
+    assert ok
+    n_set = emulator.flag_read(emu.AC100.FLAG_NEGATIVE)
+    assert n_set == expected
+
 def test_halt(assembler, emulator):
     slug = "halt-test01"
     src_file = pathlib.Path(test_srcd, slug)
