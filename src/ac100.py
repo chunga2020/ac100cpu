@@ -404,7 +404,6 @@ def main():
         parser.print_help()
         sys.exit(1)
     args = parser.parse_args()
-    dimensions = check_video_dimensions(args)
     machine.initialize_VRAM(args)
 
     with open(args.binary, "r") as f:
