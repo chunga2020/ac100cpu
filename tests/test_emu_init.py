@@ -36,8 +36,8 @@ class TestEmulatorInit:
     def test_pc_init(self):
         machine = ac100.AC100()
         expected_pc_start = 0x200
-        assert machine.PC == machine.SP + 1,\
-            f"Program counter should start right after stack pointer"
+        assert machine.PC == defs.CODE_START,\
+            "Program counter should start right after stack pointer"
         assert machine.PC == expected_pc_start,\
             f"Program counter should be at {expected_pc_start}, but it is at "\
             f"{machine.PC}"

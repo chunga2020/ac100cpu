@@ -15,6 +15,7 @@ class TestDefinitions:
         assert defs.ADDRESS_MAX == 65535, "Address max should be 65535"
         assert defs.ADDRESS_SIZE - defs.ADDRESS_MAX == 1,\
             "Total address space and max address should differ by 1"
+        assert defs.CODE_START == 0x0200, "Code section should start at 0x0200"
 
     def test_register_constants(self):
         assert defs.NUM_REGISTERS == 16, "Should have 16 gen-purpose registers"
@@ -24,7 +25,7 @@ class TestDefinitions:
             "Register name prefix should be 'R'"
 
     def test_stack_constants(self):
-        assert defs.STACK_MIN == 0x1FF, "Stack should begin at 0x01FF"
+        assert defs.STACK_MIN == 0x1FE, "Stack should begin at 0x01FE"
         assert defs.STACK_MAX == defs.ADDRESS_MIN,\
             "Stack should end at beginning of address space"
 

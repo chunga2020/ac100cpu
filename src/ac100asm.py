@@ -24,7 +24,7 @@ class AC100ASM:
         self.labels = LabelDict()
         self.lineno: int = 0    # line number of current source line
         self.default_output: str = DEFAULT_OUTPUT
-        self.offset = defs.STACK_MIN + 1 # code section starts here
+        self.offset = defs.CODE_START # code section starts here
 
 
     def parse_label(self, tokens: [str]) -> str:
@@ -811,7 +811,7 @@ class AC100ASM:
         False
         """
         self.lineno = 0
-        self.offset = defs.STACK_MIN + 1
+        self.offset = defs.CODE_START
         for line in infile:
             self.lineno += 1
             label: str = ""
@@ -848,7 +848,7 @@ class AC100ASM:
         """
         infile.seek(0)          # reset file position after label search
         self.lineno = 0
-        self.offset = defs.STACK_MIN + 1 # reset offset
+        self.offset = defs.CODE_START # reset offset
         bytecode: bytes = b""
         next_line: bytes = None # next assembled bytecode
         for source_line in infile:
