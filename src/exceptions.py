@@ -37,3 +37,8 @@ class StackPointerAlignmentError(Exception):
     def __init__(self, address):
         self.address = address
         super().__init__(f"Stack pointer at 0x{self.address:04x} not 2-byte aligned")
+
+
+class StackEmptyError(Exception):
+    def __init__(self):
+        super().__init__("Stack empty")

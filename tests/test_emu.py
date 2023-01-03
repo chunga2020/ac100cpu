@@ -301,6 +301,33 @@ def test_push_overflow(emulator):
         emulator._exec_push(b"\xe0\x00\x00\x00")
 
 
+def test_pop(emulator):
+    emulator._exec_load(b"\x00\x00\x12\x34")
+    emulator._exec_push(b"\xe0\x00\x00\x00")
+    assert emulator.RAM[emulator.SP] == 0x12
+    assert emulator.RAM[emulator.SP + 1] == 0x34
+
+    emulator._exec_pop(b"\xe1\x01\x00\x00")
+    assert emulator.SP == defs.STACK_MIN
+    assert emulator.REGS[1][0] == 0x12
+    assert emulator.REGS[1][1] == 0x34
+
+
+def test_pop_empty_stack(emulator):
+    assert emulator.SP == defs.STACK_MIN
+    with pytest.raises(ac_exc.StackEmptyError):
+        emulator._exec_pop(b"\xe1\x00\x00\x00")
+
+
+def test_pop_alignment_check(emulator):
+    emulator._exec_load(b"\x00\x00\xde\xad")
+    emulator._exec_push(b"\xe0\x00\x00\x00")
+    assert emulator.SP == defs.STACK_MIN - 2
+    emulator.SP -= 1
+    with pytest.raises(ac_exc.StackPointerAlignmentError):
+        emulator._exec_pop(b"\xe1\x01\x00\x00")
+
+
 def test_halt(assembler, emulator):
     slug = "halt-test01"
     src_file = pathlib.Path(test_srcd, slug)

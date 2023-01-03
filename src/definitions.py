@@ -15,10 +15,10 @@ REGISTER_MAX: int = 16
 
 # stack pointer starts here on startup and grows towards low memory addresses,
 # giving us 512 bytes of stack space
-STACK_MIN: int = 0x01FE
+STACK_MIN: int = 0x0200
 STACK_MAX: int = ADDRESS_MIN    # stack can’t go past here
 
-CODE_START: int = STACK_MIN + BYTES_PER_WORD
+CODE_START: int = STACK_MIN
 
 # "video screen" is 16x16 by default
 DEFAULT_VIDEO_COLUMNS: int = 16

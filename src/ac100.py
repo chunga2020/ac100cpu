@@ -253,6 +253,10 @@ class AC100:
                 self.RAM[dest_address] = self.REGS[register][1]
 
 
+    def _decrement_sp(self):
+        self.SP -= 2
+
+
     def _exec_push(self, instruction: bytes) -> None:
         register = instruction[1]
         # stack grows down from high addresses to low addresses
@@ -261,9 +265,24 @@ class AC100:
         # make sure stack pointer remains 2-byte aligned
         if self.SP % 2 != 0:
             raise ac_exc.StackPointerAlignmentError(self.SP)
-        self.SP -= 2
+        self._decrement_sp()
         self.RAM[self.SP] = self.REGS[register][0]
         self.RAM[self.SP + 1] = self.REGS[register][1]
+
+
+    def _increment_sp(self):
+        self.SP += 2
+
+
+    def _exec_pop(self, instruction: bytes) -> None:
+        register = instruction[1]
+        if self.SP == defs.STACK_MIN:
+            raise ac_exc.StackEmptyError
+        if self.SP % 2 != 0:
+            raise ac_exc.StackPointerAlignmentError(self.SP)
+        self.REGS[register][0] = self.RAM[self.SP]
+        self.REGS[register][1] = self.RAM[self.SP + 1]
+        self._increment_sp()
 
 
     def decode_execute_instruction(self, instruction) -> bool:
@@ -299,7 +318,14 @@ class AC100:
                         ac_exc.StackPointerAlignmentError) as e:
                     logger.error(e)
                     return False
-
+            case "POP":
+                try:
+                    self._exec_pop(instruction)
+                    self._increment_pc()
+                except (ac_exc.StackEmptyError,
+                        ac_exc.StackPointerAlignmentError) as e:
+                    logger.error(e)
+                    return False
             case "HALT": sys.exit(0)
             case "NOP":
                 self._increment_pc()

@@ -25,7 +25,7 @@ class TestDefinitions:
             "Register name prefix should be 'R'"
 
     def test_stack_constants(self):
-        assert defs.STACK_MIN == 0x1FE, "Stack should begin at 0x01FE"
+        assert defs.STACK_MIN == 0x200, "Stack should begin at 0x0200"
         assert defs.STACK_MAX == defs.ADDRESS_MIN,\
             "Stack should end at beginning of address space"
 
