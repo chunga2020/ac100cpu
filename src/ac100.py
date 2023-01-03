@@ -251,24 +251,23 @@ class AC100:
         logger.error(msg)
 
 
-    def _exec_st(self, instruction: bytes) -> None:
+    def _exec_store(self, instruction: bytes) -> None:
+        opcode = instruction[0]
+        mnemonic = INSTRUCTION_TABLE[opcode]
         register = instruction[1]
         dest_address = instruction[2] << 8 | instruction[3]
         if dest_address < defs.STACK_MIN:
             # trying to store in stack: forbidden
             self._st_stack_error()
             sys.exit(1)
-        self.RAM[dest_address] = self.REGS[register][0]
-        self.RAM[dest_address+1] = self.REGS[register][1]
-
-
-    def _exec_sth(self, instruction: bytes) -> None:
-        register = instruction[1]
-        dest_address = instruction[2] << 8 | instruction[3]
-        if dest_address < defs.STACK_MIN:
-            self._st_stack_error()
-            sys.exit(1)
-        self.RAM[dest_address] = self.REGS[register][0]
+        match mnemonic:
+            case "ST":
+                self.RAM[dest_address] = self.REGS[register][0]
+                self.RAM[dest_address+1] = self.REGS[register][1]
+            case "STH":
+                self.RAM[dest_address] = self.REGS[register][0]
+            case "STL":
+                self.RAM[dest_address] = self.REGS[register][1]
 
 
     def decode_execute_instruction(self, instruction) -> bool:
@@ -299,8 +298,8 @@ class AC100:
             case "LDM":
                 self._exec_ldm(instruction)
                 self._increment_pc()
-            case "ST":
-                self._exec_st(instruction)
+            case "ST" | "STH" | "STL":
+                self._exec_store(instruction)
                 self._increment_pc()
             case "HALT": sys.exit(0)
             case "NOP":
