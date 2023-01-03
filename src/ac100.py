@@ -245,14 +245,18 @@ class AC100:
         self.flag_set_or_clear(self.FLAG_NEGATIVE, value & 0x8000 == 0x8000)
 
 
+    def _st_stack_error(self):
+        msg = "Programs may not store data in the stack "
+        msg += f"([0x{defs.STACK_MAX:04x}--0x{defs.STACK_MIN:04x}])"
+        logger.error(msg)
+
+
     def _exec_st(self, instruction: bytes) -> None:
         register = instruction[1]
         dest_address = instruction[2] << 8 | instruction[3]
         if dest_address < defs.STACK_MIN:
             # trying to store in stack: forbidden
-            msg = "Programs may not store data in the stack "
-            msg += f"([0x{defs.STACK_MAX:04x}--0x{defs.STACK_MIN:04x}])"
-            logger.error(msg)
+            self._st_stack_error()
             sys.exit(1)
         self.RAM[dest_address] = self.REGS[register][0]
         self.RAM[dest_address+1] = self.REGS[register][1]
