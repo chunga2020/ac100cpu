@@ -231,6 +231,19 @@ class AC100:
         self.flag_set_or_clear(self.FLAG_NEGATIVE, value & 0x8000 == 0x8000)
 
 
+    def _exec_st(self, instruction: bytes) -> None:
+        register = instruction[1]
+        dest_address = instruction[2] << 8 | instruction[3]
+        if dest_address < defs.STACK_MIN:
+            # trying to store in stack: forbidden
+            msg = "Programs may not store data in the stack "
+            msg += f"([0x{defs.STACK_MAX:04x}--0x{defs.STACK_MIN:04x}])"
+            logger.error(msg)
+            sys.exit(1)
+        self.RAM[dest_address] = self.REGS[register][0]
+        self.RAM[dest_address+1] = self.REGS[register][1]
+
+
     def decode_execute_instruction(self, instruction) -> bool:
         """
         Decode and execute the next instruction
@@ -255,6 +268,9 @@ class AC100:
                 self._increment_pc()
             case "LDR":
                 self._exec_ldr(instruction)
+                self._increment_pc()
+            case "ST":
+                self._exec_st(instruction)
                 self._increment_pc()
             case "HALT": sys.exit(0)
             case "NOP":

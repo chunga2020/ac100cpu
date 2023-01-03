@@ -188,6 +188,18 @@ def test_ldr_n_flag_clear(emulator):
     assert not emulator.flag_read(emu.AC100.FLAG_NEGATIVE)
 
 
+def test_st_valid_destination(emulator):
+    emulator._exec_ldi(b"\x00\x00\xbe\xef") # LDI R1 0xbeef
+    emulator._exec_st(b"\x10\x00\x04\x00") # ST R1 0x0400
+    assert emulator.RAM[0x0400] == 0xbe and emulator.RAM[0x0401] == 0xef
+
+
+def test_st_invalid_destination(emulator):
+    emulator._exec_ldi(b"\x00\x00\xbe\xef") # LDI R1 0xbeef
+    with pytest.raises(SystemExit):
+        emulator._exec_st(b"\x10\x00\x01\x00") # ST R1 0x0100; stack space
+
+
 def test_halt(assembler, emulator):
     slug = "halt-test01"
     src_file = pathlib.Path(test_srcd, slug)
