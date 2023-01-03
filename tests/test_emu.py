@@ -286,6 +286,22 @@ def test_add_bits(emulator, a, b, carryin, expected):
     assert result == expected
 
 
+@pytest.mark.parametrize("a, b, expected",
+    [
+        (0, 0, (0, 0, False)),
+        (0, 1, (0, 1, False)),
+        (1, 0, (0, 1, False)),
+        (1, 1, (0, 2, False)),
+        (5, 5, (0, 10, False)),
+        (0xffff, 1, (1, 0, False)),
+        (0x8000, 0x8000, (1, 0, True)),
+        (0x7fff, 0x7fff, (0, 0xfffe, True))
+    ])
+def test_ripple_add(emulator, a, b, expected):
+    result = emulator._ripple_add(a, b)
+    assert result == expected
+
+
 def test_push(emulator):
     emulator._exec_load(b"\x00\x00\xab\xcd")
     assert emulator.SP == defs.STACK_MIN

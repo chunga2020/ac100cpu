@@ -286,6 +286,47 @@ class AC100:
         return (carry_out, sum)
 
 
+    def _ripple_add(self, a: int, b: int) -> (int, int):
+        """
+        Ripple-carry add two numbers.
+
+        Parameters:
+        a: the first number to add
+        b: the second number to add
+
+        Return:
+        A 3-tuple (carry_out, sum, v) corresponding to:
+        - the carry out of the most-significant bit, if any
+        - the low 16 bits of a + b
+        - True or False, depending on whether there was overflow into the sign
+          bit
+        """
+        # bitwise sums
+        sum = [0x0 for i in range(defs.WORD_SIZE)]
+        # final answer, unsigned
+        final = 0x0
+        # initially no carry-in
+        carry_in = 0x0
+
+        sign_a = (a >> 15) & 0x1
+        sign_b = (b >> 15) & 0x1
+
+        for i in range(defs.WORD_SIZE):
+            a_i = (a >> i) & 0x1
+            b_i = (b >> i) & 0x1
+            result = self._add_bits(a_i, b_i, carry_in)
+            carry_in = result[0] # use the carryout as the carryin for next bit
+            sum[i] = result[1]
+            final += (sum[i] << i)
+        final &= 0xffff
+
+        sign_final = (final >> 15) & 0x1
+        overflow_set = (~(sign_a | sign_b) & sign_final)\
+            | ((sign_a & sign_b) & ~sign_final)
+
+        # final value of carry_in should be final carry out
+        return (carry_in, final, overflow_set)
+
 
     def _decrement_sp(self):
         self.SP -= 2
