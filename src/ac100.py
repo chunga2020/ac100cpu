@@ -262,6 +262,15 @@ class AC100:
         self.RAM[dest_address+1] = self.REGS[register][1]
 
 
+    def _exec_sth(self, instruction: bytes) -> None:
+        register = instruction[1]
+        dest_address = instruction[2] << 8 | instruction[3]
+        if dest_address < defs.STACK_MIN:
+            self._st_stack_error()
+            sys.exit(1)
+        self.RAM[dest_address] = self.REGS[register][0]
+
+
     def decode_execute_instruction(self, instruction) -> bool:
         """
         Decode and execute the next instruction
