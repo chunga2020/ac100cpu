@@ -26,3 +26,14 @@ class RegisterNameMissingPrefixError(Exception):
         msg = f"Specified register {name} missing required prefix "\
             f"{defs.REGISTER_PREFIX}"
         super().__init__(msg)
+
+
+class StackOverflowError(Exception):
+    def __init__(self):
+        super().__init__("Stack overflow")
+
+
+class StackPointerAlignmentError(Exception):
+    def __init__(self, address):
+        self.address = address
+        super().__init__(f"Stack pointer at 0x{self.address:04x} not 2-byte aligned")

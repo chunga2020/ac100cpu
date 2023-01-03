@@ -253,6 +253,19 @@ class AC100:
                 self.RAM[dest_address] = self.REGS[register][1]
 
 
+    def _exec_push(self, instruction: bytes) -> None:
+        register = instruction[1]
+        # stack grows down from high addresses to low addresses
+        if self.SP == defs.ADDRESS_MIN:
+            raise ac_exc.StackOverflowError
+        # make sure stack pointer remains 2-byte aligned
+        if self.SP % 2 != 0:
+            raise ac_exc.StackPointerAlignmentError(self.SP)
+        self.SP -= 2
+        self.RAM[self.SP] = self.REGS[register][0]
+        self.RAM[self.SP + 1] = self.REGS[register][1]
+
+
     def decode_execute_instruction(self, instruction) -> bool:
         """
         Decode and execute the next instruction
@@ -277,6 +290,9 @@ class AC100:
                 self._increment_pc()
             case "ST" | "STH" | "STL":
                 self._exec_store(instruction)
+                self._increment_pc()
+            case "PUSH":
+                self._exec_push(instruction)
                 self._increment_pc()
             case "HALT": sys.exit(0)
             case "NOP":

@@ -270,6 +270,36 @@ def test_stl_invalid_destination(emulator):
         emulator._exec_store(b"\x12\x00\x01\x00") # STL R1 0x0100; stack space
 
 
+def test_push(emulator):
+    emulator._exec_load(b"\x00\x00\xab\xcd")
+    assert emulator.SP == defs.STACK_MIN
+    emulator._exec_push(b"\xe0\x00\x00\x00")
+    assert emulator.SP == defs.STACK_MIN - 2
+    assert emulator.RAM[defs.STACK_MIN - 2] == 0xab
+    assert emulator.RAM[defs.STACK_MIN - 1] == 0xcd
+
+    emulator._exec_load(b"\x00\x01\xde\xad")
+    emulator._exec_push(b"\xe0\x01\x00\x00")
+    assert emulator.SP == defs.STACK_MIN - 4
+    assert emulator.RAM[defs.STACK_MIN - 4] == 0xde
+    assert emulator.RAM[defs.STACK_MIN - 3] == 0xad
+    assert emulator.RAM[defs.STACK_MIN - 2] == 0xab
+    assert emulator.RAM[defs.STACK_MIN - 1] == 0xcd
+
+
+def test_push_alignment_check(emulator):
+    emulator._exec_load(b"\x00\x00\xab\xcd")
+    emulator.SP = 0x01FD
+    with pytest.raises(ac_exc.StackPointerAlignmentError):
+        emulator._exec_push(b"\xe0\x00\x00\x00")
+
+
+def test_push_overflow(emulator):
+    emulator._exec_load(b"\x00\x00\xde\xad")
+    emulator.SP = defs.ADDRESS_MIN
+    with pytest.raises(ac_exc.StackOverflowError):
+        emulator._exec_push(b"\xe0\x00\x00\x00")
+
 
 def test_halt(assembler, emulator):
     slug = "halt-test01"
