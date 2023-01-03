@@ -318,6 +318,8 @@ class AC100:
                 logger.error(f"{INSTRUCTION_TABLE[instruction[0]]} failed")
                 return -1
 
+        return 0
+
 
 def check_video_dimensions(args) -> [int]:
     """
@@ -408,9 +410,7 @@ def main():
     with open(args.binary, "r") as f:
         machine.load_ram(f.read())
 
-    machine.run()
-
-    return 0
+    return machine.run()
 
 
 if __name__ == "__main__":
