@@ -231,6 +231,20 @@ class AC100:
         self.flag_set_or_clear(self.FLAG_NEGATIVE, value & 0x8000 == 0x8000)
 
 
+    def _exec_ldm(self, instruction: bytes) -> None:
+        dest_reg = instruction[1]
+        address = instruction[2] << 8 | instruction[3]
+        if address < defs.STACK_MIN:
+            logger.warning("Loading value from stack memory")
+        self.REGS[dest_reg][0] = self.RAM[address]
+        self.REGS[dest_reg][1] = self.RAM[address + 1]
+
+        value = self.REGS[dest_reg][0] << 8 | self.REGS[dest_reg][1]
+
+        self.flag_set_or_clear(self.FLAG_ZERO, value == 0)
+        self.flag_set_or_clear(self.FLAG_NEGATIVE, value & 0x8000 == 0x8000)
+
+
     def _exec_st(self, instruction: bytes) -> None:
         register = instruction[1]
         dest_address = instruction[2] << 8 | instruction[3]
@@ -268,6 +282,9 @@ class AC100:
                 self._increment_pc()
             case "LDR":
                 self._exec_ldr(instruction)
+                self._increment_pc()
+            case "LDM":
+                self._exec_ldm(instruction)
                 self._increment_pc()
             case "ST":
                 self._exec_st(instruction)

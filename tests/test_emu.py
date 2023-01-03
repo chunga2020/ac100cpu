@@ -188,6 +188,52 @@ def test_ldr_n_flag_clear(emulator):
     assert not emulator.flag_read(emu.AC100.FLAG_NEGATIVE)
 
 
+def test_ldm(emulator):
+    emulator._exec_ldi(b"\x00\x00\xab\xcd") # LDI R1 0xabcd
+    emulator._exec_st(b"\x10\x00\x05\x00")  # ST R1 0x0500
+    assert emulator.RAM[0x0500] == 0xab
+    assert emulator.RAM[0x0501] == 0xcd
+    emulator._exec_ldm(b"\x02\x01\x05\x00") # LDM R2 0x0500
+    assert emulator.REGS[1][0] == 0xab
+    assert emulator.REGS[1][1] == 0xcd
+
+
+def test_ldm_z_flag_set(emulator):
+    emulator._exec_ldi(b"\x00\x01\x00\x00") # LDI R2 0x0000
+    emulator._exec_ldi(b"\x00\x00\xde\xad") # LDI R1 0xdead
+    assert not emulator.flag_read(emu.AC100.FLAG_ZERO)
+    emulator._exec_st(b"\x10\x01\x04\x00") # ST R2 0x0400
+    emulator._exec_ldm(b"\x02\x00\x04\x00") # LDM R1 0x0400
+    assert emulator.flag_read(emu.AC100.FLAG_ZERO)
+
+
+def test_ldm_z_flag_clear(emulator):
+    emulator._exec_ldi(b"\x00\x00\xde\xad") # LDI R1 0xdead
+    emulator._exec_ldi(b"\x00\x01\x00\x00") # LDI R2 0x0000
+    assert emulator.flag_read(emu.AC100.FLAG_ZERO)
+    emulator._exec_st(b"\10\x00\x03\x00") # ST R1 0x0300
+    emulator._exec_ldm(b"\x02\x01\x03\x00") # LDM R2 0x0300
+    assert not emulator.flag_read(emu.AC100.FLAG_ZERO)
+
+
+def test_ldm_n_flag_set(emulator):
+    emulator._exec_ldi(b"\x00\x00\xff\x00") # LDI R1 0x8000
+    emulator._exec_ldi(b"\x00\x01\x00\x00") # LDI R2 0x0000
+    assert not emulator.flag_read(emu.AC100.FLAG_NEGATIVE)
+    emulator._exec_st(b"\x10\x00\x05\x00") # ST R1 0x0500
+    emulator._exec_ldm(b"\x02\x01\x05\x00") # LDM R2 0x0500
+    assert emulator.flag_read(emu.AC100.FLAG_NEGATIVE)
+
+
+def test_ldm_n_flag_clear(emulator):
+    emulator._exec_ldi(b"\x00\x00\x00\xff") # LDI R1 0xff
+    emulator._exec_ldi(b"\x00\x01\xff\xee") # LDI R2 0xffee
+    assert emulator.flag_read(emu.AC100.FLAG_NEGATIVE)
+    emulator._exec_st(b"\x10\x00\x05\x00") # ST R1 0x0500
+    emulator._exec_ldm(b"\x02\x01\x05\x00") # LDM R2 0x0500
+    assert not emulator.flag_read(emu.AC100.FLAG_NEGATIVE)
+
+
 def test_st_valid_destination(emulator):
     emulator._exec_ldi(b"\x00\x00\xbe\xef") # LDI R1 0xbeef
     emulator._exec_st(b"\x10\x00\x04\x00") # ST R1 0x0400
