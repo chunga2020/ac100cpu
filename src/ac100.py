@@ -203,41 +203,24 @@ class AC100:
                       end='\t')
 
 
-    def _exec_ldi(self, instruction: bytes) -> None:
-        """
-        Execute an LDI instruction.
-
-        Parameters:
-        instruction: the instruction to execute
-        """
-        register = instruction[1]
-        self.REGS[register][0] = instruction[2]
-        self.REGS[register][1] = instruction[3]
-        value = instruction[2] << 8 | instruction[3]
-
-        self.flag_set_or_clear(self.FLAG_ZERO, value == 0)
-        self.flag_set_or_clear(self.FLAG_NEGATIVE, value & 0x8000 == 0x8000)
-
-
-    def _exec_ldr(self, instruction: bytes) -> None:
+    def _exec_load(self, instruction: bytes) -> None:
+        """ Execute a load instruction (LDI|LDR|LDM). """
+        opcode = instruction[0]
+        mnemonic = INSTRUCTION_TABLE[opcode]
         dest_reg = instruction[1]
-        src_reg = instruction[2]
 
-        self.REGS[dest_reg][0] = self.REGS[src_reg][0]
-        self.REGS[dest_reg][1] = self.REGS[src_reg][1]
-        value = self.REGS[dest_reg][0] << 8 | self.REGS[dest_reg][1]
-
-        self.flag_set_or_clear(self.FLAG_ZERO, value == 0)
-        self.flag_set_or_clear(self.FLAG_NEGATIVE, value & 0x8000 == 0x8000)
-
-
-    def _exec_ldm(self, instruction: bytes) -> None:
-        dest_reg = instruction[1]
-        address = instruction[2] << 8 | instruction[3]
-        if address < defs.STACK_MIN:
-            logger.warning("Loading value from stack memory")
-        self.REGS[dest_reg][0] = self.RAM[address]
-        self.REGS[dest_reg][1] = self.RAM[address + 1]
+        match mnemonic:
+            case "LDI":
+                self.REGS[dest_reg][0] = instruction[2]
+                self.REGS[dest_reg][1] = instruction[3]
+            case "LDR":
+                src_reg = instruction[2]
+                self.REGS[dest_reg][0] = self.REGS[src_reg][0]
+                self.REGS[dest_reg][1] = self.REGS[src_reg][1]
+            case "LDM":
+                address = instruction[2] << 8 | instruction[3]
+                self.REGS[dest_reg][0] = self.RAM[address]
+                self.REGS[dest_reg][1] = self.RAM[address + 1]
 
         value = self.REGS[dest_reg][0] << 8 | self.REGS[dest_reg][1]
 
@@ -289,14 +272,8 @@ class AC100:
 
         opcode: bytes = INSTRUCTION_TABLE[instruction[0]]
         match opcode:
-            case "LDI":
-                self._exec_ldi(instruction)
-                self._increment_pc()
-            case "LDR":
-                self._exec_ldr(instruction)
-                self._increment_pc()
-            case "LDM":
-                self._exec_ldm(instruction)
+            case "LDI" | "LDR" | "LDM":
+                self._exec_load(instruction)
                 self._increment_pc()
             case "ST" | "STH" | "STL":
                 self._exec_store(instruction)
