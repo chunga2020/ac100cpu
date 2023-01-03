@@ -219,6 +219,18 @@ class AC100:
         self.flag_set_or_clear(self.FLAG_NEGATIVE, value & 0x8000 == 0x8000)
 
 
+    def _exec_ldr(self, instruction: bytes) -> None:
+        dest_reg = instruction[1]
+        src_reg = instruction[2]
+
+        self.REGS[dest_reg][0] = self.REGS[src_reg][0]
+        self.REGS[dest_reg][1] = self.REGS[src_reg][1]
+        value = self.REGS[dest_reg][0] << 8 | self.REGS[dest_reg][1]
+
+        self.flag_set_or_clear(self.FLAG_ZERO, value == 0)
+        self.flag_set_or_clear(self.FLAG_NEGATIVE, value & 0x8000 == 0x8000)
+
+
     def decode_execute_instruction(self, instruction) -> bool:
         """
         Decode and execute the next instruction
@@ -240,6 +252,9 @@ class AC100:
         match opcode:
             case "LDI":
                 self._exec_ldi(instruction)
+                self._increment_pc()
+            case "LDR":
+                self._exec_ldr(instruction)
                 self._increment_pc()
             case "HALT": sys.exit(0)
             case "NOP":

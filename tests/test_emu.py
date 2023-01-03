@@ -136,8 +136,7 @@ def test_ldi_hex_values(assembler, capsys, emulator):
         (b"\x00\x01\xbe\xef", False, "Should have cleared Z flag")
     ])
 def test_ldi_z_flag(emulator, bytecode, expected, msg):
-    ok = emulator._exec_ldi(bytecode)
-    assert ok
+    emulator._exec_ldi(bytecode)
     z_set = emulator.flag_read(emu.AC100.FLAG_ZERO)
     assert z_set == expected, msg
 
@@ -148,10 +147,46 @@ def test_ldi_z_flag(emulator, bytecode, expected, msg):
         (b"\x00\x01\x00\x00", False, "Should have cleared N flag")
     ])
 def test_ldi_n_flag(emulator, bytecode, expected, msg):
-    ok = emulator._exec_ldi(bytecode)
-    assert ok
+    emulator._exec_ldi(bytecode)
     n_set = emulator.flag_read(emu.AC100.FLAG_NEGATIVE)
     assert n_set == expected
+
+
+def test_ldr(emulator):
+    emulator._exec_ldi(b"\x00\x00\xde\xad") # LDI R1 0xdead
+    assert (emulator.REGS[0][0] << 8 | emulator.REGS[0][1]) == 0xdead
+    emulator._exec_ldr(b"\x01\x01\x00\x00") # LDR R2 R1
+    assert (emulator.REGS[1][0] << 8 | emulator.REGS[1][1]) == 0xdead,\
+        "LDR failed"
+
+
+def test_ldr_z_flag_set(emulator):
+    emulator._exec_ldi(b"\x00\x00\x00\x00") # LDI R1 0x0000; sets Z flag
+    emulator._exec_ldi(b"\x00\x01\xbe\xef")  # LDI R2 0xbeef; clears Z flag
+    emulator._exec_ldr(b"\x01\x01\x00\x00") # LDR R2 R1
+    assert emulator.flag_read(emu.AC100.FLAG_ZERO)
+
+
+def test_ldr_z_flag_clear(emulator):
+    emulator._exec_ldi(b"\x00\x00\xde\xad") # LDI R1 0xdead
+    emulator._exec_ldi(b"\x00\x01\x00\x00") # LDR R2 0x0000; sets Z flag
+    emulator._exec_ldr(b"\x01\x01\x00\x00") # LDR R2 R1; should clear Z flag
+    assert not emulator.flag_read(emu.AC100.FLAG_ZERO)
+
+
+def test_ldr_n_flag_set(emulator):
+    emulator._exec_ldi(b"\x00\x00\x80\x80") # LDI R1 0x8080; sets N flag
+    emulator._exec_ldi(b"\x00\x01\x00\x00") # LDI R2 0x0000; clears N flag
+    emulator._exec_ldr(b"\x01\x01\x00\x00") # LDR R2 R1; sets N flag
+    assert emulator.flag_read(emu.AC100.FLAG_NEGATIVE)
+
+
+def test_ldr_n_flag_clear(emulator):
+    emulator._exec_ldi(b"\x00\x00\x00\x00") # LDI R1 0x0000; clears N flag
+    emulator._exec_ldi(b"\x00\x01\x80\x80") # LDI R2 0x8080; sets N flag
+    emulator._exec_ldr(b"\x01\x01\x00\x00") # LDR R2 R1; clears N flag
+    assert not emulator.flag_read(emu.AC100.FLAG_NEGATIVE)
+
 
 def test_halt(assembler, emulator):
     slug = "halt-test01"
