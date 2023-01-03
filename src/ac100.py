@@ -253,6 +253,40 @@ class AC100:
                 self.RAM[dest_address] = self.REGS[register][1]
 
 
+    def _add_bits(self, a: int, b: int, carry_in: int) -> (int, int):
+        """
+        Add two one-bit numbers.
+
+        This implements a full adder, thus making more straightforward the logic
+        of determining if an operation should set or clear the carry flag.
+
+        Parameters:
+        a: the first number to be added
+        b: the second number to be added
+        carry_in: the carry in
+
+        Return:
+        A 2-tuple (carry_out, sum), corresponding to the resulting carryout and
+        sum bits of the addition a + b.  If any of the arguments are invalid,
+        return None.
+        """
+        valid_bits = [0x0, 0x1]
+        if a not in valid_bits:
+            logger.error(f"Invalid bit a={a:x}")
+            return None
+        if b not in valid_bits:
+            logger.error(f"Invalid bit b={b:x}")
+            return None
+        if carry_in not in valid_bits:
+            logger.error(f"Invalid bit carry_in={carry_in:x}")
+            return None
+        sum = a ^ b ^ carry_in
+        carry_out = (a & b) | ((a ^ b) & carry_in)
+
+        return (carry_out, sum)
+
+
+
     def _decrement_sp(self):
         self.SP -= 2
 

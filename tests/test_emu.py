@@ -270,6 +270,22 @@ def test_stl_invalid_destination(emulator):
         emulator._exec_store(b"\x12\x00\x01\x00") # STL R1 0x0100; stack space
 
 
+@pytest.mark.parametrize("a,b,carryin,expected",
+    [
+        (0, 0, 0, (0, 0)),
+        (0, 1, 0, (0, 1)),
+        (1, 1, 0, (1, 0)),
+        (1, 1, 0, (1, 0)),
+        (0, 0, 1, (0, 1)),
+        (0, 1, 1, (1, 0)),
+        (1, 0, 1, (1, 0)),
+        (1, 1, 1, (1, 1))
+    ])
+def test_add_bits(emulator, a, b, carryin, expected):
+    result = emulator._add_bits(a, b, carryin)
+    assert result == expected
+
+
 def test_push(emulator):
     emulator._exec_load(b"\x00\x00\xab\xcd")
     assert emulator.SP == defs.STACK_MIN
