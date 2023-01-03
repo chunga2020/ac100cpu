@@ -292,8 +292,14 @@ class AC100:
                 self._exec_store(instruction)
                 self._increment_pc()
             case "PUSH":
-                self._exec_push(instruction)
-                self._increment_pc()
+                try:
+                    self._exec_push(instruction)
+                    self._increment_pc()
+                except (ac_exc.StackOverflowError,
+                        ac_exc.StackPointerAlignmentError) as e:
+                    logger.error(e)
+                    return False
+
             case "HALT": sys.exit(0)
             case "NOP":
                 self._increment_pc()
