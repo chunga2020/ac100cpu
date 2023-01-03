@@ -258,6 +258,19 @@ def test_sth_invalid_destination(emulator):
         emulator._exec_store(b"\x11\x00\x01\x00") # STH R1 0x0100; stack space
 
 
+def test_stl(emulator):
+    emulator._exec_load(b"\x00\x00\xab\xcd") # LDI R1 0xabcd
+    emulator._exec_store(b"\x12\x00\x05\x00") # STL R1 0x0500
+    assert emulator.RAM[0x0500] == 0xcd
+
+
+def test_stl_invalid_destination(emulator):
+    emulator._exec_load(b"\x00\x00\x7f\xff") # LDI R1 0x7fff
+    with pytest.raises(SystemExit):
+        emulator._exec_store(b"\x12\x00\x01\x00") # STL R1 0x0100; stack space
+
+
+
 def test_halt(assembler, emulator):
     slug = "halt-test01"
     src_file = pathlib.Path(test_srcd, slug)
