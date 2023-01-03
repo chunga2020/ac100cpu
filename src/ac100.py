@@ -195,13 +195,12 @@ class AC100:
 
     def dump_registers(self) -> None:
         """ Dump register contents to standard output. """
-        for i in range(defs.NUM_REGISTERS // 4):
-            for j in range(3):
-                current = 4 * i + j
-                value = self.REGS[current][0] << 8 | self.REGS[current][1]
-                print(f"R{current+1}: 0x{value:04x}\t", end='')
-            value = self.REGS[4*i+3][0] << 8 | self.REGS[4*i+3][1]
-            print(f"R{4*i+4}: 0x{value:04x}")
+        for i in range(defs.NUM_REGISTERS):
+            if (i + 1) % 4 == 0:
+                print(f"R{i + 1}: 0x{self.REGS[i][0] << 8 | self.REGS[i][1]:04x}")
+            else:
+                print(f"R{i + 1}: 0x{self.REGS[i][0] << 8 | self.REGS[i][1]:04x}",
+                      end='\t')
 
 
     def decode_execute_instruction(self, instruction) -> bool:
