@@ -288,14 +288,14 @@ def test_add_bits(emulator, a, b, carryin, expected):
 
 @pytest.mark.parametrize("a, b, expected",
     [
-        (0, 0, (0, 0, False)),
-        (0, 1, (0, 1, False)),
-        (1, 0, (0, 1, False)),
-        (1, 1, (0, 2, False)),
-        (5, 5, (0, 10, False)),
-        (0xffff, 1, (1, 0, False)),
-        (0x8000, 0x8000, (1, 0, True)),
-        (0x7fff, 0x7fff, (0, 0xfffe, True))
+        (0, 0, (False, 0, False)),
+        (0, 1, (False, 1, False)),
+        (1, 0, (False, 1, False)),
+        (1, 1, (False, 2, False)),
+        (5, 5, (False, 10, False)),
+        (0xffff, 1, (True, 0, False)),
+        (0x8000, 0x8000, (True, 0, True)),
+        (0x7fff, 0x7fff, (False, 0xfffe, True))
     ])
 def test_ripple_add(emulator, a, b, expected):
     result = emulator._ripple_add(a, b)
