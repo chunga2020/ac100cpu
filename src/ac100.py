@@ -266,6 +266,19 @@ class AC100:
         self.flag_set_or_clear(self.FLAG_NEGATIVE, value >> 15 & 0x1 == 1)
 
 
+    def _exec_dec(self, instruction: bytes) -> None:
+        register = instruction[1]
+        value = (self.REGS[register][0] << 8 | self.REGS[register][1]) & 0xffff
+        value -= 1
+        value &= 0xffff
+
+        self.REGS[register][0] = (value >> 8) & 0xff
+        self.REGS[register][1] = value & 0xff
+
+        self.flag_set_or_clear(self.FLAG_ZERO, value & 0xffff == 0)
+        self.flag_set_or_clear(self.FLAG_NEGATIVE, value >> 15 & 0x1 == 1)
+
+
     def _decrement_sp(self):
         self.SP -= 2
 
@@ -322,6 +335,12 @@ class AC100:
                 self._increment_pc()
             case "ST" | "STH" | "STL":
                 self._exec_store(instruction)
+                self._increment_pc()
+            case "INC":
+                self._exec_inc(instruction)
+                self._increment_pc()
+            case "DEC":
+                self._exec_dec(instruction)
                 self._increment_pc()
             case "PUSH":
                 try:

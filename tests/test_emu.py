@@ -289,6 +289,24 @@ def test_inc(emulator, value_before, value_after, n_set, z_set):
     assert emulator.flag_read(emu.AC100.FLAG_ZERO) == z_set
 
 
+@pytest.mark.parametrize("value_before, value_after, n_set, z_set",
+    [
+        (1, 0, False, True),
+        (0, 0xffff, True, False),
+        (0x1234, 0x1233, False, False),
+        (0x8001, 0x8000, True, False)
+    ])
+def test_dec(emulator, value_before, value_after, n_set, z_set):
+    load_value = value_before.to_bytes(2, byteorder='big')
+    load_code = b"\x00\x00" + load_value
+    emulator._exec_load(load_code)
+    emulator._exec_dec(b"\x45\x00\x00\x00")
+    actual_value = (emulator.REGS[0][0] << 8 | emulator.REGS[0][1]) & 0xffff
+    assert actual_value == value_after
+    assert emulator.flag_read(emu.AC100.FLAG_NEGATIVE) == n_set
+    assert emulator.flag_read(emu.AC100.FLAG_ZERO) == z_set
+
+
 def test_push(emulator):
     emulator._exec_load(b"\x00\x00\xab\xcd")
     assert emulator.SP == defs.STACK_MIN
