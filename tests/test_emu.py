@@ -270,6 +270,25 @@ def test_stl_invalid_destination(emulator):
         emulator._exec_store(b"\x12\x00\x01\x00") # STL R1 0x0100; stack space
 
 
+@pytest.mark.parametrize("value_before,value_after,n_set,z_set",
+    [
+        (0, 1, False, False),
+        (0x1234, 0x1235, False, False),
+        (0x7fff, 0x8000, True, False),
+        (0x8000, 0x8001, True, False),
+        (0xffff, 0, False, True)
+    ])
+def test_inc(emulator, value_before, value_after, n_set, z_set):
+    load_value = value_before.to_bytes(2, byteorder='big')
+    load_code = b"\x00\x00" + load_value
+    emulator._exec_load(load_code)
+    emulator._exec_inc(b"\x42\x00\x00\x00")
+    actual_value = (emulator.REGS[0][0] << 8 | emulator.REGS[0][1]) & 0xffff
+    assert actual_value == value_after
+    assert emulator.flag_read(emu.AC100.FLAG_NEGATIVE) == n_set
+    assert emulator.flag_read(emu.AC100.FLAG_ZERO) == z_set
+
+
 def test_push(emulator):
     emulator._exec_load(b"\x00\x00\xab\xcd")
     assert emulator.SP == defs.STACK_MIN
