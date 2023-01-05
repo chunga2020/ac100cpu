@@ -42,3 +42,26 @@ class StackPointerAlignmentError(Exception):
 class StackEmptyError(Exception):
     def __init__(self):
         super().__init__("Stack empty")
+
+
+class StackJumpError(Exception):
+    """ Exception raised if a program attempts to jump into stack space """
+    def __init__(self, address):
+        msg = "The program counter may not be set to addresses in stack space "
+        msg = f"([0x{defs.STACK_MAX:04x}--0x{defs.STACK_MIN:04x}])"
+        super().__init__(msg)
+
+
+class VRAMJumpError(Exception):
+    """ Exception raised if a program attempts to jump into VRAM """
+    def __init__(self, address, vram_min, vram_max):
+        msg = "The program counter may not be set to addresses in VRAM "
+        msg += f"([0x{vram_min:04x}--0x{vram_max:04x}])"
+        super().__init__(msg)
+
+
+class PcAlignmentError(Exception):
+    """ Exception raised if PC is not set to a four-byte aligned address """
+    def __init__(self, address):
+        msg = f"Program counter @ 0x{address:04x} not on four-byte boundary"
+        super().__init__(msg)

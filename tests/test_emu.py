@@ -270,6 +270,36 @@ def test_stl_invalid_destination(emulator):
         emulator._exec_store(b"\x12\x00\x01\x00") # STL R1 0x0100; stack space
 
 
+@pytest.mark.parametrize("z_set, before, after",
+    [
+        (False, 0x0200, 0x0204), (False, 0x703c, 0x7040),
+        (True, 0x0200, 0x0400), (True, 0x703c, 0x0200)
+    ])
+def test_je(emulator, z_set, before, after):
+    emulator.PC = before
+    emulator.flag_set_or_clear(emu.AC100.FLAG_ZERO, z_set)
+    je_code = b"\x30\x00" + after.to_bytes(2, byteorder='big')
+    emulator._exec_jump(je_code)
+    if z_set:
+        assert emulator.PC == after
+    else:
+        assert emulator.PC == (before + 4)
+
+
+@pytest.mark.parametrize("before, after, opcode",
+    [
+        (0x0200, 0x0100, b"\x30"), (0xab40, 0x0040, b"\x30"),
+        (0x0200, 0x01fc, b"\x30"), (0x0300, 0x0000, b"\x30")
+    ])
+def test_jump_stack_jump_error(emulator, before, after, opcode):
+    emulator.PC = before
+    emulator.flag_set(emu.AC100.FLAG_ZERO)
+    address_code = after.to_bytes(2, byteorder='big')
+    jump_code = opcode + b"\x00" + address_code
+    with pytest.raises(ac_exc.StackJumpError):
+        emulator._exec_jump(jump_code)
+
+
 @pytest.mark.parametrize("value_before,value_after,n_set,z_set",
     [
         (0, 1, False, False),

@@ -253,6 +253,26 @@ class AC100:
                 self.RAM[dest_address] = self.REGS[register][1]
 
 
+    def _exec_jump(self, instruction: bytes) -> None:
+        # TODO: Add handling of other jump opcodes
+        address = instruction[2] << 8 | instruction[3]
+        # high-address end of the stack is the same address as the start of the
+        # code section, so we don't want to raise an exception if address is the
+        # high end of the stack
+        if address < defs.STACK_MIN:
+            raise ac_exc.StackJumpError(address)
+        # VRAM is not executable code
+        if address >= self.VRAM_START:
+            raise ac_exc.VRAMJumpError(address, self.VRAM_START,
+                                       defs.ADDRESS_MAX)
+        if address % 4 != 0:
+            raise ac_exc.PcAlignmentError(address)
+        if self.flag_read(self.FLAG_ZERO):
+            self.PC = address
+        else:
+            self._increment_pc()
+
+
     def _exec_inc(self, instruction: bytes) -> None:
         register = instruction[1]
         value = (self.REGS[register][0] << 8 | self.REGS[register][1]) & 0xffff
