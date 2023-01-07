@@ -319,6 +319,22 @@ def test_cmr(emulator, a, b, c_set, n_set, z_set):
     assert emulator.flag_read(emu.AC100.FLAG_ZERO) == z_set
 
 
+@pytest.mark.parametrize("a, b, c_set, n_set, z_set",
+    [
+        (0x5, 0x3, True, False, False),
+        (0x3, 0x5, False, True, False),
+        (0x3, 0x3, True, False, True),
+        (0x5, 0xfffd, False, False, False),
+        (0xfffd, 0x5, True, True, False)
+    ])
+def test_cmi(emulator, a, b, c_set, n_set, z_set):
+    emulator._exec_load(b"\x00\x00" + a.to_bytes(2, byteorder='big'))
+    emulator._exec_cmp(b"\x21\x00" + b.to_bytes(2, byteorder='big'))
+    assert emulator.flag_read(emu.AC100.FLAG_CARRY) == c_set
+    assert emulator.flag_read(emu.AC100.FLAG_NEGATIVE) == n_set
+    assert emulator.flag_read(emu.AC100.FLAG_ZERO) == z_set
+
+
 @pytest.mark.parametrize("z_set, before, after",
     [
         (False, 0x0200, 0x0204), (False, 0x703c, 0x7040),

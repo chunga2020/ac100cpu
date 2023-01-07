@@ -327,18 +327,21 @@ class AC100:
         opcode = instruction[0]
         mnemonic = INSTRUCTION_TABLE[opcode]
 
+        b = 0
+        a_reg = instruction[1]
+        a = self.REGS[a_reg][0] << 8 | self.REGS[a_reg][1]
         match mnemonic:
             case "CMR":
-                a_reg = instruction[1]
-                a = self.REGS[a_reg][0] << 8 | self.REGS[a_reg][1]
                 b_reg = instruction[2]
                 b = self.REGS[b_reg][0] << 8 | self.REGS[b_reg][1]
+            case "CMI":
+                b = instruction[2] << 8 | instruction[3]
 
-                c_set, sum, _ = self._ripple_add(a, (~b + 1) & 0xffff)
-                self.flag_set_or_clear(self.FLAG_CARRY, c_set)
-                self.flag_set_or_clear(self.FLAG_ZERO, sum == 0)
-                self.flag_set_or_clear(self.FLAG_NEGATIVE,
-                                       (sum >> 15) & 0x1 == 1)
+        c_set, sum, _ = self._ripple_add(a, (~b + 1) & 0xffff)
+        self.flag_set_or_clear(self.FLAG_CARRY, c_set)
+        self.flag_set_or_clear(self.FLAG_ZERO, sum == 0)
+        self.flag_set_or_clear(self.FLAG_NEGATIVE,
+                               (sum >> 15) & 0x1 == 1)
 
 
     def _exec_jump(self, instruction: bytes) -> None:
