@@ -300,6 +300,34 @@ def test_jump_stack_jump_error(emulator, before, after, opcode):
         emulator._exec_jump(jump_code)
 
 
+@pytest.mark.parametrize("before, after, opcode",
+    [
+        (0x0200, defs.DEFAULT_VRAM_START, b"\x30"),
+        (0x0440, defs.ADDRESS_MAX, b"\x30"),
+        (0xabc0, defs.ADDRESS_MAX - 10, b"\x30")
+    ])
+def test_jump_vram_jump_error(emulator, before, after, opcode):
+    emulator.PC = before
+    emulator.flag_set(emu.AC100.FLAG_ZERO)
+    address_code = after.to_bytes(2, byteorder='big')
+    jump_code = opcode + b"\x00" + address_code
+    with pytest.raises(ac_exc.VRAMJumpError):
+        emulator._exec_jump(jump_code)
+
+
+@pytest.mark.parametrize("before, after, opcode",
+    [
+        (0x0200, 0xbeef, b"\x30"), (0x0200, 0x0301, b"\x30")
+    ])
+def test_jump_pc_alignment_error(emulator, before, after, opcode):
+    emulator.PC = before
+    emulator.flag_set(emu.AC100.FLAG_ZERO)
+    address_code = after.to_bytes(2, byteorder='big')
+    jump_code = opcode + b"\x00" + address_code
+    with pytest.raises(ac_exc.PcAlignmentError):
+        emulator._exec_jump(jump_code)
+
+
 @pytest.mark.parametrize("value_before,value_after,n_set,z_set",
     [
         (0, 1, False, False),
