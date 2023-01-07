@@ -253,6 +253,76 @@ class AC100:
                 self.RAM[dest_address] = self.REGS[register][1]
 
 
+    def _add_bits(self, a: int, b: int, carry_in: int) -> (int, int):
+        """
+        Add two one-bit numbers.
+
+        This implements a full adder, making more straightfoward the logic of
+        determining if an operation should set or clear the carry flag.
+
+        Parameters:
+        - a: the first number to be added
+        - b: the second number to be added
+        - carry_in: the carry in
+
+        Return:
+        A 2-tuple (carry_out, sum), corresponding to the resulting carryout and
+        sum bits of the addition a + b. If any of the arguments are invalid,
+        return None.
+        """
+        valid_bits = [0x0, 0x1]
+        if a not in valid_bits:
+            logger.error(f"Invalid bit a={a:#x}")
+            return None
+        if b not in valid_bits:
+            logger.error(f"Invalid bit b={b:#x}")
+            return None
+        if carry_in not in valid_bits:
+            logger.error(f"Invalid bit carry_in={carry_in:#x}")
+            return None
+        sum = a ^ b ^ carry_in
+        carry_out = (a & b) | ((a^b) & carry_in)
+
+        return (carry_out, sum)
+
+
+    def _ripple_add(self, a: int, b: int) -> (bool, int, bool):
+        """
+        Ripple-carry add two numbers.
+
+        Parameters:
+        - a: the first number to add
+        - b: the second number to add
+
+        Return:
+        A 3-tuple (carry_set, sum, overflow_set) corresponding to:
+        - True/False, depending on whether there was carry out of the
+        most-significant bit
+        - the low 16 bits of a + b
+        - True/False, depending on whether there was overflow into the sign bit
+        """
+        # final answer, unsigned
+        final = 0x0
+        # initially no carry-in
+        carry_in = 0x0
+        sign_a = (a >> 15) & 0x1
+        sign_b = (b >> 15) & 0x1
+
+        for i in range(defs.WORD_SIZE):
+            a_i = (a >> i) & 0x1
+            b_i = (b >> i) & 0x1
+            result = self._add_bits(a_i, b_i, carry_in)
+            carry_in = result[0] # use carryout as carryin of the next bit
+            final += (result[1] << i)
+        final &= 0xffff
+        sign_final = (final >> 15) & 0x1
+        overflow_set = True if ((~(sign_a | sign_b) & sign_final) \
+                                | ((sign_a & sign_b) & ~sign_final)) else False
+        carry_set: bool = (carry_in == 1)
+
+        return (carry_set, final, overflow_set)
+
+
     def _exec_jump(self, instruction: bytes) -> None:
         # TODO: Add handling of other jump opcodes
         address = instruction[2] << 8 | instruction[3]
