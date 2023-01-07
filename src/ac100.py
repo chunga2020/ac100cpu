@@ -447,7 +447,7 @@ class AC100:
             case "ST" | "STH" | "STL":
                 self._exec_store(instruction)
                 self._increment_pc()
-            case "CMR":
+            case "CMR" | "CMI":
                 self._exec_cmp(instruction)
                 self._increment_pc()
             case "INC":
