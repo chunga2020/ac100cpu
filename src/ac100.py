@@ -347,8 +347,38 @@ class AC100:
                                (sum >> 15) & 0x1 == 1)
 
 
+    def _branch_on_flag_set(self, flag, address) -> None:
+        """
+        Conditionally branch execution if a flag is set.
+
+        Parameters:
+        - flag: the flag to check
+        - address: the address to jump to if the flag is set
+        """
+        if self.flag_read(flag):
+            self.PC = address
+        else:
+            self._increment_pc() # continue normal execution
+
+
+    def _branch_on_flag_clear(self, flag, address) -> None:
+        """
+        Conditionally branch execution if a flag is cleared.
+
+        Parameters:
+        - flag: the flag to check
+        - address: the address to jump to if the flag is cleared
+        """
+        if not self.flag_read(flag):
+            self.PC = address
+        else:
+            self._increment_pc()
+
+
     def _exec_jump(self, instruction: bytes) -> None:
         # TODO: Add handling of other jump opcodes
+        opcode = instruction[0]
+        mnemonic = INSTRUCTION_TABLE[opcode]
         address = instruction[2] << 8 | instruction[3]
         # high-address end of the stack is the same address as the start of the
         # code section, so we don't want to raise an exception if address is the
