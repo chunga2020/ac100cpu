@@ -467,12 +467,15 @@ class AC100ASM:
         opcode: str = tokens[0]
 
         match opcode:
-            case "JE": bytecode = b"\x30"
-            case "JG": bytecode = b"\x31"
-            case "JGE": bytecode = b"\x32"
-            case "JL": bytecode = b"\x33"
-            case "JLE": bytecode = b"\x34"
-            case "JMP": bytecode = b"\x35"
+            case "JZ": bytecode = b"\x30"
+            case "JNZ": bytecode = b"\x31"
+            case "JC": bytecode = b"\x32"
+            case "JNC": bytecode = b"\x33"
+            case "JN": bytecode = b"\x34"
+            case "JP": bytecode = b"\x35"
+            case "JV": bytecode = b"\x36"
+            case "JNV": bytecode = b"\x37"
+            case "JMP": bytecode = b"\x38"
             case _:
                 logger.error(f"Unknown or unimplemented opcode {opcode}")
                 return None
@@ -866,7 +869,8 @@ class AC100ASM:
                 case "ST" | "STH" | "STL": next_line = self._assemble_st(tokens)
                 case "CMR": next_line = self._assemble_cmr(tokens)
                 case "CMI": next_line = self._assemble_cmi(tokens)
-                case "JE" | "JG" | "JGE" | "JL" | "JLE" | "JMP":
+                case "JZ" | "JNZ" | "JC" | "JNC" | "JN" | "JP" | "JV" | "JNV"\
+                    | "JMP":
                     next_line = self._assemble_jump(tokens)
                 case "ADDI": next_line = self._assemble_addi(tokens)
                 case "ADDR": next_line = self._assemble_addr(tokens)
