@@ -340,11 +340,11 @@ def test_cmi(emulator, a, b, c_set, n_set, z_set):
         (False, 0x0200, 0x0204), (False, 0x703c, 0x7040),
         (True, 0x0200, 0x0400), (True, 0x703c, 0x0200)
     ])
-def test_je(emulator, z_set, before, after):
+def test_jz(emulator, z_set, before, after):
     emulator.PC = before
     emulator.flag_set_or_clear(emu.AC100.FLAG_ZERO, z_set)
-    je_code = b"\x30\x00" + after.to_bytes(2, byteorder='big')
-    emulator._exec_jump(je_code)
+    jz_code = b"\x30\x00" + after.to_bytes(2, byteorder='big')
+    emulator._exec_jump(jz_code)
     if z_set:
         assert emulator.PC == after
     else:

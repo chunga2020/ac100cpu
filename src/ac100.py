@@ -376,7 +376,6 @@ class AC100:
 
 
     def _exec_jump(self, instruction: bytes) -> None:
-        # TODO: Add handling of other jump opcodes
         opcode = instruction[0]
         mnemonic = INSTRUCTION_TABLE[opcode]
         address = instruction[2] << 8 | instruction[3]
@@ -391,10 +390,21 @@ class AC100:
                                        defs.ADDRESS_MAX)
         if address % 4 != 0:
             raise ac_exc.PcAlignmentError(address)
-        if self.flag_read(self.FLAG_ZERO):
-            self.PC = address
-        else:
-            self._increment_pc()
+
+        match mnemonic:
+            case "JZ": self._branch_on_flag_set(self.FLAG_ZERO, address)
+            case "JNZ": self._branch_on_flag_clear(self.FLAG_ZERO, address)
+
+            case "JC": self._branch_on_flag_set(self.FLAG_CARRY, address)
+            case "JNC": self._branch_on_flag_clear(self.FLAG_CARRY, address)
+
+            case "JN": self._branch_on_flag_set(self.FLAG_NEGATIVE, address)
+            case "JP": self._branch_on_flag_clear(self.FLAG_NEGATIVE, address)
+
+            case "JV": self._branch_on_flag_set(self.FLAG_OVERFLOW, address)
+            case "JNV": self._branch_on_flag_clear(self.FLAG_OVERFLOW, address)
+
+            case "JMP": self.PC = address # unconditional jump
 
 
     def _exec_inc(self, instruction: bytes) -> None:
