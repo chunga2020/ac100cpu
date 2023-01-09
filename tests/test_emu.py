@@ -350,7 +350,12 @@ def test_cmi(emulator, a, b, c_set, n_set, z_set):
         (emu.AC100.FLAG_CARRY, False, "JC", 0x0200, 0x0204),
         (emu.AC100.FLAG_CARRY, False, "JC", 0xab34, 0xab38),
         (emu.AC100.FLAG_CARRY, True, "JC", 0x0200, 0x0500),
-        (emu.AC100.FLAG_CARRY, True, "JC", 0xab30, 0x0200)
+        (emu.AC100.FLAG_CARRY, True, "JC", 0xab30, 0x0200),
+
+        (emu.AC100.FLAG_CARRY, False, "JNC", 0x0200, 0x0254),
+        (emu.AC100.FLAG_CARRY, False, "JNC", 0xcd00, 0x0300),
+        (emu.AC100.FLAG_CARRY, True, "JNC", 0x0200, 0x0204),
+        (emu.AC100.FLAG_CARRY, True, "JNC", 0xcd00, 0xcd04),
     ])
 def test_jump(emulator, flag, flag_set, opcode, before, after):
     emulator.PC = before
@@ -360,6 +365,7 @@ def test_jump(emulator, flag, flag_set, opcode, before, after):
         case "JZ": jump_code = b"\x30"
         case "JNZ": jump_code = b"\x31"
         case "JC": jump_code = b"\x32"
+        case "JNC": jump_code = b"\x33"
     jump_code += b"\x00" + after.to_bytes(2, byteorder='big')
     emulator._exec_jump(jump_code)
     assert emulator.PC == after
