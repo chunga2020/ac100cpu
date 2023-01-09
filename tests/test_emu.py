@@ -351,6 +351,19 @@ def test_jz(emulator, z_set, before, after):
         assert emulator.PC == (before + 4)
 
 
+@pytest.mark.parametrize("z_set, before, after",
+    [
+        (False, 0x0200, 0x0700), (False, 0xab00, 0x0200),
+        (True, 0x0200, 0x0204), (True, 0xab00, 0xab04)
+    ])
+def test_jnz(emulator, z_set, before, after):
+    emulator.PC = before
+    emulator.flag_set_or_clear(emu.AC100.FLAG_ZERO, z_set)
+    jnz_code = b"\x31\x00" + after.to_bytes(2, byteorder='big')
+    emulator._exec_jump(jnz_code)
+    assert emulator.PC == after
+
+
 @pytest.mark.parametrize("before, after, opcode",
     [
         (0x0200, 0x0100, b"\x30"), (0xab40, 0x0040, b"\x30"),
