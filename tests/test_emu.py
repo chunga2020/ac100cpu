@@ -335,32 +335,27 @@ def test_cmi(emulator, a, b, c_set, n_set, z_set):
     assert emulator.flag_read(emu.AC100.FLAG_ZERO) == z_set
 
 
-@pytest.mark.parametrize("z_set, before, after",
+@pytest.mark.parametrize("flag, flag_set, opcode, before, after",
     [
-        (False, 0x0200, 0x0204), (False, 0x703c, 0x7040),
-        (True, 0x0200, 0x0400), (True, 0x703c, 0x0200)
-    ])
-def test_jz(emulator, z_set, before, after):
-    emulator.PC = before
-    emulator.flag_set_or_clear(emu.AC100.FLAG_ZERO, z_set)
-    jz_code = b"\x30\x00" + after.to_bytes(2, byteorder='big')
-    emulator._exec_jump(jz_code)
-    if z_set:
-        assert emulator.PC == after
-    else:
-        assert emulator.PC == (before + 4)
+        (emu.AC100.FLAG_ZERO, False, "JZ", 0x0200, 0x0204),
+        (emu.AC100.FLAG_ZERO, False, "JZ", 0x703c, 0x7040),
+        (emu.AC100.FLAG_ZERO, True, "JZ", 0x0200, 0x0400),
+        (emu.AC100.FLAG_ZERO, True, "JZ", 0x703c, 0x0200),
 
-
-@pytest.mark.parametrize("z_set, before, after",
-    [
-        (False, 0x0200, 0x0700), (False, 0xab00, 0x0200),
-        (True, 0x0200, 0x0204), (True, 0xab00, 0xab04)
+        (emu.AC100.FLAG_ZERO, False, "JNZ", 0x0200, 0x0700),
+        (emu.AC100.FLAG_ZERO, False, "JNZ", 0xab00, 0x0200),
+        (emu.AC100.FLAG_ZERO, True, "JNZ", 0x0200, 0x0204),
+        (emu.AC100.FLAG_ZERO, True, "JNZ", 0xab00, 0xab04)
     ])
-def test_jnz(emulator, z_set, before, after):
+def test_jump(emulator, flag, flag_set, opcode, before, after):
     emulator.PC = before
-    emulator.flag_set_or_clear(emu.AC100.FLAG_ZERO, z_set)
-    jnz_code = b"\x31\x00" + after.to_bytes(2, byteorder='big')
-    emulator._exec_jump(jnz_code)
+    emulator.flag_set_or_clear(flag, flag_set)
+    jump_code = b""
+    match opcode:
+        case "JZ": jump_code = b"\x30"
+        case "JNZ": jump_code = b"\x31"
+    jump_code += b"\x00" + after.to_bytes(2, byteorder='big')
+    emulator._exec_jump(jump_code)
     assert emulator.PC == after
 
 
