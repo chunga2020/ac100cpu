@@ -111,38 +111,52 @@
   - Example: CMI R1 5
     - Compare the contents of R1 to 0x05
 *** JUMP
-- All jump instructions may take a raw address or a label (see JE examples)
-- 0x30 :: Jump if equal (JE)
+- All jump instructions may take a raw address or a label (see JZ examples)
+- 0x30 :: Jump if zero (JZ)
   - Syntax: 0x30 <unused> <addr high byte> <addr low byte>
-  - Example 1: JE 0x1234
-    - If the two values in the preceding comparison were equal, jump to
-      memory location 0x1234 and continue execution
-  - Example 2: JE done
-    - Assuming ‘done’ is a valid previously-defined label, if the two values in
-      the preceding comparison were equal, jump to the memory location
-      associated with the label ‘done’
-- 0x31 :: Jump if greater (JG)
+  - Example 1: JZ 0x1234
+    - If the zero bit is 1, jump to memory location 0x1234 and continue
+      execution
+  - Example 2: JZ done
+    - Assuming ‘done’ is a valid previously-defined label, if the zero bit is 1,
+      jump to the memory location associated with the label ‘done’
+- 0x31 :: Jump if not zero (JNZ)
   - Syntax: 0x31 <unused> <addr high byte> <addr low byte>
-  - Example 1: JG 0x2255
-    - If the left operand of the last comparison was greater than the right
-      operand, jump to memory location 0x2255 and continue execution
-- 0x32 :: Jump if greater or equal (JGE)
+  - Example: JNZ 0x2400
+    - If the zero bit is 0, jump to memory location 0x2400 and continue
+      execution
+- 0x32 :: Jump if carry (JC)
   - Syntax: 0x32 <unused> <addr high byte> <addr low byte>
-  - Example: JGE 0x57ab
-    - If the left operand of the last comparison was greater than, or equal to,
-      the right operand, jump to memory location 0x57ab and continue execution
-- 0x33 :: Jump if less than (JL)
+  - Example 1: JC 0x2255
+    - If the carry bit is 1, jump to memory location 0x2255 and continue
+      execution
+- 0x33 :: Jump if no carry (JNC)
   - Syntax: 0x33 <unused> <addr high byte> <addr low byte>
-  - Example: JL 0x02ab
-    - If the left operand of the last comparison was less than the right
-      operand, jump to memory location 0x02ab and continue execution
-- 0x34 :: Jump if less than or equal (JLE)
+  - Example: JNC 0x57ab
+    - If the carry bit is 0, jump to memory location 0x57ab and continue
+      execution
+- 0x34 :: Jump if negative (JN)
   - Syntax: 0x34 <unused> <addr high byte> <addr low byte>
-  - Example: JLE 0x7890
-    - If the left operand of the last comparison was less than, or equal to, the
-      right operand, jump to memory location 0x7890 and continue execution
-- 0x35 :: Jump always (JMP)
+  - Example: JN 0x7890
+    - If the sign bit is 1, jump to memory location 0x7890 and continue
+      execution
+- 0x35 :: Jump if positive (JP)
   - Syntax: 0x35 <unused> <addr high byte> <addr low byte>
+  - Example: JP 0x02ab
+    - If the sign bit is 0, jump to memory location 0x02ab and continue
+      execution
+- 0x36 :: Jump if overflow (JV)
+  - Syntax: 0x36 <unused> <addr high byte> <addr low byte>
+  - Example: JV 0x1234
+    - If the overflow bit is 1, jump to memory location 0x1234 and continue
+      execution
+- 0x37 :: Jump if no overflow (JNV)
+  - Syntax: 0x37 <unused> <addr high byte> <addr low byte>
+  - Example: JNV 0x0x0300
+    - If the overflow bit is 0, jump to memory location 0x0300 and continue
+      execution
+- 0x38 :: Jump always (JMP)
+  - Syntax: 0x38 <unused> <addr high byte> <addr low byte>
   - Example: JMP 0x1234
     - Unconditionally jump to memory location 0x1234 and continue execution
 *** MATH
