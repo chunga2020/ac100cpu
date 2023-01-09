@@ -121,30 +121,50 @@ class TestCmiFailures:
 class TestJumpFailures:
     @pytest.mark.parametrize("src_file,assert_msg",
         [
-            ("test01", "JE assembly should fail if address is missing prefix"),
-            ("test02", "JE assembly should fail if address not 16 bits"),
-            ("test03", "JE assembly should fail if destination is in the stack"),
-            ("test04", "JG assembly should fail if address is missing prefix"),
-            ("test05", "JG assembly should fail if address not 16 bits"),
-            ("test06", "JG assembly should fail if destination is in the stack"),
-            ("test07", "JGE assembly should fail if address is missing prefix"),
-            ("test08", "JGE assembly should fail if address not 16 bits"),
-            ("test09", "JGE assembly should fail if destination is in the stack"),
-            ("test10", "JL assembly should fail if address is missing prefix"),
-            ("test11", "JL assembly should fail if address not 16 bits"),
-            ("test12", "JL assembly should fail if destination is in the stack"),
-            ("test13", "JLE assembly should fail if address is missing prefix"),
-            ("test14", "JLE assembly should fail if address not 16 bits"),
-            ("test15", "JLE assembly should fail if destination is in the stack"),
-            ("test16", "JMP assembly should fail if address is missing prefix"),
-            ("test17", "JMP assembly should fail if address not 16 bits"),
-            ("test18", "JMP assembly should fail if destination is in the stack"),
-            ("test19", "JE assembly should fail if dest not 4-byte aligned"),
-            ("test20", "JG assembly should fail if dest not 4-byte aligned"),
-            ("test21", "JGE assembly should fail if dest not 4-byte aligned"),
-            ("test22", "JL assembly should fail if dest not 4-byte aligned"),
-            ("test23", "JLE assembly should fail if dest not 4-byte aligned"),
-            ("test24", "JMP assembly should fail if dest not 4-byte aligned")
+            ("test01", "JZ assembly should fail if address is missing prefix"),
+            ("test02", "JZ assembly should fail if address not 16 bits"),
+            ("test03", "JZ assembly should fail if destination is in the stack"),
+            ("test04", "JZ assembly should fail if dest not 4-byte aligned"),
+
+            ("test05", "JNZ assembly should fail if address is missing prefix"),
+            ("test06", "JNZ assembly should fail if address not 16 bits"),
+            ("test07", "JNZ assembly should fail if destination is in the stack"),
+            ("test08", "JNZ assembly should fail if dest not 4-byte aligned"),
+
+            ("test09", "JC assembly should fail if address is missing prefix"),
+            ("test10", "JC assembly should fail if address not 16 bits"),
+            ("test11", "JC assembly should fail if destination is in the stack"),
+            ("test12", "JC assembly should fail if dest not 4-byte aligned"),
+
+            ("test13", "JNC assembly should fail if address is missing prefix"),
+            ("test14", "JNC assembly should fail if address not 16 bits"),
+            ("test15", "JNC assembly should fail if destination is in the stack"),
+            ("test16", "JNC assembly should fail if dest not 4-byte aligned"),
+
+            ("test17", "JN assembly should fail if address is missing prefix"),
+            ("test18", "JN assembly should fail if address not 16 bits"),
+            ("test19", "JN assembly should fail if destination is in the stack"),
+            ("test20", "JN assembly should fail if dest not 4-byte aligned"),
+
+            ("test21", "JP assembly should fail if address is missing prefix"),
+            ("test22", "JP assembly should fail if address not 16 bits"),
+            ("test23", "JP assembly should fail if destination is in the stack"),
+            ("test24", "JP assembly should fail if dest not 4-byte aligned"),
+
+            ("test25", "JV assembly should fail if address is missing prefix"),
+            ("test26", "JV assembly should fail if address not 16 bits"),
+            ("test27", "JV assembly should fail if destination is in the stack"),
+            ("test28", "JV assembly should fail if dest not 4-byte aligned"),
+
+            ("test29", "JNV assembly should fail if address is missing prefix"),
+            ("test30", "JNV assembly should fail if address not 16 bits"),
+            ("test31", "JNV assembly should fail if destination is in the stack"),
+            ("test32", "JNV assembly should fail if dest not 4-byte aligned"),
+
+            ("test33", "JMP assembly should fail if address is missing prefix"),
+            ("test34", "JMP assembly should fail if address not 16 bits"),
+            ("test35", "JMP assembly should fail if destination is in the stack"),
+            ("test36", "JMP assembly should fail if dest not 4-byte aligned")
         ])
     def test_jump_failures(self, src_file, assert_msg):
         with open(pathlib.Path(jump_tests, src_file), "r") as f:

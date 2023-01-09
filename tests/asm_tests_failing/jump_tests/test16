@@ -1,2 +1,2 @@
 LDI R1 42
-JMP abcd
+JNC 0x0305

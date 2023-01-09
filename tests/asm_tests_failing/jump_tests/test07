@@ -1,3 +1,3 @@
 LDI R1 42
 CMI R1 32
-JGE abcd
+JNZ 0x0100
