@@ -395,6 +395,17 @@ def test_conditional_jump(emulator, flag, flag_set, opcode, before, after):
     assert emulator.PC == after
 
 
+@pytest.mark.parametrize("before, after",
+    [
+        (0x0200, 0xabc0), (0x0200, 0x0200), (0xabc0, 0x0200)
+    ])
+def test_unconditional_jump(emulator, before, after):
+    emulator.PC = before
+    code = b"\x38\x00" + after.to_bytes(2, byteorder='big')
+    emulator._exec_jump(code)
+    assert emulator.PC == after
+
+
 @pytest.mark.parametrize("before, after, opcode",
     [
         (0x0200, 0x0100, b"\x30"), (0xab40, 0x0040, b"\x30"),
