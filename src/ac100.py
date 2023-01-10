@@ -669,7 +669,7 @@ def main():
     args = parser.parse_args()
     machine.initialize_VRAM(args)
 
-    with open(args.binary, "r") as f:
+    with open(args.binary, "rb") as f:
         machine.load_ram(f.read())
 
     return machine.run()
