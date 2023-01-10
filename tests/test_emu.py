@@ -377,7 +377,7 @@ def test_cmi(emulator, a, b, c_set, n_set, z_set):
         (emu.AC100.FLAG_OVERFLOW, True, "JNV", 0x0200, 0x204),
         (emu.AC100.FLAG_OVERFLOW, True, "JNV", 0xde00, 0xde04)
     ])
-def test_jump(emulator, flag, flag_set, opcode, before, after):
+def test_conditional_jump(emulator, flag, flag_set, opcode, before, after):
     emulator.PC = before
     emulator.flag_set_or_clear(flag, flag_set)
     jump_code = b""
