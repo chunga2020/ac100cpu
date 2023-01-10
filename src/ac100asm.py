@@ -483,21 +483,22 @@ class AC100ASM:
         bytecode += b"\x00"     # second byte unused
 
         address: bytes = None
-        try:                    # try a hex address
-            address = self.parse_address(tokens[1])
-        except ValueError as e:
-            logger.error(e)
-            return None
-        except Exception as e:
-            logger.error("Unexpected error:", e)
-            return None
-        if address is None:     # see if it's a label
-            label = self.parse_label([tokens[1]])
-            if label is None:          # Nope, not a label
-                logger.error(f"Could not parse a label name from {tokens[1]}")
+
+        # see if it's a label
+        label = self.parse_label([tokens[1]])
+        if label is not None:
+            offset = self.get_label_offset(label)
+            if offset is not None:
+                address = offset.to_bytes(2, byteorder='big')
+        if address is None:
+            try:
+                address = self.parse_address(tokens[1])
+            except ValueError as e:
+                logger.error(e)
                 return None
-            print(f"{self.labels=}")
-            address = self.get_label_offset(label).to_bytes(2, byteorder='big')
+            except Exception as e:
+                logger.error("Unexpected error:", e)
+                return None
         # stack space may not be interpreted as executable code --- bad idea
         # anyways
         addr_as_int = address[0] << 8 | address[1]
