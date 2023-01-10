@@ -478,7 +478,7 @@ def test_jump_pc_alignment_error(emulator, before, after, opcode):
     ])
 def test_addi(emulator, a, b, sum, c_set, n_set, v_set, z_set):
     emulator._exec_load(b"\x00\x00" + a.to_bytes(2, byteorder='big'))
-    emulator._exec_add(b"\x40\x00" + b.to_bytes(2, byteorder='big'))
+    emulator._exec_add_sub(b"\x40\x00" + b.to_bytes(2, byteorder='big'))
     calc_sum = emulator.REGS[0][0] << 8 | emulator.REGS[0][1]
     assert calc_sum == sum
     assert emulator.flag_read(emu.AC100.FLAG_CARRY) == c_set
@@ -498,9 +498,28 @@ def test_addi(emulator, a, b, sum, c_set, n_set, v_set, z_set):
 def test_addr(emulator, a, b, sum, c_set, n_set, v_set, z_set):
     emulator._exec_load(b"\x00\x00" + a.to_bytes(2, byteorder='big'))
     emulator._exec_load(b"\x00\x01" + b.to_bytes(2, byteorder='big'))
-    emulator._exec_add(b"\x41\x00\x01\x00")
+    emulator._exec_add_sub(b"\x41\x00\x01\x00")
     calc_sum = emulator.REGS[0][0] << 8 | emulator.REGS[0][1]
     assert calc_sum == sum
+    assert emulator.flag_read(emu.AC100.FLAG_CARRY) == c_set
+    assert emulator.flag_read(emu.AC100.FLAG_NEGATIVE) == n_set
+    assert emulator.flag_read(emu.AC100.FLAG_OVERFLOW) == v_set
+    assert emulator.flag_read(emu.AC100.FLAG_ZERO) == z_set
+
+
+@pytest.mark.parametrize("a, b, diff, c_set, n_set, v_set, z_set",
+    [
+        (0x0001, 0x0001, 0x0000, True, False, False, True),
+        (0x0000, 0x0001, 0xffff, False, True, False, False),
+        (0xffff, 0xffff, 0x0000, True, False, False, True),
+        (0xffff, 0x0001, 0xfffe, True, True, False, False),
+        (0xfffe, 0xffff, 0xffff, False, True, False, False)
+    ])
+def test_subi(emulator, a, b, diff, c_set, n_set, v_set, z_set):
+    emulator._exec_load(b"\x00\x00" + a.to_bytes(2, byteorder='big'))
+    emulator._exec_add_sub(b"\x43\x00" + b.to_bytes(2, byteorder='big'))
+    calc_diff = emulator.REGS[0][0] << 8 | emulator.REGS[0][1]
+    assert calc_diff == diff
     assert emulator.flag_read(emu.AC100.FLAG_CARRY) == c_set
     assert emulator.flag_read(emu.AC100.FLAG_NEGATIVE) == n_set
     assert emulator.flag_read(emu.AC100.FLAG_OVERFLOW) == v_set

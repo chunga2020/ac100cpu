@@ -407,19 +407,39 @@ class AC100:
             case "JMP": self.PC = address # unconditional jump
 
 
-    def _exec_add(self, instruction: bytes) -> None:
+    def _exec_add_sub(self, instruction: bytes) -> None:
+        """
+        Execute an ADD* or SUB* instruction.
+
+        Parameters:
+        - instruction: the bytecode to execute
+
+        These operations can be merged into one handler because we use 2's
+        complement arithmetic.
+        """
         opcode = instruction[0]
         mnemonic = INSTRUCTION_TABLE[opcode]
         register = instruction[1]
         a = self.REGS[register][0] << 8 | self.REGS[register][1]
         b = 0
         match mnemonic:
-            case "ADDI":
+            case "ADDI" | "SUBI":
                 b = instruction[2] << 8 | instruction[3]
-            case "ADDR":
+            case "ADDR" | "SUBR":
                 b_reg = instruction[2]
                 b = self.REGS[b_reg][0] << 8 | self.REGS[b_reg][1]
-        carry_set, sum, overflow_set = self._ripple_add(a, b)
+        neg_b = ~b + 1          # for subtraction only
+
+        carry_set = 0
+        sum = 0
+        overflow_set = 0
+
+        match mnemonic:
+            case "ADDI" | "ADDR":
+                carry_set, sum, overflow_set = self._ripple_add(a, b)
+            case "SUBI" | "SUBR":
+                carry_set, sum, overflow_set = self._ripple_add(a, neg_b)
+
         self.REGS[register][0] = sum >> 8 & 0xff
         self.REGS[register][1] = sum & 0xff
 
