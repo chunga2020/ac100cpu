@@ -493,6 +493,12 @@ class AC100:
             case "CMR" | "CMI":
                 self._exec_cmp(instruction)
                 self._increment_pc()
+            case "JZ" | "JNZ" | "JC" | "JNC" | "JN" | "JP" | "JV" | "JNV" | \
+                    "JMP":
+                # no need to do PC increment; that depends on whether a jump
+                # occurs or not, so _exec_jump handles it (more precisely, its
+                # helper functions handle PC manipulation)
+                self._exec_jump(instruction)
             case "INC":
                 self._exec_inc(instruction)
                 self._increment_pc()
