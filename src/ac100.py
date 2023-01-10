@@ -407,6 +407,28 @@ class AC100:
             case "JMP": self.PC = address # unconditional jump
 
 
+    def _exec_add(self, instruction: bytes) -> None:
+        opcode = instruction[0]
+        mnemonic = INSTRUCTION_TABLE[opcode]
+        register = instruction[1]
+        a = self.REGS[register][0] << 8 | self.REGS[register][1]
+        b = 0
+        match mnemonic:
+            case "ADDI":
+                b = instruction[2] << 8 | instruction[3]
+            case "ADDR":
+                b_reg = instruction[2]
+                b = self.REGS[b_reg][0] << 8 | self.REGS[b_reg][1]
+        carry_set, sum, overflow_set = self._ripple_add(a, b)
+        self.REGS[register][0] = sum >> 8 & 0xff
+        self.REGS[register][1] = sum & 0xff
+
+        self.flag_set_or_clear(self.FLAG_CARRY, carry_set)
+        self.flag_set_or_clear(self.FLAG_NEGATIVE, sum >> 15 & 0x1 == 1)
+        self.flag_set_or_clear(self.FLAG_OVERFLOW, overflow_set)
+        self.flag_set_or_clear(self.FLAG_ZERO, sum == 0)
+
+
     def _exec_inc(self, instruction: bytes) -> None:
         register = instruction[1]
         value = (self.REGS[register][0] << 8 | self.REGS[register][1]) & 0xffff
