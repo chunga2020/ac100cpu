@@ -337,62 +337,82 @@ def test_cmi(emulator, a, b, c_set, n_set, z_set):
 
 @pytest.mark.parametrize("flag, flag_set, opcode, before, after",
     [
-        (emu.AC100.FLAG_ZERO, False, "JZ", 0x0200, 0x0204),
-        (emu.AC100.FLAG_ZERO, False, "JZ", 0x703c, 0x7040),
+        (emu.AC100.FLAG_ZERO, False, "JZ", 0x0200, 0x0700),
+        (emu.AC100.FLAG_ZERO, False, "JZ", 0x703c, 0x3000),
         (emu.AC100.FLAG_ZERO, True, "JZ", 0x0200, 0x0400),
         (emu.AC100.FLAG_ZERO, True, "JZ", 0x703c, 0x0200),
 
         (emu.AC100.FLAG_ZERO, False, "JNZ", 0x0200, 0x0700),
         (emu.AC100.FLAG_ZERO, False, "JNZ", 0xab00, 0x0200),
-        (emu.AC100.FLAG_ZERO, True, "JNZ", 0x0200, 0x0204),
-        (emu.AC100.FLAG_ZERO, True, "JNZ", 0xab00, 0xab04),
+        (emu.AC100.FLAG_ZERO, True, "JNZ", 0x0200, 0x0500),
+        (emu.AC100.FLAG_ZERO, True, "JNZ", 0xab00, 0xa00c),
 
-        (emu.AC100.FLAG_CARRY, False, "JC", 0x0200, 0x0204),
-        (emu.AC100.FLAG_CARRY, False, "JC", 0xab34, 0xab38),
+        (emu.AC100.FLAG_CARRY, False, "JC", 0x0200, 0x02a0),
+        (emu.AC100.FLAG_CARRY, False, "JC", 0xab34, 0xab50),
         (emu.AC100.FLAG_CARRY, True, "JC", 0x0200, 0x0500),
         (emu.AC100.FLAG_CARRY, True, "JC", 0xab30, 0x0200),
 
         (emu.AC100.FLAG_CARRY, False, "JNC", 0x0200, 0x0254),
         (emu.AC100.FLAG_CARRY, False, "JNC", 0xcd00, 0x0300),
-        (emu.AC100.FLAG_CARRY, True, "JNC", 0x0200, 0x0204),
-        (emu.AC100.FLAG_CARRY, True, "JNC", 0xcd00, 0xcd04),
+        (emu.AC100.FLAG_CARRY, True, "JNC", 0x0200, 0x0300),
+        (emu.AC100.FLAG_CARRY, True, "JNC", 0xcd00, 0xca00),
 
-        (emu.AC100.FLAG_NEGATIVE, False, "JN", 0x0200, 0x0204),
-        (emu.AC100.FLAG_NEGATIVE, False, "JN", 0xcde0, 0xcde4),
+        (emu.AC100.FLAG_NEGATIVE, False, "JN", 0x0200, 0x0700),
+        (emu.AC100.FLAG_NEGATIVE, False, "JN", 0xcde0, 0xdea0),
         (emu.AC100.FLAG_NEGATIVE, True, "JN", 0x0200, 0x0500),
         (emu.AC100.FLAG_NEGATIVE, True, "JN", 0xabc0, 0x0200),
 
         (emu.AC100.FLAG_NEGATIVE, False, "JP", 0x0200, 0x0400),
         (emu.AC100.FLAG_NEGATIVE, False, "JP", 0xba00, 0x0300),
-        (emu.AC100.FLAG_NEGATIVE, True, "JP", 0x0200, 0x0204),
-        (emu.AC100.FLAG_NEGATIVE, True, "JP", 0xba08, 0xba0c),
+        (emu.AC100.FLAG_NEGATIVE, True, "JP", 0x0200, 0x05790),
+        (emu.AC100.FLAG_NEGATIVE, True, "JP", 0xba08, 0xbd84),
 
-        (emu.AC100.FLAG_OVERFLOW, False, "JV", 0x0200, 0x0204),
-        (emu.AC100.FLAG_OVERFLOW, False, "JV", 0xbca0, 0xbca4),
+        (emu.AC100.FLAG_OVERFLOW, False, "JV", 0x0200, 0x03840),
+        (emu.AC100.FLAG_OVERFLOW, False, "JV", 0xbca0, 0xbf94),
         (emu.AC100.FLAG_OVERFLOW, True, "JV", 0x200, 0x0500),
         (emu.AC100.FLAG_OVERFLOW, True, "JV", 0xbca0, 0x0200),
 
         (emu.AC100.FLAG_OVERFLOW, False, "JNV", 0x0200, 0x4000),
         (emu.AC100.FLAG_OVERFLOW, False, "JNV", 0xde00, 0x0500),
-        (emu.AC100.FLAG_OVERFLOW, True, "JNV", 0x0200, 0x204),
-        (emu.AC100.FLAG_OVERFLOW, True, "JNV", 0xde00, 0xde04)
+        (emu.AC100.FLAG_OVERFLOW, True, "JNV", 0x0200, 0x2038),
+        (emu.AC100.FLAG_OVERFLOW, True, "JNV", 0xde00, 0xdb94)
     ])
 def test_conditional_jump(emulator, flag, flag_set, opcode, before, after):
     emulator.PC = before
     emulator.flag_set_or_clear(flag, flag_set)
     jump_code = b""
+    expect_jump = False
     match opcode:
-        case "JZ": jump_code = b"\x30"
-        case "JNZ": jump_code = b"\x31"
-        case "JC": jump_code = b"\x32"
-        case "JNC": jump_code = b"\x33"
-        case "JN": jump_code = b"\x34"
-        case "JP": jump_code = b"\x35"
-        case "JV": jump_code = b"\x36"
-        case "JNV": jump_code = b"\x37"
+        case "JZ":
+            jump_code = b"\x30"
+            expect_jump = flag_set
+        case "JNZ":
+            jump_code = b"\x31"
+            expect_jump = not flag_set
+        case "JC":
+            jump_code = b"\x32"
+            expect_jump = flag_set
+        case "JNC":
+            jump_code = b"\x33"
+            expect_jump = not flag_set
+        case "JN":
+            jump_code = b"\x34"
+            expect_jump = flag_set
+        case "JP":
+            jump_code = b"\x35"
+            expect_jump = not flag_set
+        case "JV":
+            jump_code = b"\x36"
+            expect_jump = flag_set
+        case "JNV":
+            jump_code = b"\x37"
+            expect_jump = not flag_set
     jump_code += b"\x00" + after.to_bytes(2, byteorder='big')
     emulator._exec_jump(jump_code)
-    assert emulator.PC == after
+    if expect_jump:
+        assert emulator.PC == after
+    else:
+        assert emulator.PC == before + 4
 
 
 @pytest.mark.parametrize("before, after",
