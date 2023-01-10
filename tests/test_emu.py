@@ -365,7 +365,12 @@ def test_cmi(emulator, a, b, c_set, n_set, z_set):
         (emu.AC100.FLAG_NEGATIVE, False, "JP", 0x0200, 0x0400),
         (emu.AC100.FLAG_NEGATIVE, False, "JP", 0xba00, 0x0300),
         (emu.AC100.FLAG_NEGATIVE, True, "JP", 0x0200, 0x0204),
-        (emu.AC100.FLAG_NEGATIVE, True, "JP", 0xba08, 0xba0c)
+        (emu.AC100.FLAG_NEGATIVE, True, "JP", 0xba08, 0xba0c),
+
+        (emu.AC100.FLAG_OVERFLOW, False, "JV", 0x0200, 0x0204),
+        (emu.AC100.FLAG_OVERFLOW, False, "JV", 0xbca0, 0xbca4),
+        (emu.AC100.FLAG_OVERFLOW, True, "JV", 0x200, 0x0500),
+        (emu.AC100.FLAG_OVERFLOW, True, "JV", 0xbca0, 0x0200)
     ])
 def test_jump(emulator, flag, flag_set, opcode, before, after):
     emulator.PC = before
@@ -378,6 +383,7 @@ def test_jump(emulator, flag, flag_set, opcode, before, after):
         case "JNC": jump_code = b"\x33"
         case "JN": jump_code = b"\x34"
         case "JP": jump_code = b"\x35"
+        case "JV": jump_code = b"\x36"
     jump_code += b"\x00" + after.to_bytes(2, byteorder='big')
     emulator._exec_jump(jump_code)
     assert emulator.PC == after
