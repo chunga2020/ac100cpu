@@ -1,4 +1,5 @@
 import argparse
+import curses
 import logging
 import sys
 import textwrap
@@ -149,6 +150,8 @@ class AC100:
         self.VIDEO_WIDTH: int = defs.DEFAULT_VIDEO_COLUMNS
         self.VIDEO_HEIGHT: int = defs.DEFAULT_VIDEO_ROWS
         self.VRAM_START: int = defs.DEFAULT_VRAM_START
+        self.stdscr = None
+        self.display = None
 
 
     def initialize_VRAM(self, args) -> None:
@@ -173,6 +176,34 @@ class AC100:
 
         self.VIDEO_HEIGHT = dimensions[0]
         self.VIDEO_WIDTH = dimensions[1]
+
+
+    def initialize_video(self) -> None:
+        """ Set up the curses-based emulated video display. """
+        stdscr = curses.initscr()
+        self.stdscr = stdscr
+        curses.noecho()
+        curses.cbreak()
+        self.stdscr.keypad(True)
+
+        term_height = curses.LINES
+        term_width = curses.COLS
+
+        window_width = self.VIDEO_WIDTH + 2 # padding on both sides
+        window_height = self.VIDEO_HEIGHT + 2 # padding on top and bottom
+
+        begin_x = term_width / 2 - window_width / 2
+        begin_y = term_height / 2 - window_height / 2
+        display = curses.newwin(window_height, window_width, begin_y, begin_x)
+        self.display = display
+
+
+    def end_video(self) -> None:
+        """ Clean up curses display. """
+        curses.nocbreak()
+        self.stdscr.keypad(False)
+        curses.echo()
+        curses.endwin()
 
 
     def load_ram(self, bytecode: bytes) -> None:
@@ -578,9 +609,11 @@ class AC100:
             instruction = self.fetch_instruction()
             ok = self.decode_execute_instruction(instruction)
             if not ok:
+                self.end_video()
                 logger.error(f"{INSTRUCTION_TABLE[instruction[0]]} failed")
                 return -1
 
+        self.end_video()
         return 0
 
 
@@ -672,6 +705,7 @@ def main():
     with open(args.binary, "r") as f:
         machine.load_ram(f.read())
 
+    machine.initialize_video()
     return machine.run()
 
 
