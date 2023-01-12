@@ -502,7 +502,7 @@ class AC100ASM:
         # stack space may not be interpreted as executable code --- bad idea
         # anyways
         addr_as_int = address[0] << 8 | address[1]
-        if addr_as_int <= defs.STACK_MIN:
+        if addr_as_int < defs.STACK_MIN:
             logger.error("Programs may not jump into stack space "
                          f"([0x{defs.STACK_MAX:04x}, "
                          f"0x{defs.STACK_MIN:04x}])")
