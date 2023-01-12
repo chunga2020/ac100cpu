@@ -1,11 +1,28 @@
+import atexit
 import argparse
 import curses
 import logging
+import signal
 import sys
 import textwrap
 
 import src.definitions as defs
 import src.exceptions as ac_exc
+
+def end_curses_exit():
+    if not curses.isendwin():
+        curses.endwin()
+    sys.exit(0)
+
+
+atexit.register(end_curses_exit)  # always clean up curses on normal exit
+
+def ctrl_c_handler(signum, frame):
+    """ End curses mode on CTRL-C """
+    end_curses_exit()
+
+signal.signal(signal.SIGINT, ctrl_c_handler)
+
 
 parser = argparse.ArgumentParser(
     epilog=textwrap.dedent("""
