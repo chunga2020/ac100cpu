@@ -110,24 +110,55 @@ class TestDebuggingInfo:
         assert capture.out == expected
 
 
-def test_ldi_hex_values(assembler, capsys, emulator):
+def test_ldi_hex_values(emulator):
     # just make sure all registers are loaded
-    slug = "ldi-test01"
-    src_file = pathlib.Path(test_srcd, slug)
-    bytecode = None
-    with open(src_file, "r") as f:
-        assembler.find_labels(f)
-        bytecode = assembler.assemble(f)
-        emulator.load_ram(bytecode)
-    with pytest.raises(SystemExit):
-        emulator.run()
-    emulator.dump_registers()
-    capture = capsys.readouterr()
-    expected = "R1: 0x0011\tR2: 0x2233\tR3: 0x4455\tR4: 0x6677\n"
-    expected += "R5: 0x8899\tR6: 0xaabb\tR7: 0xccdd\tR8: 0xeeff\n"
-    expected += "R9: 0xffee\tR10: 0xddcc\tR11: 0xbbaa\tR12: 0x9988\n"
-    expected += "R13: 0x7766\tR14: 0x5544\tR15: 0x3322\tR16: 0x1100\n"
-    assert capture.out == expected
+    emulator._exec_load(b"\x00\x00\x00\x11")
+    assert emulator.REGS[0] == [0x00, 0x11]
+
+    emulator._exec_load(b"\x00\x01\x22\x33")
+    assert emulator.REGS[1] == [0x22, 0x33]
+
+    emulator._exec_load(b"\x00\x02\x44\x55")
+    assert emulator.REGS[2] == [0x44, 0x55]
+
+    emulator._exec_load(b"\x00\x03\x66\x77")
+    assert emulator.REGS[3] == [0x66, 0x77]
+
+    emulator._exec_load(b"\x00\x04\x88\x99")
+    assert emulator.REGS[4] == [0x88, 0x99]
+
+    emulator._exec_load(b"\x00\x05\xaa\xbb")
+    assert emulator.REGS[5] == [0xaa, 0xbb]
+
+    emulator._exec_load(b"\x00\x06\xcc\xdd")
+    assert emulator.REGS[6] == [0xcc, 0xdd]
+
+    emulator._exec_load(b"\x00\x07\xee\xff")
+    assert emulator.REGS[7] == [0xee, 0xff]
+
+    emulator._exec_load(b"\x00\x08\xff\xee")
+    assert emulator.REGS[8] == [0xff, 0xee]
+
+    emulator._exec_load(b"\x00\x09\xdd\xcc")
+    assert emulator.REGS[9] == [0xdd, 0xcc]
+
+    emulator._exec_load(b"\x00\x0a\xbb\xaa")
+    assert emulator.REGS[10] == [0xbb, 0xaa]
+
+    emulator._exec_load(b"\x00\x0b\x99\x88")
+    assert emulator.REGS[11] == [0x99, 0x88]
+
+    emulator._exec_load(b"\x00\x0c\x77\x66")
+    assert emulator.REGS[12] == [0x77, 0x66]
+
+    emulator._exec_load(b"\x00\x0d\x55\x44")
+    assert emulator.REGS[13] == [0x55, 0x44]
+
+    emulator._exec_load(b"\x00\x0e\x33\x22")
+    assert emulator.REGS[14] == [0x33, 0x22]
+
+    emulator._exec_load(b"\x00\x0f\x11\x00")
+    assert emulator.REGS[15] == [0x11, 0x00]
 
 
 @pytest.mark.parametrize("bytecode, expected, msg",
