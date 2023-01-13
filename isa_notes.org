@@ -90,6 +90,12 @@
     - Load the word beginning at memory address 0xbeef into R1
   - Example: LDM R1 [R2]
     - Load into R1 the word beginning at the address stored in R2
+- 0x03 :: Load byte from memory into register (LDBM)
+  - Syntax: 0x03 <dest_reg> <addr high byte> <addr low byte>
+  - Example: LDBM R1 0x0500
+    - Load the byte at 0x0500 into R1
+  - Example: LDBM R1 [R2]
+    - Load into R1 the byte at the address stored in R2
 *** STORE
 - 0x10 :: Store word from register into memory (ST)
   - Syntax: 0x10 <src_reg> <addr high byte> <addr low byte>
