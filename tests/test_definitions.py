@@ -30,16 +30,16 @@ class TestDefinitions:
             "Stack should end at beginning of address space"
 
     def test_video_constants(self):
-        assert defs.DEFAULT_VIDEO_COLUMNS == 16,\
-            f"Should have default video width of 16 columns, but have"\
-            f" {defs.DEFAULT_VIDEO_COLUMNS} instead"
-        assert defs.DEFAULT_VIDEO_ROWS == 16,\
-            f"Should have default video height of 16 rows, but have"\
-            f" {defs.DEFAULT_VIDEO_ROWS} instead"
+        assert defs.VIDEO_COLUMNS == 40,\
+            f"Should have video width of 40 columns, but have"\
+            f" {defs.VIDEO_COLUMNS} instead"
+        assert defs.VIDEO_ROWS == 24,\
+            f"Should have video height of 16 rows, but have"\
+            f" {defs.VIDEO_ROWS} instead"
         # defaults give 256 bytes of VRAM -> 0xFFFF - 0x100 = FEFF
-        assert defs.DEFAULT_VRAM_START == 0xfeff,\
+        assert defs.VRAM_START == 0xfc3f,\
             f"VRAM should start at 0xff00, but starts at "\
-            f"{defs.DEFAULT_VRAM_START}"
+            f"{defs.VRAM_START}"
 
     def test_radix_prefixes(self):
         assert defs.BINARY_PREFIX == "0b" and len(defs.BINARY_PREFIX) == 2

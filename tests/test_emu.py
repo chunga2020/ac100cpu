@@ -442,7 +442,7 @@ def test_jump_stack_jump_error(emulator, before, after, opcode):
 
 @pytest.mark.parametrize("before, after, opcode",
     [
-        (0x0200, defs.DEFAULT_VRAM_START, b"\x30"),
+        (0x0200, defs.VRAM_START, b"\x30"),
         (0x0440, defs.ADDRESS_MAX, b"\x30"),
         (0xabc0, defs.ADDRESS_MAX - 10, b"\x30")
     ])

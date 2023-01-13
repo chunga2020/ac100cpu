@@ -4,7 +4,6 @@ import curses
 import logging
 import signal
 import sys
-import textwrap
 
 import src.definitions as defs
 import src.exceptions as ac_exc
@@ -24,14 +23,7 @@ def ctrl_c_handler(signum, frame):
 signal.signal(signal.SIGINT, ctrl_c_handler)
 
 
-parser = argparse.ArgumentParser(
-    epilog=textwrap.dedent("""
-    NOTE: Adjusting video dimensions changes overall VRAM allocation, which may
-          lead to programs running out of general-purpose RAM during execution,
-          as VRAM is dynamically allocated from general purpose RAM during
-          machine initialization
-    """),
-    formatter_class=argparse.RawTextHelpFormatter)
+parser = argparse.ArgumentParser()
 logger = logging.getLogger("ac100")
 
 # Mapping from opcodes to mnemonics
@@ -164,9 +156,9 @@ class AC100:
         self.PS = 0x00          # 0b00000000
         self.SP = defs.STACK_MIN
         self.PC = defs.CODE_START
-        self.VIDEO_WIDTH: int = defs.DEFAULT_VIDEO_COLUMNS
-        self.VIDEO_HEIGHT: int = defs.DEFAULT_VIDEO_ROWS
-        self.VRAM_START: int = defs.DEFAULT_VRAM_START
+        self.VIDEO_WIDTH: int = defs.VIDEO_COLUMNS
+        self.VIDEO_HEIGHT: int = defs.VIDEO_ROWS
+        self.VRAM_START: int = defs.VRAM_START
         self.stdscr = None
         self.display = None
 
@@ -687,10 +679,6 @@ def check_video_dimensions(args) -> [int]:
 
 def setup_parser(parser):
     parser.add_argument("binary", help="AC100 binary to run")
-    parser.add_argument("-c", "--columns", default=defs.DEFAULT_VIDEO_COLUMNS,
-                        metavar="width",
-                        help="Width of emulator 'video display' (default: "
-                        "%(default)s columns)")
     parser.add_argument("-d", "--debug-info", default="none",
                         help="Machine state to print for debugging purposes "
                         "(default: %(default)s)",
@@ -699,10 +687,6 @@ def setup_parser(parser):
                         help="Logging level (default: %(default)s)",
                         metavar="level",
                         choices=["debug", "info", "warning", "error", "critical"])
-    parser.add_argument("-r", "--rows", default=defs.DEFAULT_VIDEO_ROWS,
-                        metavar="height",
-                        help="Height of emulator 'video display' (default: "
-                        "%(default)s rows)")
 
 
 def setup_logger(logger, args):

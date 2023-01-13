@@ -20,11 +20,10 @@ STACK_MAX: int = ADDRESS_MIN    # stack can’t go past here
 
 CODE_START: int = STACK_MIN
 
-# "video screen" is 16x16 by default
-DEFAULT_VIDEO_COLUMNS: int = 16
-DEFAULT_VIDEO_ROWS: int = 16
-DEFAULT_VRAM_START: int = ADDRESS_MAX - \
-    (DEFAULT_VIDEO_COLUMNS * DEFAULT_VIDEO_ROWS)
+VIDEO_COLUMNS: int = 40
+VIDEO_ROWS: int = 24
+VRAM_START: int = ADDRESS_MAX - \
+    (VIDEO_COLUMNS * VIDEO_ROWS)
 
 BINARY_PREFIX: str = "0b"
 HEX_PREFIX: str = "0x"
