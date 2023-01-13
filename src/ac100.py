@@ -629,57 +629,6 @@ class AC100:
         return 0
 
 
-def check_video_dimensions(args) -> [int]:
-    """
-    Ensure video dimensions are valid
-
-    Make sure video dimensions
-    a: Aren't negative: having negative dimensions makes no sense!
-    b: Don't cause VRAM to encroach on stack portion of memory
-
-    We don't have to check explicitly check if VRAM > total RAM, because if the
-    VRAM encroaches on the stack, then there's no general-purpose RAM
-    left anyways
-
-    Parameters:
-    args: the args from the argument parser; check if the user requested
-    custom dimensions and, if so, make sure they're valid
-
-    Return:
-    The final dimensions to use for VRAM allocation.  The first value is the
-    video height; the second value is the video width
-
-    If either user-supplied dimension is negative, raise a
-    NegativeVideoDimensionError
-
-    If either user-supplied dimension would cause the VRAM to encroach on the
-    stack, raise a VRAMTooLargeError
-    """
-    dimensions: [int] = [defs.DEFAULT_VIDEO_ROWS, defs.DEFAULT_VIDEO_COLUMNS]
-    rows: int = int(args.rows)
-    columns: int = int(args.columns)
-    new_size: int = defs.DEFAULT_VIDEO_ROWS * defs.DEFAULT_VIDEO_COLUMNS
-    if columns != defs.DEFAULT_VIDEO_COLUMNS:
-        if columns < 0:
-            raise ac_exc.NegativeVideoDimensionError("column")
-
-        new_size = defs.DEFAULT_VIDEO_ROWS * columns
-        if defs.ADDRESS_SIZE - new_size < defs.STACK_MIN:
-            raise ac_exc.VRAMTooLargeError("column", columns)
-        dimensions[1] = columns
-
-    if rows != defs.DEFAULT_VIDEO_ROWS:
-        if rows < 0:
-            raise ac_exc.NegativeVideoDimensionError("row")
-
-        new_size = defs.DEFAULT_VIDEO_COLUMNS * rows
-        if defs.ADDRESS_SIZE - new_size < defs.STACK_MIN:
-            raise ac_exc.VRAMTooLargeError("row", rows)
-        dimensions[0] = rows
-
-    return dimensions
-
-
 def setup_parser(parser):
     parser.add_argument("binary", help="AC100 binary to run")
     parser.add_argument("-d", "--debug-info", default="none",
@@ -704,7 +653,7 @@ def main():
         parser.print_help()
         sys.exit(1)
     args = parser.parse_args()
-    machine.initialize_VRAM(args)
+    setup_logger(logger, args)
 
     with open(args.binary, "rb") as f:
         machine.load_ram(f.read())
