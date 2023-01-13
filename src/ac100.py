@@ -9,9 +9,11 @@ import src.definitions as defs
 import src.exceptions as ac_exc
 
 def end_curses_exit():
-    if not curses.isendwin():
-        curses.endwin()
-    sys.exit(0)
+    try:
+        if not curses.isendwin():
+            curses.endwin()
+    except curses.error:        # initscr hasn’t been called
+        pass
 
 
 atexit.register(end_curses_exit)  # always clean up curses on normal exit
@@ -19,6 +21,7 @@ atexit.register(end_curses_exit)  # always clean up curses on normal exit
 def ctrl_c_handler(signum, frame):
     """ End curses mode on CTRL-C """
     end_curses_exit()
+    sys.exit(0)
 
 signal.signal(signal.SIGINT, ctrl_c_handler)
 
