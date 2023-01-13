@@ -308,7 +308,7 @@ class AC100ASM:
 
     def _assemble_ldm(self, tokens: [str]) -> bytes:
         """
-        Assemble an LDM instruction
+        Assemble an LDBM or LDM instruction
 
         Parameters:
         tokens: the line to be assembled
@@ -316,7 +316,11 @@ class AC100ASM:
         Return:
         On success, return the assembled bytecode.  On failure, return None
         """
-        bytecode: bytes = b"\x02"
+        bytecode: bytes = b""
+        opcode = tokens[0]
+        match opcode:
+            case "LDM": bytecode = b"\x02"
+            case "LDBM": bytecode = b"\x03"
         dest_reg: int = -1
         try:
             dest_reg = self.parse_register_name(tokens[1])
