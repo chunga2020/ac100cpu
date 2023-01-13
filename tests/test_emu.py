@@ -240,6 +240,27 @@ def test_ldm_indirect(emulator):
     assert emulator.REGS[2][1] == 0x2a
 
 
+def test_ldbm(emulator):
+    emulator.RAM[0x0400] = 0xab
+    emulator.RAM[0x0401] = 0xcd
+    emulator._exec_ldbm(b"\x03\x00\x04\x00")
+    assert emulator.REGS[0][0] == 0x00
+    assert emulator.REGS[0][1] == 0xab
+    emulator._exec_ldbm(b"\x03\x00\x04\x01")
+    assert emulator.REGS[0][0] == 0x00
+    assert emulator.REGS[0][1] == 0xcd
+
+
+def test_ldbm_indirect(emulator):
+    emulator.RAM[0x0300] = 0xde
+    emulator.RAM[0x0301] = 0xad
+    emulator.REGS[0][0] = 0x03      # LDI R1 0x0301
+    emulator.REGS[0][1] = 0x01
+    emulator._exec_ldbm(b"\x03\x01\x00\x00") # LDBM R2 [R1]
+    assert emulator.REGS[1][0] == 0x00
+    assert emulator.REGS[1][1] == 0xad
+
+
 def test_ldm_z_flag_set(emulator):
     emulator._exec_load(b"\x00\x01\x00\x00") # LDI R2 0x0000
     emulator._exec_load(b"\x00\x00\xde\xad") # LDI R1 0xdead

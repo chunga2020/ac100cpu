@@ -283,6 +283,32 @@ class AC100:
         self.flag_set_or_clear(self.FLAG_NEGATIVE, value & 0x8000 == 0x8000)
 
 
+    def _exec_ldbm(self, instruction: bytes) -> None:
+        """
+        Execute a LDBM instruction.
+
+        Parameters:
+        instruction: the instruction to execute
+
+        This is separate from _exec_load(), because LDI, LDR, and LDM all
+        operate on 16-bit words.  LDBM operates on single bytes.
+        """
+        dest_reg = instruction[1]
+
+        operand = instruction[2] << 8 | instruction[3]
+        address = 0x0000
+        if operand < 0x10:      # it’s a register-indirect load
+            address = self.REGS[operand][0] << 8 | self.REGS[operand][1]
+        else:                   # absolute address
+            address = operand
+        self.REGS[dest_reg][0] = 0x00
+        self.REGS[dest_reg][1] = self.RAM[address]
+
+        value = self.REGS[dest_reg][0] << 8 | self.REGS[dest_reg][1]
+
+        self.flag_set_or_clear(self.FLAG_ZERO, value == 0)
+
+
     def _st_stack_error(self):
         msg = "Programs may not store data in the stack "
         msg += f"([0x{defs.STACK_MAX:04x}--0x{defs.STACK_MIN:04x}])"
