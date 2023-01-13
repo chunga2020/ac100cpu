@@ -88,6 +88,8 @@
   - Syntax: 0x02 <dest_reg> <addr high byte> <addr low byte>
   - Example: LDM R1 0xbeef
     - Load the word beginning at memory address 0xbeef into R1
+  - Example: LDM R1 [R2]
+    - Load into R1 the word beginning at the address stored in R2
 *** STORE
 - 0x10 :: Store word from register into memory (ST)
   - Syntax: 0x10 <src_reg> <addr high byte> <addr low byte>
