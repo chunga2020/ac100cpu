@@ -268,7 +268,12 @@ class AC100:
                 self.REGS[dest_reg][0] = self.REGS[src_reg][0]
                 self.REGS[dest_reg][1] = self.REGS[src_reg][1]
             case "LDM":
-                address = instruction[2] << 8 | instruction[3]
+                operand = instruction[2] << 8 | instruction[3]
+                address = 0x0
+                if operand < 0x10: # it’s a register-indirect load
+                    address = self.REGS[operand][0] << 8 | self.REGS[operand][1]
+                else:           # absolute address
+                    address = operand
                 self.REGS[dest_reg][0] = self.RAM[address]
                 self.REGS[dest_reg][1] = self.RAM[address + 1]
 
