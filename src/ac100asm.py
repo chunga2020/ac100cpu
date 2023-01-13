@@ -96,6 +96,22 @@ class AC100ASM:
         return number
 
 
+    def parse_register_indirect(self, token: str) -> int:
+        """
+        Parse a register-indirect address.
+
+        Parameters:
+        token: the token to parse
+
+        Return: the number corresponding to the specified register
+        """
+        pattern = re.compile(r"\[(R\d{1,2})\]")
+        match = pattern.match(token)
+        if match is not None:
+            register_tok = match.group(1)
+            return self.parse_register_name(register_tok)
+
+
     def parse_int(self, token) -> bytes:
         """
         Parse an integer.

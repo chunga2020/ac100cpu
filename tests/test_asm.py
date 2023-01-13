@@ -93,6 +93,19 @@ class TestParseRegisterName:
             assembler.parse_register_name(token)
 
 
+class TestParseRegisterIndirect:
+    @pytest.mark.parametrize("token, number",
+    [
+        ("[R1]", 0), ("[R2]", 1), ("[R3]", 2), ("[R4]", 3), ("[R5]", 4),
+        ("[R6]", 5), ("[R7]", 6), ("[R8]", 7), ("[R9]", 8), ("[R10]", 9),
+        ("[R11]", 10), ("[R12]", 11), ("[R13]", 12), ("[R14]", 13),
+        ("[R15]", 14), ("[R16]", 15)
+    ])
+    def test_parse_indirect_ok(self, assembler, token, number):
+        result = assembler.parse_register_indirect(token)
+        assert result == number
+
+
 class TestParseInt:
     def test_decimal(self, assembler):
         token = "-65536"        # too negative for 16 bits
