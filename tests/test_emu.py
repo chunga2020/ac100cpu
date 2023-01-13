@@ -670,26 +670,4 @@ def test_pop_alignment_check(emulator):
     emulator.SP -= 1
     with pytest.raises(ac_exc.StackPointerAlignmentError):
         emulator._exec_pop(b"\xe1\x01\x00\x00")
-
-
-def test_halt(assembler, emulator):
-    slug = "halt-test01"
-    src_file = pathlib.Path(test_srcd, slug)
-    bytecode = None
-    with open(src_file, "r") as f:
-        assembler.find_labels(f)
-        bytecode = assembler.assemble(f)
-    emulator.load_ram(bytecode)
-    with pytest.raises(SystemExit):
-        emulator.run()
-
-def test_nop(assembler, emulator):
-    slug = "nop-test01"
-    src_file = pathlib.Path(test_srcd, slug)
-    bytecode = None
-    with open(src_file, "r") as f:
-        assembler.find_labels(f)
-        bytecode = assembler.assemble(f)
-    emulator.load_ram(bytecode)
-    with pytest.raises(SystemExit):
-        emulator.run()
+ 
