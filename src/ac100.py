@@ -4,6 +4,7 @@ import curses
 import logging
 import signal
 import sys
+import time
 
 import src.definitions as defs
 import src.exceptions as ac_exc
@@ -204,10 +205,13 @@ class AC100:
         window_width = self.VIDEO_WIDTH + 2 # padding on both sides
         window_height = self.VIDEO_HEIGHT + 2 # padding on top and bottom
 
-        begin_x = term_width / 2 - window_width / 2
-        begin_y = term_height / 2 - window_height / 2
+        begin_x = term_width // 2 - window_width // 2
+        begin_y = term_height // 2 - window_height // 2
         display = curses.newwin(window_height, window_width, begin_y, begin_x)
         self.display = display
+        self.display.box()
+        self.display.refresh()
+        self.display.getch()
 
 
     def end_video(self) -> None:
@@ -568,6 +572,7 @@ class AC100:
             return False
 
         opcode: bytes = INSTRUCTION_TABLE[instruction[0]]
+        logger.debug(f"Executing {opcode}")
         match opcode:
             case "LDI" | "LDR" | "LDM":
                 self._exec_load(instruction)
@@ -616,6 +621,21 @@ class AC100:
         return True
 
 
+    def update_screen(self):
+        for i in range(self.VIDEO_HEIGHT):
+            for j in range(self.VIDEO_WIDTH):
+                next_byte = self.RAM[self.VRAM_START + (i * self.VIDEO_WIDTH)
+                                     + j]
+                next_char = ""
+                if next_byte < 20 or next_byte >= 127:
+                    next_char = " "
+                else:
+                    next_char = chr(next_byte)
+                self.display.addch(i + 1, j + 1, next_char)
+        self.display.box()
+        self.display.refresh()
+
+
     def run(self):
         while self.PC < self.VRAM_START:
             instruction = self.fetch_instruction()
@@ -624,6 +644,8 @@ class AC100:
                 self.end_video()
                 logger.error(f"{INSTRUCTION_TABLE[instruction[0]]} failed")
                 return -1
+            self.update_screen()
+            time.sleep(1)
 
         self.end_video()
         return 0
@@ -643,7 +665,8 @@ def setup_parser(parser):
 
 def setup_logger(logger, args):
     format = "[%(levelname)s]: %(funcName)s:%(lineno)d: %(message)s"
-    logging.basicConfig(format=format, level=args.loglevel.upper())
+    logging.basicConfig(filename="ac100.log", format=format,
+                        level=args.loglevel.upper())
 
 
 def main():
