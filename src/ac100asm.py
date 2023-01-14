@@ -851,7 +851,7 @@ class AC100ASM:
             label: str = ""
             tokens: [str] = self.tokenize_line(line)
             # blank line
-            if tokens is None:
+            if tokens is None or tokens[0] == ";":
                 continue
             if len(tokens) == 1 and tokens[0].endswith(":"):
                 label = self.parse_label([tokens[0]])
