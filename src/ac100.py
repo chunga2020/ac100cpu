@@ -319,7 +319,13 @@ class AC100:
         opcode = instruction[0]
         mnemonic = INSTRUCTION_TABLE[opcode]
         register = instruction[1]
-        dest_address = instruction[2] << 8 | instruction[3]
+        operand = instruction[2] << 8 | instruction[3]
+        dest_address = 0x0000
+        if operand < 0x10:          # register-indirect store
+            dest_address = self.REGS[operand][0] << 8 | self.REGS[operand][1]
+        else:                       # absolute address
+            dest_address = operand
+
         if dest_address < defs.STACK_MIN:
             # trying to store in stack: forbidden
             self._st_stack_error()

@@ -382,14 +382,20 @@ class AC100ASM:
             return None
         bytecode += src_reg.to_bytes(1, byteorder='big')
         address: bytes = b""
-        try:
-            address = self.parse_address(tokens[2])
-        except ValueError as e:
-            logger.error(e)
-            return None
-        except Exception as e:
-            logger.error("Unexpected error:", e)
-        bytecode += address
+        if tokens[2].startswith("["): # register indirect addressing
+            reg_num = self.parse_register_indirect(tokens[2])
+            bytecode += reg_num.to_bytes(2, byteorder='big')
+        else:                   # direct address
+            try:
+                address = self.parse_address(tokens[2])
+            except ValueError as e:
+                logger.error(e)
+                return None
+            except Exception as e:
+                logger.error("Unexpected error:", e)
+                return None
+            bytecode += address
+        address: bytes = b""
 
         self._increment_offset()
         return self._check_len(bytecode)
