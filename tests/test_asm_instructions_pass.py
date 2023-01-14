@@ -87,6 +87,9 @@ class TestAssemblerPasses:
              "JNV assembly failed"),
             ("jmp-test01", b"\x00\x00\x00\x2a\x38\x00\x05\x00", 2, 0x208,
              "JMP assembly with decimal integer failed"),
+            ("jsr-test01",
+             b"\x39\x00\x02\x0c\x00\x00\x00\x2a\x42\x00\x00\x00\xfe\xff\xfe\xff",
+             5, 0x210, "JSR assembly failed"),
             ("addi-decimal-decimal-test01", b"\x00\x00\x00\x14\x40\x00\x00\x14",
              2, 0x208, "ADDI assembly with two midrange decimal integers failed"),
             ("addr-decimal-decimal-test01",
@@ -119,6 +122,7 @@ class TestAssemblerPasses:
         """
         source_file = pathlib.Path(test_srcd, name)
         with open(source_file, "r") as f:
+            assembler.find_labels(f)
             bytecode = assembler.assemble(f)
             assert bytecode == expected, fail_msg
             assert assembler.offset == offset,\

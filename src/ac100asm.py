@@ -506,6 +506,7 @@ class AC100ASM:
             case "JV": bytecode = b"\x36"
             case "JNV": bytecode = b"\x37"
             case "JMP": bytecode = b"\x38"
+            case "JSR": bytecode = b"\x39"
             case _:
                 logger.error(f"Unknown or unimplemented opcode {opcode}")
                 return None
@@ -901,7 +902,7 @@ class AC100ASM:
                 case "CMR": next_line = self._assemble_cmr(tokens)
                 case "CMI": next_line = self._assemble_cmi(tokens)
                 case "JZ" | "JNZ" | "JC" | "JNC" | "JN" | "JP" | "JV" | "JNV"\
-                    | "JMP":
+                    | "JMP" | "JSR":
                     next_line = self._assemble_jump(tokens)
                 case "ADDI": next_line = self._assemble_addi(tokens)
                 case "ADDR": next_line = self._assemble_addr(tokens)

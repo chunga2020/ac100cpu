@@ -169,6 +169,11 @@
   - Syntax: 0x38 <unused> <addr high byte> <addr low byte>
   - Example: JMP 0x1234
     - Unconditionally jump to memory location 0x1234 and continue execution
+- 0x39 :: Jump to Subroutine (JSR)
+  - Syntax: 0x39 <unused> <addr high byte> <addr low byte>
+  - Example: JSR putchar
+    - Save to the stack the address of the instruction after the JSR, then jump
+      to the subroutine named “putchar”
 *** MATH
 - 0x40 :: Add immediate word to register (ADDI)
   - Syntax: 0x40 <dest_reg> <word high byte> <word low byte>
