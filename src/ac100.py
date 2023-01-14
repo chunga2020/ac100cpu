@@ -682,7 +682,7 @@ class AC100:
                 logger.error(f"{INSTRUCTION_TABLE[instruction[0]]} failed")
                 return -1
             self.update_screen()
-            time.sleep(1)
+            time.sleep(0.005)
 
         self.end_video()
         return 0
