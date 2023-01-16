@@ -50,6 +50,7 @@ INSTRUCTION_TABLE[0x35] = "JP"
 INSTRUCTION_TABLE[0x36] = "JV"
 INSTRUCTION_TABLE[0x37] = "JNV"
 INSTRUCTION_TABLE[0x38] = "JMP"
+INSTRUCTION_TABLE[0x39] = "JSR"
 INSTRUCTION_TABLE[0x40] = "ADDI"
 INSTRUCTION_TABLE[0x41] = "ADDR"
 INSTRUCTION_TABLE[0x42] = "INC"
@@ -490,6 +491,18 @@ class AC100:
             case "JNV": self._branch_on_flag_clear(self.FLAG_OVERFLOW, address)
 
             case "JMP": self.PC = address # unconditional jump
+            case "JSR":
+                # save the return address (address following the current one)
+                next_address: int = self.PC + 4
+                if self.SP == 0x0000: # end of stack: stack overflow
+                    raise ac_exc.StackOverflowError()
+
+                self._decrement_sp()
+                self.RAM[self.SP] = (next_address >> 8) & 0xff
+                self.RAM[self.SP + 1] = next_address & 0xff
+
+                # jump to subroutine
+                self.PC = address
 
 
     def _exec_add_sub(self, instruction: bytes) -> None:
@@ -636,7 +649,7 @@ class AC100:
                 self._exec_cmp(instruction)
                 self._increment_pc()
             case "JZ" | "JNZ" | "JC" | "JNC" | "JN" | "JP" | "JV" | "JNV" | \
-                    "JMP":
+                    "JMP" | "JSR":
                 # no need to do PC increment; that depends on whether a jump
                 # occurs or not, so _exec_jump handles it (more precisely, its
                 # helper functions handle PC manipulation)

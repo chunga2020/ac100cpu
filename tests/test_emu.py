@@ -489,6 +489,32 @@ def test_unconditional_jump(emulator, before, after):
     assert emulator.PC == after
 
 
+@pytest.mark.parametrize("before, after",
+    [
+        (0x0200, 0xaa00), (0xba08, 0x0200)
+    ])
+def test_jsr_ok(emulator, before, after):
+    emulator.PC = before
+    ret_addr = before + 4
+    sp_before = emulator.SP
+    code = b"\x39\x00" + after.to_bytes(2, byteorder='big')
+    emulator._exec_jump(code)
+    assert emulator.PC == after
+    assert emulator.SP == sp_before - 2
+    assert emulator.RAM[emulator.SP] == (ret_addr >> 8 & 0xff)
+    assert emulator.RAM[emulator.SP + 1] == (ret_addr & 0xff)
+
+
+@pytest.mark.parametrize("before, after",
+    [(0x0200, 0x500), (0xcd00, 0x0200)])
+def test_jsr_stack_overflow(emulator, before, after):
+    emulator.PC = before
+    emulator.SP = 0x0000
+    code = b"\x39\x00" + after.to_bytes(2, byteorder='big')
+    with pytest.raises(ac_exc.StackOverflowError):
+        emulator._exec_jump(code)
+
+
 @pytest.mark.parametrize("before, after, opcode",
     [
         (0x0200, 0x0100, b"\x30"), (0xab40, 0x0040, b"\x30"),
