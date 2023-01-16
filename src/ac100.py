@@ -58,6 +58,7 @@ INSTRUCTION_TABLE[0x44] = "SUBR"
 INSTRUCTION_TABLE[0x45] = "DEC"
 INSTRUCTION_TABLE[0xE0] = "PUSH"
 INSTRUCTION_TABLE[0xE1] = "POP"
+INSTRUCTION_TABLE[0xE2] = "RTS"
 INSTRUCTION_TABLE[0xFE] = "HALT"
 INSTRUCTION_TABLE[0xFF] = "NOP"
 
@@ -591,6 +592,20 @@ class AC100:
         self._increment_sp()
 
 
+    def _exec_rts(self, instruction: bytes) -> None:
+        if self.SP == defs.CODE_START: # stack empty
+            raise ac_exc.StackEmptyError()
+
+        # pop the top value off the stack; assume it's the return address
+        address = self.RAM[self.SP] << 8 | self.RAM[self.SP + 1]
+        self._increment_sp()
+        if address < defs.CODE_START: # stack jump
+            raise ac_exc.StackJumpError(address)
+
+        # jump to the popped address
+        self.PC = address
+
+
     def decode_execute_instruction(self, instruction) -> bool:
         """
         Decode and execute the next instruction
@@ -648,6 +663,7 @@ class AC100:
                         ac_exc.StackPointerAlignmentError) as e:
                     logger.error(e)
                     return False
+            case "RTS": self._exec_rts(instruction)
             case "HALT": sys.exit(0)
             case "NOP":
                 self._increment_pc()

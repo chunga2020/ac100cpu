@@ -702,4 +702,35 @@ def test_pop_alignment_check(emulator):
     emulator.SP -= 1
     with pytest.raises(ac_exc.StackPointerAlignmentError):
         emulator._exec_pop(b"\xe1\x01\x00\x00")
- 
+
+
+@pytest.mark.parametrize("current, ret_addr",
+    [
+        (0x0500, 0x0200), (0x0300, 0x0500)
+    ])
+def test_rts_ok(emulator, current, ret_addr):
+    emulator.PC = current
+    emulator._decrement_sp()
+    emulator.RAM[emulator.SP] = ret_addr >> 8 & 0xff
+    emulator.RAM[emulator.SP + 1] = ret_addr & 0xff
+    emulator._exec_rts(b"\xe2\x00\x00\x00")
+    assert emulator.PC == ret_addr
+
+
+def test_rts_stack_empty(emulator):
+    emulator.PC = defs.CODE_START
+    with pytest.raises(ac_exc.StackEmptyError):
+        emulator._exec_rts(b"\xe2\x00\x00\x00")
+
+
+@pytest.mark.parametrize("before, target",
+    [
+        (0x0200, 0x0000), (0x0500, 0x0100)
+    ])
+def test_rts_stack_jump(emulator, before, target):
+    emulator.PC = before
+    emulator._decrement_sp()
+    emulator.RAM[emulator.SP] = target >> 8 & 0xff
+    emulator.RAM[emulator.SP + 1] = target & 0xff
+    with pytest.raises(ac_exc.StackJumpError):
+        emulator._exec_rts(b"\xe2\x00\x00\x00")
