@@ -822,6 +822,11 @@ class AC100ASM:
         return self._check_len(bytecode)
 
 
+    def _assemble_rts(self, tokens: [str]) -> bytes:
+        bytecode = b"\xe2\x00\x00\x00"
+        return self._check_len(bytecode)
+
+
     def _assemble_halt(self):
         bytecode: bytes = b"\xfe\xff\xfe\xff"
         self._increment_offset()
@@ -912,6 +917,7 @@ class AC100ASM:
                 case "DEC": next_line = self._assemble_dec(tokens)
                 case "PUSH": next_line = self._assemble_push(tokens)
                 case "POP": next_line = self._assemble_pop(tokens)
+                case "RTS": next_line = self._assemble_rts(tokens)
                 case "HALT": next_line = self._assemble_halt()
                 case "NOP": next_line = self._assemble_nop()
                 case ";":       # comment; do nothing

@@ -210,6 +210,14 @@
   - Example: POP R3
     - Pop the top value V off the stack, store V in R3, and increment SP
   - Raises “stack empty” exception if SP == 0x0200 before POP
+- 0xE2 :: Return from Subroutine (RTS)
+  - Syntax: 0xE2 0x00 0x00 0x00
+  - Example: RTS
+    - Pop the top value off the stack, using it to set the program counter.
+      Assumes the value on the top of the stack is the address of an instruction
+      following a JSR.  Fails if the top value is a value in the range
+      [0x00000, 0x1ffe], which is stack space, or the value is not divisible by
+      4, which is a misaligned address for code.
 *** MISCELLANEOUS
 - 0xFE :: HALT
   - Syntax: 0xFE 0xFF 0xFE 0xFF

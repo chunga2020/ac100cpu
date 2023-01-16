@@ -1,0 +1,8 @@
+JSR putchar
+LDI R1 42
+INC R1
+JMP done
+putchar:
+RTS
+done:
+HALT

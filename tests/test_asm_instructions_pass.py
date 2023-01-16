@@ -3,7 +3,11 @@ import pytest
 
 import src.ac100asm as asm
 
-assembler = asm.AC100ASM()
+@pytest.fixture
+def assembler():
+    return asm.AC100ASM()
+
+asm.setup_logger("debug")
 test_srcd = pathlib.Path("asm_tests_passing")
 
 class TestAssemblerPasses:
@@ -109,9 +113,14 @@ class TestAssemblerPasses:
             ("pop-decimal-test01",
              b"\x00\x00\x00\x2a\xe0\x00\x00\x00\xe1\x01\x00\x00", 3, 0x20c,
              "POP assembly failed"),
+            ("rts-test01",
+             b"\x39\x00\x02\x10\x00\x00\x00\x2a\x42\x00\x00\x00\x38\x00\x02\x14"
+             b"\xe2\x00\x00\x00\xfe\xff\xfe\xff", 8, 0x214,
+             "RTS assembly failed"),
             ("nop-test01", b"\xff\xff\xff\xff", 1, 0x204, "NOP assembly failed")
         ])
-    def test_instruction(self, name, expected, lineno, offset, fail_msg):
+    def test_instruction(self, assembler, name, expected, lineno,
+                         offset, fail_msg):
         """
         name: name of the test
         expected: the expected bytecode
@@ -122,7 +131,8 @@ class TestAssemblerPasses:
         """
         source_file = pathlib.Path(test_srcd, name)
         with open(source_file, "r") as f:
-            assembler.find_labels(f)
+            ok = assembler.find_labels(f)
+            assert ok, "Failed to find labels"
             bytecode = assembler.assemble(f)
             assert bytecode == expected, fail_msg
             assert assembler.offset == offset,\
