@@ -169,30 +169,6 @@ class AC100:
         self.display = None
 
 
-    def initialize_VRAM(self, args) -> None:
-        """
-        Set up VRAM given a set of command-line arguments
-
-        Parameters:
-        args: the args from the argument parser
-
-        If either of the dimensions found on the command line are invalid in any
-        way, report it and use the default dimensions
-        """
-        dimensions = [defs.DEFAULT_VIDEO_ROWS, defs.DEFAULT_VIDEO_COLUMNS]
-        try:
-            dimensions = check_video_dimensions(args)
-        except ac_exc.NegativeVideoDimensionError as e:
-            logger.error(e)
-            dimensions = [defs.DEFAULT_VIDEO_ROWS, defs.DEFAULT_VIDEO_COLUMNS]
-        except ac_exc.VRAMTooLargeError as e:
-            logger.error(e)
-            dimensions = [defs.DEFAULT_VIDEO_ROWS, defs.DEFAULT_VIDEO_COLUMNS]
-
-        self.VIDEO_HEIGHT = dimensions[0]
-        self.VIDEO_WIDTH = dimensions[1]
-
-
     def initialize_video(self) -> None:
         """ Set up the curses-based emulated video display. """
         stdscr = curses.initscr()
